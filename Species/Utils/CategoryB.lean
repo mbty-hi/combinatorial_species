@@ -1,10 +1,4 @@
-import Mathlib.CategoryTheory.Category.Basic
+import Mathlib.CategoryTheory.Core
+import Mathlib.Data.Finset.Basic
 
-instance CategoryB : Category.SmallCategory where
-  hom _ _ := {}
-  id _ := id
-  comp f g :=
-
-  id_comp := by grind
-  comp_id := by grind
-  assoc := by grind
+def FinsetCore (α: Type) : Type := CategoryTheory.Core (Finset α)

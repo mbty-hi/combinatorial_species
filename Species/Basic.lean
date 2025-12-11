@@ -12,7 +12,7 @@ import Mathlib.Data.List.Permutation
 import Mathlib.Data.Set.Basic
 import Mathlib.Data.Tree.Basic
 import Mathlib.Logic.Equiv.Embedding
-/- import Species.Utils.CategoryB -/
+import Species.Utils.CategoryB
 
 class Species {F: Type → Type} where
   structures: {U: Type} → (labels: Finset U) → (Finset (F U))
@@ -26,9 +26,9 @@ class Species {F: Type → Type} where
     = ((@transport V W τ τ_bij) ∘ (@transport U V σ σ_bij)) f
   transport_id: ∀ (U: Type) (f: F U), transport Function.bijective_id f = id f
 
-/- /1- A species can be defined as an endofunctor on the category B (whose objects are FinSets and whose -/
-/-    morphisms are bijections) -1/ -/
-/- def SpeciesFunctorial {F: Type → Type} := Functor (CategoryB) -/
+/- A species can be defined as an endofunctor on the category B (whose objects are FinSets and whose
+   morphisms are bijections) -/
+def SpeciesFunctorial {F: Type → Type} := Functor (CategoryB)
 
 /- instance SpeciesFunctorial_to_Species {F: Type → Type} where -/
 
