@@ -4,15 +4,13 @@ import Init.Data.List.Find
 import Mathlib.Algebra.BigOperators.Group.Finset.Sigma
 import Mathlib.Algebra.BigOperators.Group.Finset.Pi
 import Mathlib.CategoryTheory.Category.Basic
-import Mathlib.CategoryTheory.Functor.Basic
-import Mathlib.CategoryTheory.Functor.Category
+import Mathlib.CategoryTheory.Core
 import Mathlib.Data.Finset.Basic
 import Mathlib.Data.Finset.Functor
 import Mathlib.Data.List.Permutation
 import Mathlib.Data.Set.Basic
 import Mathlib.Data.Tree.Basic
 import Mathlib.Logic.Equiv.Embedding
-import Species.Utils.CategoryB
 
 class Species {F: Type → Type} where
   structures: {U: Type} → (labels: Finset U) → (Finset (F U))
@@ -26,9 +24,12 @@ class Species {F: Type → Type} where
     = ((@transport V W τ τ_bij) ∘ (@transport U V σ σ_bij)) f
   transport_id: ∀ (U: Type) (f: F U), transport Function.bijective_id f = id f
 
-/- A species can be defined as an endofunctor on the category B (whose objects are FinSets and whose
-   morphisms are bijections) -/
-def SpeciesFunctorial {F: Type → Type} := Functor (CategoryB)
+def CatB (α: Type) : Type := CategoryTheory.Core (Finset α)
+
+/- /1- A species can be defined as an endofunctor on the category B (whose objects are FinSets and whose -/
+/-    morphisms are bijections) -1/ -/
+/- def SpeciesFunctorial {α β: Type} : Type := -/
+/-   Functor -/
 
 /- instance SpeciesFunctorial_to_Species {F: Type → Type} where -/
 

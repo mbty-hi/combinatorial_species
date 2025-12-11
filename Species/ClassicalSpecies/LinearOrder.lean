@@ -7,43 +7,42 @@ import Mathlib.Data.List.Permutation
 import Mathlib.Logic.Equiv.Embedding
 import Mathlib.Order.Defs.LinearOrder
 import Species.Basic
+import Species.Utils.DependentFunctional
 
 -- Linear orders
-class StrictLinOrder (α: Type) where
-  lt: α → α → Prop
-  lt_asymmetric: ∀a b, lt a b → ¬(lt b a)
-  lt_irreflexive: ∀a, ¬(lt a a)
-  lt_trans: ∀a b c, lt a b → lt b c → lt a c
-  lt_connected: ∀a b, a ≠ b → lt a b ∨ lt b a
-  -- TODO Only asymmetry and connectedness are strictly required
-
-structure StrictLinOrder_concrete (U: Type) where
+structure FinStrictLinOrder (U: Type) where
   order: List U
-  order_nodup: List.Nodup order
+  order_Nodup: List.Nodup order
 
-/- instance : StrictLinOrder StrictLinOrder_concrete where -/
-/-   lt: -/ 
+lemma permutations_preserves_nodup:
+  ∀ (A: Type) (l: List A),
+  l.Nodup → ∀l' ∈ l.permutations, l'.Nodup
+:= by
+  intro A l lnd
+  induction l with
+  | nil => simp
+  | cons h t =>
+    intro l' l'inp
+    apply List.mem_permutations.1 at l'inp
+    apply List.Nodup.perm lnd (List.Perm.symm l'inp)
 
-instance (F: Type → Type) (α: ∀U, LinearOrder (F U)) : @Species F where
+instance : @Species FinStrictLinOrder where
   structures := fun labels =>
     let ls_list := Finset.toList labels
     let ls_list_Nodup : ls_list.Nodup := by {
       unfold ls_list; apply Finset.nodup_toList
     }
     let perms := ls_list.permutations
-    let perms_Nodup : ∀p ∈ perms, p.Nodup := by {
-      intro p p_in_perms
-      sorry
-    }
+    let perms_Nodup : ∀p ∈ perms, p.Nodup := apply permutations_preserves_nodup (ls_list_Nodup)
+    let perms_ls : List FinStrictLinOrder :=
+      dependent_map (fun x xinp → (x, perms_Nodup xinp)) perms
     {List.map
-      (StrictLinOrder_concrete 
-
-      )
-      (List.permutations (Finset.toList ls))}
-  transport := by
-    intro U V σ σ_bij fu
-    apply (Set.image σ fu)
-  transport_trans := by
-    intro U V W σ σ_bij τ τ_bij f
-    simp; rw [Set.image_image]
-  transport_id := by simp
+      (fun (x, y) => { order := x; order_Nodup := y })
+      perms_ls}
+  /- transport := by -/
+  /-   intro U V σ σ_bij fu -/
+  /-   apply (Set.image σ fu) -/
+/-   transport_trans := by -/
+/-     intro U V W σ σ_bij τ τ_bij f -/
+/-     simp; rw [Set.image_image] -/
+/-   transport_id := by simp -/

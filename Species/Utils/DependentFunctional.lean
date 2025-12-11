@@ -17,10 +17,10 @@ def dependent_map {A B: Type} (l: List A) (f: (a: A) → a ∈ l → B) : List B
         apply (f a ah)
       . rfl
 
-lemma dependent_map_nil {A B: Type}:
-  ∀(f: (a: A) → a ∈ [] → B), dependent_map [] f = []
-:= by
-  simp [dependent_map]
+/- lemma dependent_map_nil {A B: Type}: -/
+/-   ∀(f: (a: A) → a ∈ [] → B), dependent_map [] f = [] -/
+/- := by -/
+/-   simp [dependent_map] -/
 
 /- lemma dependent_map_adapter {A B: Type}: -/
 /-   ∀(ref_list: List A) (sub_list: List A) (sl_in_rl: ∀x, x ∈ sub_list → x ∈ ref_list) -/
