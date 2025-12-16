@@ -32,26 +32,28 @@ def Nodup_List_to_Finset {α: Type} (l: List α) (lnd: l.Nodup) : Finset α := {
 }
 
 /- TODO workaround noncomputability -/
-instance : @Species FinStrictLinOrder where
-  structures := fun labels =>
-    let ls_list := Finset.toList labels
-    let ls_list_Nodup : ls_list.Nodup := by {
-      unfold ls_list; apply Finset.nodup_toList
-    }
-    let perms := ls_list.permutations
-    let perms_Nodup_internal : ∀p ∈ perms, p.Nodup := permutations_preserves_nodup (ls_list_Nodup)
-    let perms_Nodup_external : perms.Nodup := by
-      unfold perms; apply List.nodup_permutations; assumption
-    let perms_ls : List (FinStrictLinOrder _) :=
-      dependent_map perms (fun x xinp => FinStrictLinOrder.mk x (perms_Nodup_internal x xinp))
-    let perms_ls_Nodup : perms_ls.Nodup := by sorry
-    Nodup_List_to_Finset perms_ls perms_ls_Nodup
-  transport := by
-    intro U V σ σ_bij fu
-    sorry
-    /- apply (Set.image σ fu) -/
-  transport_trans := by
-    intro U V W σ σ_bij τ τ_bij f
-    simp
-    /- rw [Set.image_image] -/
-  transport_id := by simp; sorry
+/- instance : @Species FinStrictLinOrder where -/
+/-   structures := fun labels => -/
+/-     let ls_list := Finset.toList labels -/
+/-     let ls_list_Nodup : ls_list.Nodup := by { -/
+/-       unfold ls_list; apply Finset.nodup_toList -/
+/-     } -/
+/-     let perms := ls_list.permutations -/
+/-     let perms_Nodup_internal : ∀p ∈ perms, p.Nodup := permutations_preserves_nodup (ls_list_Nodup) -/
+/-     let perms_Nodup_external : perms.Nodup := by -/
+/-       unfold perms; apply List.nodup_permutations; assumption -/
+/-     let perms_ls : List (FinStrictLinOrder _) := -/
+/-       dependent_map perms (fun x xinp => FinStrictLinOrder.mk x (perms_Nodup_internal x xinp)) -/
+/-     let perms_ls_Nodup : perms_ls.Nodup := by -/
+/-         unfold perms_ls -/
+/-         unfold List.Nodup -/
+/-     Nodup_List_to_Finset perms_ls perms_ls_Nodup -/
+/-   transport := by -/
+/-     intro U V σ σ_bij fu -/
+/-     sorry -/
+/-     /1- apply (Set.image σ fu) -1/ -/
+/-   transport_trans := by -/
+/-     intro U V W σ σ_bij τ τ_bij f -/
+/-     simp -/
+/-     /1- rw [Set.image_image] -1/ -/
+/-   transport_id := by simp; sorry -/
