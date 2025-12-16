@@ -1,5 +1,7 @@
 /- Dependent counterparts to classical functional operations -/
+import Mathlib.Tactic.ApplyAt
 import Mathlib.Tactic.NthRewrite
+import Mathlib.Data.List.Nodup
 
 -- Map
 def dependent_map_aux
@@ -22,13 +24,13 @@ def dependent_map {A B: Type} (l: List A) (f: (a: A) → a ∈ l → B) : List B
 
 @[simp]
 theorem dependent_map_aux_nil {A B: Type}:
-  ∀rl (f: (a: A) → a ∈ rl → B), dependent_map_aux rl [] (List.nil_sublist rl) f = []
+  ∀ rl (f: (a: A) → a ∈ rl → B), dependent_map_aux rl [] (List.nil_sublist rl) f = []
 := by
   simp [dependent_map_aux]
 
 @[simp]
 theorem dependent_map_aux_nil_rl {A B: Type}:
-  ∀sl (slp: sl.Sublist []) (f: (a: A) → a ∈ [] → B), dependent_map_aux [] sl slp f = []
+  ∀ sl (slp: sl.Sublist []) (f: (a: A) → a ∈ [] → B), dependent_map_aux [] sl slp f = []
 := by
   intro sl slp f
   have foo : sl = [] := by rw [List.eq_nil_of_sublist_nil slp]
@@ -44,7 +46,7 @@ theorem dependent_map_nil {A B: Type}: ∀(f: (a: A) → a ∈ [] → B), depend
 
 @[simp]
 theorem dependent_map_aux_cons {A B: Type}:
-  ∀(h: A) (t rl: List A) (ht_sl_rl: (h::t).Sublist rl) (f: (a: A) → a ∈ rl → B),
+  ∀ (h: A) (t rl: List A) (ht_sl_rl: (h::t).Sublist rl) (f: (a: A) → a ∈ rl → B),
   let t_sl_rl : t.Sublist rl := List.sublist_of_cons_sublist ht_sl_rl
   let h_in_rl : h ∈ rl := List.mem_of_cons_sublist ht_sl_rl
   dependent_map_aux rl (h::t) ht_sl_rl f = (f h h_in_rl)::(dependent_map_aux rl t t_sl_rl f)
@@ -53,7 +55,7 @@ theorem dependent_map_aux_cons {A B: Type}:
 
 @[simp]
 theorem dependent_map_cons {A B: Type}:
-  ∀(h: A) (t: List A) (f: (a: A) → a ∈ h::t → B),
+  ∀ (h: A) (t: List A) (f: (a: A) → a ∈ h::t → B),
   let t_sl_rl : t.Sublist (h::t) := List.sublist_cons_self h t
   let h_in_rl : h ∈ h::t := List.mem_cons_self
   dependent_map (h::t) f = (f h h_in_rl)::(dependent_map_aux (h::t) t t_sl_rl f)
@@ -96,12 +98,53 @@ theorem map_to_dependent_map:
   simp [dependent_map]
   apply map_to_dependent_map_aux
 
-/- theorem dependent_map_inj_preserves_Nodup: -/
-/-   ∀(A B: Type) (l: List A) (f: (a: A) → a ∈ l → B), -/
-/-   l.Nodup → Function.Injective f → (dependent_map l f).Nodup -/
-/- := by -/
-/-   intro A B l f l_nd f_inj -/
+theorem dependent_map_aux_inj_unique_nodup {A B: Type}:
+  ∀ (rl sl: List A) (h: A) (_slp: (h :: sl).Sublist rl) (f: (a: A) → a ∈ rl → B)
+    (slp': sl.Sublist rl) (hp: h ∈ rl) (_h_nin_sl: h ∉ sl),
+  (∀ m n x y, f x y = f m n → m = x)
+  → (f h hp) ∉ dependent_map_aux rl sl slp' f
+:= by
+  intro rl sl h slp f slp' hp h_nin_sl f_inj
+  induction sl with
+  | nil => simp
+  | cons h' t' ih =>
+    simp
+    constructor
+    . have h_neq_h' : h ≠ h' := by intro ctr; subst ctr; simp at h_nin_sl
+      intro ctr; apply f_inj at ctr; subst ctr; simp at h_neq_h'
+    . apply ih
+      . apply (List.Sublist.trans (l₂ := h :: h' :: t')); simp; assumption
+      . intro ctr; apply List.not_mem_of_not_mem_cons at h_nin_sl; contradiction
 
+theorem dependent_map_aux_inj_preserves_Nodup {A B: Type}:
+  ∀ (rl sl: List A) (slp: sl.Sublist rl) (f: (a: A) → a ∈ rl → B),
+  sl.Nodup → (∀ m n x y, f x y = f m n → m = x) → (dependent_map_aux rl sl slp f).Nodup
+:= by
+  intro rl sl slp f sl_nd f_inj
+  induction sl with
+  | nil => simp
+  | cons h t ih =>
+    simp
+    constructor
+    . apply dependent_map_aux_inj_unique_nodup
+      . apply slp
+      . intro ctr; apply List.Nodup.notMem at sl_nd; contradiction
+      . apply f_inj
+    . have t_sl : t.Sublist rl := (List.sublist_of_cons_sublist slp)
+      have t_nd : t.Nodup := by
+        simp at sl_nd
+        obtain ⟨_, t_nd⟩ := sl_nd
+        assumption
+      specialize ih t_sl t_nd
+      apply ih
+
+theorem dependent_map_inj_preserves_Nodup:
+  ∀ (A B: Type) (l: List A) (f: (a: A) → a ∈ l → B),
+  l.Nodup → (∀ m n x y, f x y = f m n → m = x) → (dependent_map l f).Nodup
+:= by
+  intro A B l f l_nd f_inj
+  simp [dependent_map]
+  apply dependent_map_aux_inj_preserves_Nodup l l _ f l_nd f_inj
 
 -- Fold
 /-
