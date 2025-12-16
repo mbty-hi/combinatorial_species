@@ -27,6 +27,18 @@ theorem dependent_map_aux_nil {A B: Type}:
   simp [dependent_map_aux]
 
 @[simp]
+theorem dependent_map_aux_nil_rl {A B: Type}:
+  ∀sl (slp: sl.Sublist []) (f: (a: A) → a ∈ [] → B), dependent_map_aux [] sl slp f = []
+:= by
+  intro sl slp f
+  have foo : sl = [] := by rw [List.eq_nil_of_sublist_nil slp]
+  conv =>
+    left
+    . congr
+      . rw [foo]
+  simp
+
+@[simp]
 theorem dependent_map_nil {A B: Type}: ∀(f: (a: A) → a ∈ [] → B), dependent_map [] f = [] := by
   simp [dependent_map, dependent_map_aux]
 
@@ -48,27 +60,41 @@ theorem dependent_map_cons {A B: Type}:
 := by
   simp [dependent_map, dependent_map_aux]
 
-/- theorem generalize_dependent_map_aux {A B: Type}: -/
-/-     ∀ (rl sl sl': List A) (slp: sl.Sublist rl) (f: (a: A) → a ∈ rl → B) (sl_sl': sl = sl'), -/
-/-     let slp' : sl'.Sublist rl := by rw [sl_sl'] at slp; apply slp -/
-/-     dependent_map_aux rl sl slp f = dependent_map_aux rl sl' slp' f -/
-/-   := by -/
-/-     intro rl sl sl' slp f sl_sl' -/
-/-     sorry /1- A bit painful due to dependent types -1/ -/
+theorem generalize_dependent_map_aux {A B: Type}:
+  ∀ (rl sl sl': List A) (slp: sl.Sublist rl) (f: (a: A) → a ∈ rl → B) (sl_sl': sl = sl'),
+  let slp' : sl'.Sublist rl := by rw [sl_sl'] at slp; apply slp
+  dependent_map_aux rl sl slp f = dependent_map_aux rl sl' slp' f
+:= by
+  intro rl sl sl' slp f sl_sl' slp'
+  conv =>
+    rhs
+    congr
+    . rw [← sl_sl']
+    . rfl
 
-/- theorem map_to_dependent_map: -/
-/-   ∀{A B: Type} (f: A → B) (l: List A), -/
-/-   List.map f l = dependent_map l (fun x _ => f x) -/
-/- := by -/
-/-   intro A B f l -/
-/-   simp [dependent_map] -/
-/-   generalize hrl : l = rl -/
-/-   symm at hrl -/
-/-   rw [generalize_dependent_map_aux rl rl l (List.Sublist.refl rl) (fun x _ => f x) hrl] -/
-/-   induction l with -/
-/-   | nil => simp [dependent_map, dependent_map_aux] -/
-/-   | cons h t ih => -/
-/-     simp [dependent_map, dependent_map_aux] at * -/
+theorem generalize_dependent_map_aux_bis {A B: Type}:
+  ∀ (rl sl: List A) (slp: sl.Sublist rl) (f: (a: A) → a ∈ rl → B),
+  ∃ sl' slp', dependent_map_aux rl sl slp f = dependent_map_aux rl sl' slp' f
+:= by
+  intro rl sl slp f
+  exists sl, slp
+
+theorem map_to_dependent_map_aux:
+  ∀ {A B: Type} (f: A → B) (sl rl: List A) (rl_sl: sl.Sublist rl),
+  List.map f sl = dependent_map_aux rl sl rl_sl (fun x _ => f x)
+:= by
+  intro A B f sl
+  induction sl with
+  | nil => intro rl rl_sl; simp
+  | cons h t ih => intro rl rl_sl; simp; apply ih
+
+theorem map_to_dependent_map:
+  ∀ {A B: Type} (f: A → B) (l: List A),
+  List.map f l = dependent_map l (fun x _ => f x)
+:= by
+  intro A B f l
+  simp [dependent_map]
+  apply map_to_dependent_map_aux
 
 /- theorem dependent_map_inj_preserves_Nodup: -/
 /-   ∀(A B: Type) (l: List A) (f: (a: A) → a ∈ l → B), -/
