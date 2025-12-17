@@ -12,7 +12,7 @@ import Species.Utils.DependentFunctional
 -- Linear orders
 structure FinStrictLinOrder (U: Type) where
   order: List U
-  order_Nodup: List.Nodup order
+  order_Nodup: order.Nodup
 
 lemma permutations_preserves_nodup:
   ∀ {α: Type} {l: List α},
@@ -31,29 +31,56 @@ def Nodup_List_to_Finset {α: Type} (l: List α) (lnd: l.Nodup) : Finset α := {
   nodup := lnd
 }
 
+def transport_FinStrictLinOrder
+  {U V: Type} (F: FinStrictLinOrder U) {σ: U → V} (σ_bij: σ.Bijective)
+: FinStrictLinOrder V := {
+  order := F.order.map σ
+  order_Nodup := by
+    generalize oh : F.order = o
+    have ndh : o.Nodup := by rw [← oh]; apply F.order_Nodup
+    clear oh
+    induction o with
+    | nil => simp
+    | cons h t ih =>
+      simp
+      constructor
+      . intro x x_in_t ctr
+        apply List.nodup_cons.1 at ndh
+        obtain ⟨h_nin_t, _⟩ := ndh
+        have x_neq_h : x ≠ h := by
+          intro ctr; subst ctr; contradiction
+        apply Function.Bijective.injective at σ_bij
+        apply Function.Injective.eq_iff at σ_bij
+        apply σ_bij.1 at ctr; contradiction
+      . apply ih
+        apply List.Nodup.of_cons ndh
+}
+
 /- TODO workaround noncomputability -/
-/- instance : @Species FinStrictLinOrder where -/
-/-   structures := fun labels => -/
-/-     let ls_list := Finset.toList labels -/
-/-     let ls_list_Nodup : ls_list.Nodup := by { -/
-/-       unfold ls_list; apply Finset.nodup_toList -/
-/-     } -/
-/-     let perms := ls_list.permutations -/
-/-     let perms_Nodup_internal : ∀p ∈ perms, p.Nodup := permutations_preserves_nodup (ls_list_Nodup) -/
-/-     let perms_Nodup_external : perms.Nodup := by -/
-/-       unfold perms; apply List.nodup_permutations; assumption -/
-/-     let perms_ls : List (FinStrictLinOrder _) := -/
-/-       dependent_map perms (fun x xinp => FinStrictLinOrder.mk x (perms_Nodup_internal x xinp)) -/
-/-     let perms_ls_Nodup : perms_ls.Nodup := by -/
-/-         unfold perms_ls -/
-/-         unfold List.Nodup -/
-/-     Nodup_List_to_Finset perms_ls perms_ls_Nodup -/
-/-   transport := by -/
-/-     intro U V σ σ_bij fu -/
-/-     sorry -/
-/-     /1- apply (Set.image σ fu) -1/ -/
-/-   transport_trans := by -/
-/-     intro U V W σ σ_bij τ τ_bij f -/
-/-     simp -/
-/-     /1- rw [Set.image_image] -1/ -/
-/-   transport_id := by simp; sorry -/
+noncomputable instance : @Species FinStrictLinOrder where
+  structures := fun labels =>
+    let ls_list := Finset.toList labels
+    let ls_list_Nodup : ls_list.Nodup := by {
+      unfold ls_list; apply Finset.nodup_toList
+    }
+    let perms := ls_list.permutations
+    let perms_Nodup_internal : ∀p ∈ perms, p.Nodup := permutations_preserves_nodup (ls_list_Nodup)
+    let perms_Nodup_external : perms.Nodup := by
+      unfold perms; apply List.nodup_permutations; assumption
+    let f := (fun x xinp => FinStrictLinOrder.mk x (perms_Nodup_internal x xinp))
+    let perms_ls : List (FinStrictLinOrder _) :=
+      dependent_map perms (fun x xinp => FinStrictLinOrder.mk x (perms_Nodup_internal x xinp))
+    let perms_ls_Nodup : perms_ls.Nodup := by
+      apply dependent_map_inj_preserves_Nodup
+      . assumption
+      . intro m n x y eq; simp at eq; subst eq; rfl
+    Nodup_List_to_Finset perms_ls perms_ls_Nodup
+  transport := by
+    intro U V σ σ_bij fu
+    apply transport_FinStrictLinOrder fu σ_bij
+  transport_trans := by
+    unfold transport_FinStrictLinOrder
+    simp
+  transport_id := by
+    unfold transport_FinStrictLinOrder
+    simp
