@@ -68,10 +68,14 @@ lemma build_function_from_mappings_in_not_overridden_ok {U: Type} [DecidableEq U
   | cons h t ih =>
     have x_eq_u := eq_or_ne h.1 h_from
     simp [build_function_from_mappings]
-    obtain ⟨eq, neq⟩ := x_eq_u
-    . sorry
+    obtain eq | neq := x_eq_u
+    . rw [eq]; simp; apply mapping_unique; rw [← eq]; simp
     . rw [if_neg]
-      . sorry
+      . apply ih; simp at mapping_in_l
+        obtain in_h | in_t := mapping_in_l
+        . exfalso; apply neq; rw [← in_h]
+        . assumption
+        . intro h_to' alt_in_t; apply mapping_unique; simp; right; assumption
       . intro ctr; subst ctr; contradiction
 
 def undo_mapping? {U: Type} [BEq U] (l_from l_to: List U) (x: U) : Option U :=
@@ -150,7 +154,7 @@ lemma permutation_list_to_permutation_nil {U: Type} [DecidableEq U]:
   permutation_list_to_permutation [] l_to ls_perm = id
 := by
   intro lt lp
-  simp [permutation_list_to_permutation, dependent_map, build_function_from_mappings]
+  simp [permutation_list_to_permutation, dependent_map]
 
 lemma permutation_list_to_permutation_cons {U: Type} [DecidableEq U]:
   ∀(h: U) (t l_to: List U) (ls_perm: (h::t).Perm l_to),
@@ -163,13 +167,12 @@ lemma permutation_list_to_permutation_cons {U: Type} [DecidableEq U]:
 := by
   intro u t lto lto_perm
   simp [permutation_list_to_permutation]
-  simp [build_function_from_mappings]
   funext x
   simp [undo_mapping]
   have x_eq_u : x = u ∨ x ≠ u := by apply eq_or_ne x u
-  obtain ⟨eq, neq⟩ := x_eq_u
-  . simp
-  . sorry
+  obtain eq | neq := x_eq_u
+  . simp [eq]; sorry
+  . simp [neq]; sorry
 
 lemma permutation_list_to_permutation_bij {U: Type} [deq: DecidableEq U]:
   ∀(l_from l_to: List U) (ls_perm: l_from.Perm l_to),
@@ -181,13 +184,13 @@ lemma permutation_list_to_permutation_bij {U: Type} [deq: DecidableEq U]:
     rw [permutation_list_to_permutation_nil lt lp]
     apply Function.bijective_id
   | cons h t ih =>
-    s
+    sorry
 
 def perm_to_Permutation {U: Type} (l1 l2: List U) (hl: ∀x, x ∈ l1 ↔ x ∈ l2)
 : Permutation U := by
   constructor
   . constructor
-    .
+    . sorry
     . sorry
   . sorry
 
