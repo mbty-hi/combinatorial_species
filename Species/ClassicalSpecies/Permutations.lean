@@ -36,6 +36,43 @@ lemma build_function_from_mappings_cons {U: Type} [DecidableEq U]:
 := by
   simp [build_function_from_mappings]
 
+lemma build_function_from_mappings_applied_to_out {U: Type} [DecidableEq U]:
+  ∀ x_from (l: List (U×U)),
+  (∀y, y ∈ l → y.fst ≠ x_from)
+  → (build_function_from_mappings l) x_from = x_from
+:= by
+  intros x_from l
+  induction l with
+  | nil => simp
+  | cons h t ih =>
+    intros nin; obtain ⟨h_from, h_to⟩ := h; simp
+    have neq : h_from ≠ x_from := by specialize nin (h_from, h_to); apply nin; simp
+    rw [if_neg]
+    . apply ih; intros y y_in_t; apply nin; simp; right; assumption
+    . lia
+
+lemma build_function_from_mappings_applied_to_in {U: Type} [DecidableEq U]:
+  ∀ x_from (l: List (U×U)) x_to,
+  (x_from, x_to) ∈ l
+  → (∀z, z ∈ l → z.fst = x_from → z.snd = x_to)
+  → (build_function_from_mappings l) x_from = x_to
+:= by
+  intros x_from l
+  induction l with
+  | nil => intros x_to x_in_l x_from_unique; contradiction
+  | cons h t ih =>
+    intros x_to x_in_l x_from_unique
+    by_cases h_eq : (h.fst = x_from)
+    . simp [build_function_from_mappings];
+      rw [if_pos]; apply (x_from_unique h); simp; assumption; lia
+    . simp [build_function_from_mappings]
+      rw [if_neg]
+      . apply ih
+        . simp at x_in_l
+          obtain x_h | x_in_t := x_in_l; subst h; contradiction; assumption
+        . intros z z_in_t z_eq; apply x_from_unique; simp; right; assumption; apply z_eq
+      . lia
+
 lemma build_function_from_mappings_nondefault_result_corresponds_to_mapping
   {U: Type} [DecidableEq U]
 : ∀ h_from h_to (l: List (U×U)),
@@ -156,35 +193,56 @@ lemma permutation_list_to_permutation_nil {U: Type} [DecidableEq U]:
   intro lt lp
   simp [permutation_list_to_permutation, dependent_map]
 
-lemma permutation_list_to_permutation_cons {U: Type} [DecidableEq U]:
-  ∀(h: U) (t l_to: List U) (ls_perm: (h::t).Perm l_to),
-  have x : t.Perm (l_to.eraseIdx (l_to.idxOf h)) := by
-    apply List.cons_perm_iff_perm_erase.1 at ls_perm
-    obtain ⟨lth1, lth2⟩ := ls_perm
-    simp; assumption
-  permutation_list_to_permutation (h::t) l_to ls_perm
-  = permutation_list_to_permutation t (l_to.eraseIdx (l_to.idxOf h)) x
+lemma permutation_list_to_permutation_applied_to_other {U: Type} [DecidableEq U]:
+  ∀(l_from l_to: List U) (ls_perm: l_from.Perm l_to) (u: U),
+  u ∉ l_from
+  → (permutation_list_to_permutation l_from l_to ls_perm) u = u
 := by
-  intro u t lto lto_perm
-  simp [permutation_list_to_permutation]
-  funext x
-  simp [undo_mapping]
-  have x_eq_u : x = u ∨ x ≠ u := by apply eq_or_ne x u
-  obtain eq | neq := x_eq_u
-  . simp [eq]; sorry
-  . simp [neq]; sorry
-
-lemma permutation_list_to_permutation_bij {U: Type} [deq: DecidableEq U]:
-  ∀(l_from l_to: List U) (ls_perm: l_from.Perm l_to),
-  (permutation_list_to_permutation l_from l_to ls_perm).Bijective
-:= by
-  intro lf lt lp
-  induction lf with
-  | nil =>
-    rw [permutation_list_to_permutation_nil lt lp]
-    apply Function.bijective_id
+  intros l_from l_to ls_perm u u_nin
+  revert l_to
+  induction l_from with
+  | nil => simp
   | cons h t ih =>
+    intros l_from ls_perm
+    simp [permutation_list_to_permutation]
     sorry
+
+/- lemma permutation_list_to_permutation_bij {U: Type} [deq: DecidableEq U]: -/
+/-   ∀(l_from l_to: List U) (ls_perm: l_from.Perm l_to), -/
+/-   (permutation_list_to_permutation l_from l_to ls_perm).Bijective -/
+/- := by -/
+/-   intro lf -/
+/-   simp [Function.Bijective] -/
+/-   intro lt lp -/
+/-   constructor -/
+/-   . unfold Function.Injective -/
+/-     intros a₁ a₂ h_eq -/
+/-     have x : Decidable (a₁ ∈ lf) := by sorry -/
+/-     cases x with -/
+/-     | isTrue h => sorry -/
+/-     | isFalse h => apply permutation_list_to_permutation_applied_to_other -/
+
+/-     /1- Two cases: in list or not -1/ -/
+/-     have h : ∀a, a ∈ lf ∨ a ∉ lf := by -/
+/-       intro a; apply Decidable.em -/
+/-   . sorry -/
+
+/-   induction lf with -/
+/-   | nil => -/
+/-     intros lt lp -/
+/-     rw [permutation_list_to_permutation_nil lt lp] -/
+/-     apply Function.bijective_id -/
+/-   | cons h t ih => -/
+/-     intros lt lp -/
+/-     have simpl_lt : t.Perm (lt.erase h) := by -/
+/-       have t_revert : t = (h::t).erase h := by simp -/
+/-       rw [t_revert]; apply List.Perm.erase -/
+/-     specialize ih (lt.erase h) simpl_lt -/
+/-     obtain ⟨ih_inj, ih_surj⟩ := ih -/
+/-     constructor -/
+/-     . unfold Function.Injective -/
+/-       intros a₁ a₂ h_eq -/
+/-     . sorry -/
 
 def perm_to_Permutation {U: Type} (l1 l2: List U) (hl: ∀x, x ∈ l1 ↔ x ∈ l2)
 : Permutation U := by
@@ -194,14 +252,14 @@ def perm_to_Permutation {U: Type} (l1 l2: List U) (hl: ∀x, x ∈ l1 ↔ x ∈ 
     . sorry
   . sorry
 
-instance : @Species Permutation where
-  structures :=
-    fun ls =>
-      {ls.toList.permutations}
+/- instance : @Species Permutation where -/
+/-   structures := -/
+/-     fun ls => -/
+/-       {ls.toList.permutations} -/
 
-  transport := by sorry
-  transport_trans := by sorry
-  transport_id := by sorry
+/-   transport := by sorry -/
+/-   transport_trans := by sorry -/
+/-   transport_id := by sorry -/
 
 /-
 structure Permutation (U: Type) where
@@ -229,54 +287,50 @@ structure CyclicPermutation (U: Type) where
   data_is_permutation:
     ∀n, List.map (Prod.fst) data ∈ List.cyclicPermutations (List.range n)
 
-/-
 def Osef : Type := (a: ℕ) ×' (a%2 = 0)
 def Osef_instance : Osef :=
   let h: 0%2 = 0 := by simp
   ⟨0, h⟩
 -/
-#print Option
--/
 
 
-def list_zip_dep {A: Type} {B: A → Prop} (l: List A) (P: ∀x ∈ l, B x)
-: (List ((a: A) ×' B a)) := by
-  have f : (n: ℕ) → (n < l.length) → ((a: A) ×' B a) := by
-    intro n np
-    generalize x : l[n]? = h
-    match h with
-    | none => apply (List.getElem?_eq_getElem) at np; rw [x] at np; contradiction
-    | some y =>
-      apply List.mem_of_getElem? at x; apply P at x; constructor; apply x
-  apply (dependent_map (List.range (l.length)) f)
--/
+/- def list_zip_dep {A: Type} {B: A → Prop} (l: List A) (P: ∀x ∈ l, B x) -/
+/- : (List ((a: A) ×' B a)) := by -/
+/-   have f : (n: ℕ) → (n < l.length) → ((a: A) ×' B a) := by -/
+/-     intro n np -/
+/-     generalize x : l[n]? = h -/
+/-     match h with -/
+/-     | none => apply (List.getElem?_eq_getElem) at np; rw [x] at np; contradiction -/
+/-     | some y => -/
+/-       apply List.mem_of_getElem? at x; apply P at x; constructor; apply x -/
+/-   apply (dependent_map (List.range (l.length)) f) -/
 
-def permutations_from_labels {U: Type} (fs: Finset U)
-: Finset (Permutation U) :=
-  let ls := Finset.toList fs
-  let lp := List.permutations (List.range (List.length ls))
-  have lengths_eq : ∀x ∈ lp, x.length = ls.length := by
-    intro x xin
-    have h : ∀x ∈ lp, x.length = ls.length := by
-      intro y yinlp; unfold lp at yinlp
-      apply List.perm_of_mem_permutations at yinlp
-      apply List.Perm.length_eq at yinlp
-      rw [yinlp, List.length_range]
-    apply h; apply xin
-  let perms :
-    ∀x ∈ lp,
-    x.Perm (List.range (ls.length)) ∧ x.length = ls.length
-  := by
-    unfold lp
-    intro x xinlp
-    constructor
-    . rw [← List.mem_permutations]; assumption
-    . unfold lp at *
-      specialize lengths_eq x xinlp; assumption
-  let ConstrainedList : Type :=
-    (l: List ℕ)
-    ×' (l.length = ls.length ∧ l.Perm (List.range (ls.length)))
-  let elp : ConstrainedList := sorry
+/- def permutations_from_labels {U: Type} (fs: Finset U) -/
+/- : Finset (Permutation U) := -/
+/-   let ls := Finset.toList fs -/
+/-   let lp := List.permutations (List.range (List.length ls)) -/
+/-   have lengths_eq : ∀x ∈ lp, x.length = ls.length := by -/
+/-     intro x xin -/
+/-     have h : ∀x ∈ lp, x.length = ls.length := by -/
+/-       intro y yinlp; unfold lp at yinlp -/
+/-       apply List.perm_of_mem_permutations at yinlp -/
+/-       apply List.Perm.length_eq at yinlp -/
+/-       rw [yinlp, List.length_range] -/
+/-     apply h; apply xin -/
+/-   let perms : -/
+/-     ∀x ∈ lp, -/
+/-     x.Perm (List.range (ls.length)) ∧ x.length = ls.length -/
+/-   := by -/
+/-     unfold lp -/
+/-     intro x xinlp -/
+/-     constructor -/
+/-     . rw [← List.mem_permutations]; assumption -/
+/-     . unfold lp at * -/
+/-       specialize lengths_eq x xinlp; assumption -/
+/-   let ConstrainedList : Type := -/
+/-     (l: List ℕ) -/
+/-     ×' (l.length = ls.length ∧ l.Perm (List.range (ls.length))) -/
+/-   /1- let elp : ConstrainedList := sorry -1/ -/
 
 /-
   List.map
@@ -324,7 +378,6 @@ instance : @Species Permutation where
     simp; rw [Set.image_image]
   transport_id := by simp
 
-/-
 lemma foo: powerset (Finset.range 8) = powerset (Finset.range 0) := by
   simp [powerset, Set.Iio, Set.powerset]
 -/
