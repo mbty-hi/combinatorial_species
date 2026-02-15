@@ -17,7 +17,6 @@ structure Permutation (U: Type) where
   f: U → U
   f_bij: f.Bijective
 
-
 def build_function_from_mappings {U: Type} [DecidableEq U] (mappings: List (U×U)) : U → U :=
   match mappings with
   | [] => id
@@ -31,14 +30,14 @@ lemma build_function_from_mappings_nil {U: Type} [DecidableEq U]:
 
 @[simp]
 lemma build_function_from_mappings_cons {U: Type} [DecidableEq U]:
-  ∀ h_from h_to (t: List (U×U)),
+  ∀h_from h_to (t: List (U×U)),
   build_function_from_mappings ((h_from, h_to)::t)
   = (fun x => if x = h_from then h_to else build_function_from_mappings t x)
 := by
   simp [build_function_from_mappings]
 
 lemma build_function_from_mappings_applied_to_out {U: Type} [DecidableEq U]:
-  ∀ x_from (l: List (U×U)),
+  ∀x_from (l: List (U×U)),
   (∀y, y ∈ l → y.fst ≠ x_from)
   → (build_function_from_mappings l) x_from = x_from
 := by
@@ -53,7 +52,7 @@ lemma build_function_from_mappings_applied_to_out {U: Type} [DecidableEq U]:
     . lia
 
 lemma build_function_from_mappings_applied_to_in {U: Type} [DecidableEq U]:
-  ∀ x_from (l: List (U×U)) x_to,
+  ∀x_from (l: List (U×U)) x_to,
   (x_from, x_to) ∈ l
   → (∀z, z ∈ l → z.fst = x_from → z.snd = x_to)
   → (build_function_from_mappings l) x_from = x_to
@@ -203,15 +202,7 @@ def gen_mappings? {U: Type} [DecidableEq U] (l_from l_to: List U) : Option (List
     | some x => some ((h, h')::x)
   | _, _ => none
 
-lemma gen_mappings?_self {U: Type} [DecidableEq U] (l: List U):
-  (gen_mappings? l l).isSome = true
-:= by
-  induction l with
-  | nil => simp [gen_mappings?]
-  | cons h t ih =>
-    simp [gen_mappings?]; rw [Option.isSome_iff_exists] at ih; obtain ⟨x, xh⟩ := ih; simp [xh]
-
-lemma gen_mappings?_if_same_length {U: Type} [DecidableEq U] (l₁ l₂: List U):
+lemma gen_mappings?_if_same_length {U: Type} [DecidableEq U] {l₁ l₂: List U}:
   l₁.length = l₂.length
   → (gen_mappings? l₁ l₂).isSome = true
 := by
@@ -228,7 +219,7 @@ lemma gen_mappings?_if_same_length {U: Type} [DecidableEq U] (l₁ l₂: List U)
     obtain ⟨t', ht'⟩:= hh'
     subst l₂; simp at *; symm at length_l₂'
     simp [gen_mappings?]
-    specialize ih t' length_l₂'
+    specialize ih length_l₂'
     rw [Option.isSome_iff_exists] at ih; obtain ⟨x, xh⟩ := ih; simp [xh]
 
 lemma gen_mappings?_only_if_same_length {U: Type} [DecidableEq U] (l₁ l₂: List U):
@@ -256,6 +247,32 @@ lemma gen_mappings?_only_if_same_length {U: Type} [DecidableEq U] (l₁ l₂: Li
       | some x =>
         simp at *; have h : (gen_mappings? t t').isSome = true := by rw [mh]; simp
         apply ih h
+
+lemma gen_mappings?_self {U: Type} [DecidableEq U] (l: List U):
+  (gen_mappings? l l).isSome = true
+:= by
+  simp [gen_mappings?_if_same_length]
+
+lemma gen_mappings?_self_pairs_dup {U: Type} [DecidableEq U] (l: List U):
+  ∀ms,
+  gen_mappings? l l = some ms
+  → ∀x, x ∈ ms
+  → ∃k, (k ∈ l ∧ x = (k, k))
+:= by
+  induction l with
+  | nil =>
+    intros ms gen_succ x x_in_ms
+    simp [gen_mappings?] at *; subst ms; simp at x_in_ms
+  | cons h t ih =>
+    intros ms gen_succ x x_in_ms
+    simp [gen_mappings?] at *
+    have h := gen_mappings?_self t
+    rw [Option.isSome_iff_exists] at h; obtain ⟨ms', hms'⟩ := h
+    specialize ih ms' hms'; simp [hms'] at gen_succ
+    subst ms; simp at *
+    obtain a | b := x_in_ms
+    . left; lia
+    . right; specialize ih x.1 x.2 b; exists x.1; lia
 
 lemma gen_mappings?_trans {U: Type} [DecidableEq U] {l₁ l₂ l₃: List U}:
   (gen_mappings? l₁ l₂).isSome = true
@@ -287,6 +304,28 @@ def gen_mappings_from_perm
     rw [h] at h'; simp at h'
   | .some x => apply x
 
+lemma gen_mappings?_some_tail {U: Type} [DecidableEq U] {l_from l_to: List U}:
+  ∀ms, gen_mappings? l_from l_to = some ms → gen_mappings? l_from.tail l_to.tail = some ms.tail
+:= by
+  intros ms gm_ms
+  have lists_lengths := gen_mappings?_only_if_same_length _ _ (Option.isSome_of_eq_some gm_ms)
+  revert l_to ms
+  match l_from with
+  | .nil =>
+    intros l_to ms gm_ms lists_lengths
+    simp at *; symm at lists_lengths; apply List.eq_nil_of_length_eq_zero at lists_lengths
+    subst l_to; simp [gen_mappings?] at *; simp [gm_ms]
+  | .cons h t =>
+    intros l_to ms gm_ms lists_lengths
+    match l_to with
+    | .nil => contradiction
+    | .cons h' t' =>
+      simp [gen_mappings?] at *
+      generalize ho : gen_mappings? t t' = o
+      match o with
+      | .none => rw [ho] at gm_ms; contradiction
+      | .some x => rw [ho] at gm_ms; simp at gm_ms; subst ms; simp
+
 def build_function_from_pair_of_lists? {U: Type} [DecidableEq U] (l_from l_to: List U)
 : Option (U → U) :=
   match gen_mappings? l_from l_to with
@@ -299,7 +338,87 @@ lemma build_function_from_pair_of_lists?_nin_l_from_is_id
   → build_function_from_pair_of_lists? l_from l_to = some f
   → f h = h
 := by
-  sorry
+  intros x f x_nin_lf bs
+  simp [build_function_from_pair_of_lists?] at *
+  generalize ho : gen_mappings? l_from l_to = o
+  match o with
+  | .none => simp [ho] at bs
+  | .some y =>
+    simp [ho] at bs
+    have lengths := gen_mappings?_only_if_same_length _ _ (Option.isSome_of_eq_some ho)
+    revert l_to y f
+    clear o
+    induction l_from with
+    | nil =>
+      intros l_to f y ho bs lengths
+      have foo := build_function_from_mappings_applied_to_out x y; rw [← bs]; apply foo; intros z a
+      simp at *; symm at lengths; apply List.eq_nil_of_length_eq_zero at lengths; subst l_to
+      simp [gen_mappings?] at *; subst y; contradiction
+    | cons h t ih =>
+      intros l_to f y ho bs lengths
+      match l_to with
+      | .nil => contradiction
+      | .cons h' t' =>
+        simp at *
+        obtain ⟨x_neq_h, x_nin_t⟩ := x_nin_lf
+        simp [gen_mappings?] at ho
+        generalize hp : gen_mappings? t t' = p
+        match p with
+        | .none => simp [hp] at ho
+        | .some e =>
+          simp [hp] at ho
+          specialize @ih x_nin_t t' e hp lengths
+          subst y; simp [build_function_from_mappings] at bs; lia
+
+lemma build_function_from_pair_of_lists?_in_l_from_impl_image_in_l_to
+  {U: Type} [DecidableEq U] {l_from l_to: List U}
+  : ∀x f, x ∈ l_from
+  → build_function_from_pair_of_lists? l_from l_to = some f
+  → ∃k, k ∈ l_to ∧ f x = k
+:= by
+  intros x f x_in bfpl_some
+  simp [build_function_from_pair_of_lists?] at *
+  generalize ho : gen_mappings? l_from l_to = o
+  match o with
+  | .none => simp [ho] at bfpl_some
+  | .some y =>
+    clear o
+    simp [ho] at bfpl_some
+    have lengths := gen_mappings?_only_if_same_length _ _ (Option.isSome_of_eq_some ho)
+    revert l_from y f
+    induction l_to with
+    | nil =>
+      intros l_from f x_in y bfm ho lengths
+      simp at lengths; subst l_from; contradiction
+    | cons h t ih =>
+      intros l_from f x_in y bfm ho lengths
+      match l_from with
+      | .nil => contradiction
+      | .cons h' t' =>
+        simp [gen_mappings?] at *
+        generalize ho' : gen_mappings? t' t = o'
+        match o' with
+        | .none => simp [ho'] at bfm
+        | .some z =>
+          simp [ho'] at bfm; subst y; simp [build_function_from_mappings] at ho
+          obtain x_eq | x_in := x_in
+          . left; subst x f; simp
+          . subst f; simp
+            specialize ih (build_function_from_mappings z) x_in z ho'
+            simp at ih; specialize ih lengths
+            generalize d : (Decidable.decide (x = h)) = b
+            lia
+
+lemma build_function_from_pair_of_lists?_is_some_for_same_length
+  {U: Type} [DecidableEq U] {l_from l_to: List U}
+: l_from.length = l_to.length
+  → (build_function_from_pair_of_lists? l_from l_to).isSome = true
+:= by
+  intros same_length
+  unfold build_function_from_pair_of_lists?
+  have h : (gen_mappings? l_from l_to).isSome = true := by
+    apply gen_mappings?_if_same_length same_length
+  rw [Option.isSome_iff_exists] at h; obtain ⟨x, xh⟩ := h; simp [xh]
 
 lemma build_function_from_pair_of_lists?_is_some_for_perms
   {U: Type} [DecidableEq U] {l_from l_to: List U}
@@ -323,11 +442,86 @@ def build_function_from_perm {U: Type} [DecidableEq U]
     rw [h] at h'; simp at h'
   | .some x => apply x
 
+lemma build_function_from_pair_of_lists?_perm_same_index {U: Type} [DecidableEq U]
+  {l₁ l₂: List U} (l₁_nd: l₁.Nodup) (lengths: l₁.length = l₂.length) (f: U → U)
+: build_function_from_pair_of_lists? l₁ l₂ = some f
+  → ∀x, (p₁: x < l₁.length) → (p₂: x < l₂.length)
+  → f (l₁[x]'p₁) = (l₂[x]'p₂)
+:= by
+  intros a x p₁ p₂
+  revert l₂ f x
+  induction l₁ with
+  | nil =>
+    intros l₂ lengths f a x p₁ p₂
+    simp at p₁
+  | cons h t ih =>
+    intros l₂ lengths f a x p₁ p₂
+    match l₂ with
+    | .nil => simp at p₂
+    | .cons h' t' =>
+      simp at *
+      obtain ⟨h_nin, t_nd⟩ := l₁_nd
+      specialize @ih t_nd t'
+      simp [build_function_from_pair_of_lists?, gen_mappings?] at a
+      generalize hgm : gen_mappings? t t' = gm
+      match gm with
+      | .none => simp [hgm] at a
+      | .some m =>
+        simp [hgm] at a
+        simp [build_function_from_pair_of_lists?, hgm] at ih
+        match x with
+        | .zero => subst f; simp
+        | .succ x' =>
+          subst f; simp
+          simp [List.length] at p₁
+          simp [List.length] at p₂
+          have foo : t[x']'p₁ ≠ h := by
+            have tmp : t[x']'p₁ ∈ t := by apply List.getElem_mem p₁
+            lia
+          simp [foo]
+          specialize ih lengths x' p₁ p₂
+          assumption
+
+lemma build_function_from_pair_of_lists?_trans_perm_nodup_is_comp {U: Type} [DecidableEq U]
+  {l₁ l₂ l₃: List U} {f g: U → U}
+  (l₁_nd: l₁.Nodup) (l₁l₂p: l₁.Perm l₂) (l₂l₃p: l₂.Perm l₃)
+: build_function_from_pair_of_lists? l₁ l₂ = some f
+  → build_function_from_pair_of_lists? l₂ l₃ = some g
+  → build_function_from_pair_of_lists? l₁ l₃ = some (g ∘ f)
+:= by
+  intros fh gh
+  have l₂_nd := by apply List.Nodup.perm l₁_nd l₁l₂p
+  have l₁l₃p : l₁.Perm l₃ := by trans l₂; assumption; assumption
+  have bfm_some := build_function_from_pair_of_lists?_is_some_for_perms l₁l₃p
+  rw [Option.isSome_iff_exists] at bfm_some; obtain ⟨F, Fh⟩ := bfm_some
+  simp [Fh]; funext x
+  generalize hh₁ : (Decidable.decide (x ∈ l₁)) = vh₁
+  match vh₁ with
+  | .true =>
+    apply of_decide_eq_true at hh₁
+    have eh₁ := List.getElem_of_mem hh₁
+    obtain ⟨m₁, m₁p, hm₁⟩ := eh₁
+    have l₁l₂l : l₁.length = l₂.length := by apply List.Perm.length_eq at l₁l₂p; lia
+    have l₂l₃l : l₂.length = l₃.length := by apply List.Perm.length_eq at l₂l₃p; lia
+    have l₁l₃l : l₁.length = l₃.length := by apply List.Perm.length_eq at l₁l₃p; lia
+    have m₁p₂ : m₁ < l₂.length := by lia
+    have m₁p₃ : m₁ < l₃.length := by lia
+    have foo := build_function_from_pair_of_lists?_perm_same_index l₁_nd l₁l₂l f fh m₁ m₁p m₁p₂
+    have bar := build_function_from_pair_of_lists?_perm_same_index l₂_nd l₂l₃l g gh m₁ m₁p₂ m₁p₃
+    have baz := build_function_from_pair_of_lists?_perm_same_index l₁_nd l₁l₃l F Fh m₁ m₁p m₁p₃
+    lia
+  | .false =>
+    apply of_decide_eq_false at hh₁
+    have hh₂ : x ∉ l₂ := by
+      intros a; apply (List.Perm.mem_iff l₁l₂p).2 at a; contradiction
+    have foo := build_function_from_pair_of_lists?_nin_l_from_is_id x f hh₁ fh
+    have bar := build_function_from_pair_of_lists?_nin_l_from_is_id x g hh₂ gh
+    have baz := build_function_from_pair_of_lists?_nin_l_from_is_id x F hh₁ Fh
+    lia
+
 lemma build_function_from_pair_of_lists_Bijective_for_nodup_perms
   {U: Type} [DecidableEq U] (l_from l_to: List U) (nodup: l_from.Nodup) (perm: l_from.Perm l_to)
-: ∃x, (build_function_from_pair_of_lists? l_from l_to) = some x
-  ∧ x.Bijective
-:= by
+: ∃x, (build_function_from_pair_of_lists? l_from l_to) = some x ∧ x.Bijective := by
   induction perm with
   | nil =>
     simp [build_function_from_pair_of_lists?, gen_mappings?]
@@ -382,134 +576,62 @@ lemma build_function_from_pair_of_lists_Bijective_for_nodup_perms
           apply build_function_from_pair_of_lists?_nin_l_from_is_id h f h_nin_l₁ gen_ret_some
         lia
   | swap x y l =>
-
-    sorry
-  | @trans l₁ l₂ l₃ perm_l₁_l₂ perm_l₂_l₃ some₁₂ some₂₃ => sorry
-
-/-     simp [gen_mappings?] -/
-/-     have h := gen_mappings?_self l -/
-/-     rw [Option.isSome_iff_exists] at h -/
-/-     obtain ⟨x, xh⟩ := h -/
-/-     simp  [xh] -/
-/-     apply gen_mappings?_trans some₁₂ some₂₃ -/
-
-/- lemma gen_mappings?_ok_for_perm {U: Type} [DecidableEq U] (l_from l_to: List U): -/
-/-   l_from.Perm l_to -/
-/-   → (gen_mappings? l_from l_to).isSome = true -/
-/- := by -/
-/-   intros is_prem -/
-/-   apply -/
-/-   induction is_prem with -/
-/-   | nil => simp [gen_mappings?] -/
-/-   | @cons h l₁ l₂ perm is_some => -/
-/-     simp [gen_mappings?]; rw [Option.isSome_iff_exists] at is_some -/
-/-     obtain ⟨x, xh⟩ := is_some -/
-/-     simp [xh] -/
-/-   | swap x y l => -/
-/-     simp [gen_mappings?] -/
-/-     have h := gen_mappings?_self l -/
-/-     rw [Option.isSome_iff_exists] at h -/
-/-     obtain ⟨x, xh⟩ := h -/
-/-     simp  [xh] -/
-/-   | @trans l₁ l₂ l₃ perm_l₁_l₂ perm_l₂_l₃ some₁₂ some₂₃ => -/
-/-     apply gen_mappings?_trans some₁₂ some₂₃ -/
-
-/- lemma gen_function_from_mapping -/
-
-/- lemma gen_mappings_dep_preserves_l_from {U: Type} [DecidableEq U] : -/
-/-   ∀(l_from l_to: List U) (ls_perm: l_from.Perm l_to), -/
-/-   (List.unzip (gen_mappings_dep l_from l_to ls_perm)).fst = l_from -/
-/- := by -/
-/-   intros l_from -/
-/-   unfold gen_mappings_dep -/
-/-   unfold dependent_map -/
-/-   generalize h: l_from = ref_list -/
-/-   have h_tmp : -/
-/-     ∀x y, dependent_map_aux ref_list ref_list x y = dependent_map_aux ref_list l_from x y -/
-/-   := by -/
-/-     simp -/
-/-   induction l_from with -/
-/-   | nil => intros; simp [gen_mappings_dep] -/
-/-   | cons h t ih => -/
-/-     intros l_to ls_perm -/
-/-     simp at * -/
-/-     unfold gen_mappings_dep at * -/
-/-     rw [dependent_map_cons] at * -/
-/-     unfold dependent_map at ih -/
-/-     simp at * -/
-/-     rw [dependent_map_aux_cons] -/
-    
-/-     sorry -/
-
-def permutation_list_to_permutation {U: Type} [DecidableEq U]
-  (l_from l_to: List U) (ls_perm: l_from.Perm l_to)
-: U → U :=
-  build_function_from_mappings (gen_mappings_dep l_from l_to ls_perm)
-
-/- @[simp] -/
-/- lemma permutation_list_to_permutation_nil {U: Type} [DecidableEq U]: -/
-/-   ∀(l_to: List U) (ls_perm: [].Perm l_to), -/
-/-   permutation_list_to_permutation [] l_to ls_perm = id -/
-/- := by -/
-/-   intro lt lp -/
-/-   simp [permutation_list_to_permutation, dependent_map] -/
-
-/- lemma permutation_list_to_permutation_applied_to_other {U: Type} [DecidableEq U]: -/
-/-   ∀(l_from l_to: List U) (ls_perm: l_from.Perm l_to) (u: U), -/
-/-   u ∉ l_from -/
-/-   → (permutation_list_to_permutation l_from l_to ls_perm) u = u -/
-/- := by -/
-/-   intros l_from l_to ls_perm u u_nin -/
-/-   unfold permutation_list_to_permutation -/
-/-   apply build_function_from_mappings_applied_to_out -/
-/-   simp; intros a b in_res contra; subst a -/
-
-
-/-   revert l_to -/
-/-   induction l_from with -/
-/-   | nil => simp -/
-/-   | cons h t ih => -/
-/-     intros l_from ls_perm -/
-/-     intro y -/
-/-     simpu -/
-/-     sorry -/
-
-/- lemma permutation_list_to_permutation_bij {U: Type} [deq: DecidableEq U]: -/
-/-   ∀(l_from l_to: List U) (ls_perm: l_from.Perm l_to), -/
-/-   (permutation_list_to_permutation l_from l_to ls_perm).Bijective -/
-/- := by -/
-/-   intro lf -/
-/-   simp [Function.Bijective] -/
-/-   intro lt lp -/
-/-   constructor -/
-/-   . unfold Function.Injective -/
-/-     intros a₁ a₂ h_eq -/
-/-     have x : Decidable (a₁ ∈ lf) := by sorry -/
-/-     cases x with -/
-/-     | isTrue h => sorry -/
-/-     | isFalse h => apply permutation_list_to_permutation_applied_to_other -/
-
-/-     /1- Two cases: in list or not -1/ -/
-/-     have h : ∀a, a ∈ lf ∨ a ∉ lf := by -/
-/-       intro a; apply Decidable.em -/
-/-   . sorry -/
-
-/-   induction lf with -/
-/-   | nil => -/
-/-     intros lt lp -/
-/-     rw [permutation_list_to_permutation_nil lt lp] -/
-/-     apply Function.bijective_id -/
-/-   | cons h t ih => -/
-/-     intros lt lp -/
-/-     have simpl_lt : t.Perm (lt.erase h) := by -/
-/-       have t_revert : t = (h::t).erase h := by simp -/
-/-       rw [t_revert]; apply List.Perm.erase -/
-/-     specialize ih (lt.erase h) simpl_lt -/
-/-     obtain ⟨ih_inj, ih_surj⟩ := ih -/
-/-     constructor -/
-/-     . unfold Function.Injective -/
-/-       intros a₁ a₂ h_eq -/
-/-     . sorry -/
+    simp [build_function_from_pair_of_lists?, gen_mappings?] at *
+    obtain ⟨⟨y_neq_x, y_nin_l⟩, x_nin_l, l_nodup⟩ := nodup
+    have h : (gen_mappings? l l).isSome := by
+      simp [gen_mappings?_if_same_length]
+    rw [Option.isSome_iff_exists] at h; obtain ⟨ms_id, ms_id_origin⟩ := h
+    simp [ms_id_origin]
+    /- TODO externalize -/
+    have ms_id_is_id : ∀n, build_function_from_mappings ms_id n = n := by
+      clear x y y_neq_x y_nin_l x_nin_l l_nodup
+      revert ms_id_origin l
+      induction ms_id with
+      | nil => simp
+      | cons h t ih =>
+        intros l ms_id_origin n
+        generalize d: (Decidable.decide (n = h.1)) = b
+        simp [build_function_from_mappings]
+        match b with
+        | true =>
+          apply of_decide_eq_true at d; simp [d]
+          match l with
+          | .nil => simp [gen_mappings?] at ms_id_origin
+          | .cons h' t' =>
+            have z := gen_mappings?_self_pairs_dup (h'::t') (h::t) ms_id_origin h; simp at z; lia
+        | false =>
+          apply of_decide_eq_false at d; simp [d]
+          specialize ih (List.tail l)
+          apply ih
+          apply (gen_mappings?_some_tail _ ms_id_origin)
+    constructor
+    . unfold Function.Injective
+      intros a₁ a₂ ha
+      simp [ms_id_is_id] at ha; lia
+    . unfold Function.Surjective
+      intros b; simp [ms_id_is_id]
+      generalize dx: (Decidable.decide (b = x)) = b_x
+      generalize dy: (Decidable.decide (b = y)) = b_y
+      match b_x, b_y with
+      | _, true => exists x; lia
+      | true, false => exists y; lia
+      | false, false => exists b; lia
+  | @trans l₁ l₂ l₃ perm_l₁_l₂ perm_l₂_l₃ some₁₂ some₂₃ =>
+    have perm_l₁_l₃ : l₁.Perm l₃ := by
+      trans; apply perm_l₁_l₂; assumption
+    apply build_function_from_pair_of_lists?_is_some_for_perms at perm_l₁_l₃
+    rw [Option.isSome_iff_exists] at perm_l₁_l₃; obtain ⟨y, yh⟩ := perm_l₁_l₃
+    exists y; constructor; assumption
+    have l₂_nodup : l₂.Nodup := by apply List.Nodup.perm nodup; assumption
+    have l₃_nodup : l₃.Nodup := by apply List.Nodup.perm l₂_nodup; assumption
+    specialize some₁₂ nodup
+    specialize some₂₃ l₂_nodup
+    obtain ⟨f, hf, hfb⟩ := some₁₂
+    obtain ⟨g, hg, hgb⟩ := some₂₃
+    have foo :=
+      build_function_from_pair_of_lists?_trans_perm_nodup_is_comp nodup perm_l₁_l₂ perm_l₂_l₃ hf hg
+    simp [foo] at yh; subst y
+    apply Function.Bijective.comp; lia; lia
 
 def perm_to_Permutation {U: Type} (l1 l2: List U) (hl: ∀x, x ∈ l1 ↔ x ∈ l2)
 : Permutation U := by
@@ -523,7 +645,6 @@ def perm_to_Permutation {U: Type} (l1 l2: List U) (hl: ∀x, x ∈ l1 ↔ x ∈ 
 /-   structures := -/
 /-     fun ls => -/
 /-       {ls.toList.permutations} -/
-
 /-   transport := by sorry -/
 /-   transport_trans := by sorry -/
 /-   transport_id := by sorry -/
