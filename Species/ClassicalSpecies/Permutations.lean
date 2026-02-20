@@ -49,49 +49,6 @@ lemma build_function_from_mappings_applied_to_out {U: Type} [DecidableEq U]:
     . apply ih; intros y y_in_t; apply nin; simp; right; assumption
     . lia
 
-/- def get_preimage_dep {U: Type} [BEq U] -/
-/-   (l_from l_to: List U) (x y: U) (n: ℕ) (_x_idx: l_to.idxOf? x = some n) -/
-/-   (_l_from_nth: l_from[n]? = some y) -/
-/- : U := -/
-/-   y -/
-
-/- def gen_mappings_dep {U: Type} [DecidableEq U] (l_from l_to: List U) (ls_perm: l_from.Perm l_to) -/
-/- : List (U × U) := -/
-/-   dependent_map -/
-/-     l_from -/
-/-     (fun (x: U) (xinlf: x ∈ l_from) => -/
-/-       /1- We know that the element comes from l_from, and therefore that it exists in l_to -1/ -/
-/-       have xinlt : x ∈ l_to := by apply ((List.Perm.mem_iff ls_perm).1 xinlf) -/
-/-       have ls_len_eq := List.Perm.length_eq ls_perm -/
-/-       have n_in_range := List.idxOf_lt_length_iff.2 xinlt -/
-/-       have xn' := @List.idxOf_eq_getD_idxOf? U instBEqOfDecidableEq x l_to -/
-/-       /1- x is in l_to: we extract its index (we prove that it must exist first) -1/ -/
-/-       let idx_in_l_to : ((n: ℕ) ×' @l_to.idxOf? U instBEqOfDecidableEq x = some n) := by -/
-/-         constructor -/
-/-         generalize foo : @List.idxOf? U instBEqOfDecidableEq x l_to = u -/
-/-         rw [foo] at xn' -/
-/-         match u with -/
-/-         | .none => -/
-/-           simp at *; apply Nat.ne_of_lt at n_in_range -/
-/-           rw [← xn'] at n_in_range; apply n_in_range; rfl -/
-/-         | .some c => simp at *; rw [← xn'] -/
-/-       let ⟨idx_in_l_to, idx_in_l_to_proof⟩ := idx_in_l_to -/
-/-       /1- In l_from, there exists an element that has index idx_in_l_to -1/ -/
-/-       let l_from_value_at_idx : ((y: U) ×' (l_from[idx_in_l_to]? = some y)) := by -/
-/-         rw [← ls_len_eq] at n_in_range; simp [idx_in_l_to_proof] at xn' -/
-/-         rw [xn'] at n_in_range -/
-/-         apply List.getElem?_eq_getElem at n_in_range; rw [n_in_range]; simp -/
-/-         constructor; rfl -/
-/-       let ⟨l_from_value_at_idx, l_from_value_at_idx_proof⟩ := l_from_value_at_idx -/
-/-       (x, -/
-/-        @get_preimage_dep -/
-/-          U instBEqOfDecidableEq -/
-/-          l_from l_to x l_from_value_at_idx -/
-/-          idx_in_l_to -/
-/-          idx_in_l_to_proof l_from_value_at_idx_proof -/
-/-       ) -/
-/-     ) -/
-
 def gen_mappings? {U: Type} [DecidableEq U] (l_from l_to: List U) : Option (List (U × U)) :=
   match l_from, l_to with
   | [], [] => some []
@@ -154,17 +111,6 @@ lemma gen_mappings?_is_some_for_perms {U: Type} [DecidableEq U] {l_from l_to: Li
   intros is_prem
   apply List.Perm.length_eq at is_prem
   apply gen_mappings?_if_same_length; assumption
-
-def gen_mappings_from_perm
-  {U: Type} [DecidableEq U] {l_from l_to: List U} (perm: l_from.Perm l_to)
-: List (U × U) := by
-  generalize h : gen_mappings? l_from l_to = o
-  match o with
-  | .none =>
-    have h' : (gen_mappings? l_from l_to).isSome = true := by
-      apply gen_mappings?_is_some_for_perms perm
-    rw [h] at h'; simp at h'
-  | .some x => apply x
 
 def build_function_from_pair_of_lists? {U: Type} [DecidableEq U] (l_from l_to: List U)
 : Option (U → U) :=
