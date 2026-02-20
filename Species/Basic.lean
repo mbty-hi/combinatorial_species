@@ -13,7 +13,7 @@ import Mathlib.Data.Tree.Basic
 import Mathlib.Logic.Equiv.Embedding
 
 class Species {F: Type → Type} where
-  structures: {U: Type} → (labels: Finset U) → (Finset (F U))
+  structures: {U: Type} → [DecidableEq U] → (labels: Finset U) → (Finset (F U))
   transport: {U V: Type} → {σ: U → V} → (σ_bij: Function.Bijective σ) → (f: F U) → F V
   transport_trans:
     ∀ (U V W: Type)
@@ -22,7 +22,7 @@ class Species {F: Type → Type} where
       (f: F U),
     @transport U W (τ ∘ σ) (Function.Bijective.comp τ_bij σ_bij) f
     = ((@transport V W τ τ_bij) ∘ (@transport U V σ σ_bij)) f
-  transport_id: ∀ (U: Type) (f: F U), transport Function.bijective_id f = id f
+  transport_id: ∀(U: Type) (f: F U), transport Function.bijective_id f = id f
 
 def CatB (α: Type) : Type := CategoryTheory.Core (Finset α)
 
