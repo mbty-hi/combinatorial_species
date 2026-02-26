@@ -24,7 +24,7 @@ structure Permutation (U: Type) where
 /- def image {U V: Type} (σ: U → V) (σ_bij: σ.Bijective) : Permutation V := by -/
 /-   apply Function.bijective_iff_has_inverse σ_bij -/
 /-   Permutation { -/
-/-     f: -/ 
+/-     f: -/
 
 def build_function_from_mappings {U: Type} [DecidableEq U] (mappings: List (U×U)) : U → U :=
   match mappings with
@@ -545,7 +545,7 @@ lemma get_first_difference_idx?_is_difference
     | .nil => simp
     | .cons h₂ t₂ =>
       generalize d : (Decidable.decide (h₁ = h₂)) = b
-      intros idx x y fds 
+      intros idx x y fds
       match b with
       | false => apply of_decide_eq_false at d; simp [d] at fds; simp [← fds]; lia
       | true  =>
@@ -630,7 +630,7 @@ lemma good_form
     have x := nodup_perm_lists_to_inj_on_l_to nd perm₁ perm₂ d
     contradiction
 
-instance : @Species Permutation where
+noncomputable instance : @Species Permutation where
   structures :=
     fun labels =>
       let ls := labels.toList
@@ -638,38 +638,27 @@ instance : @Species Permutation where
       let ps := ls.permutations
       have p_in_ps_is_ls_perm : ∀p, p ∈ ps → ls.Perm p := by
         intros p p_in_ps; subst ps; symm; apply List.perm_of_mem_permutations; assumption
+      have ps_nd : ps.Nodup := by apply List.nodup_permutations; assumption
       let ls_fcts :=
         dependent_map
            ps
            (fun p p_in_ps =>
              have ls_perm_p : ls.Perm p := by apply (p_in_ps_is_ls_perm p p_in_ps)
-             nodup_perm_lists_to_Permutation ls p ls_nd ls_perm_p
+             nodup_perm_lists_to_Permutation ls p ls_perm_p ls_nd
            )
       have ls_fcts_nodup : ls_fcts.Nodup := by
-        subst ls_fcts; simp
-        have ps_nodup : ps.Nodup := by apply List.nodup_permutations ls ls_nd
-        apply dependent_map_aux_inj_preserves_Nodup; apply ps_nodup
-        intros l₁ l₁in l₂ l₂in eq
-        have perm₁ := p_in_ps_is_ls_perm l₁ l₁in
-        have perm₂ := p_in_ps_is_ls_perm l₂ l₂in
-        apply good_form ls_nd perm₁ perm₂
-        lia
+        subst ls_fcts; apply dependent_map_inj_preserves_Nodup; apply ps_nd
+        intros l₁ l₁in l₂ l₂in eq; simp [nodup_perm_lists_to_Permutation] at eq; lia
       ({
         val := Multiset.ofList ls_fcts,
         nodup := ls_fcts_nodup,
       } : Finset _)
   transport := by
     intros U V σ bij pu
-    have inv := Function.bijective_iff_has_inverse.1 bij
-    obtain ⟨g, hg⟩ := inv
-    
-    /- TODO get σ' -/
-    /- pu.map σ -/ 
-    /- obtain ⟨f, f_bij⟩ := pu -/
-    /- constructor; rotate_left; intro v -/
-
-
-
-
-  transport_trans := by sorry
-  transport_id := by sorry
+    constructor; rotate_left; rotate_left
+    . apply List.map σ pu.l_from
+    . apply List.map σ pu.l_to
+    . apply List.Perm.map; apply pu.perm
+    . apply List.Nodup.map bij.1 pu.nodup
+  transport_trans := by simp
+  transport_id := by simp
