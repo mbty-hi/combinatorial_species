@@ -2,3 +2,4 @@
 -- Import modules here that should be built as part of the library.
 import Species.Basic
 import Species.ClassicalSpecies.LinearOrder
+import Species.ClassicalSpecies.KRestriction

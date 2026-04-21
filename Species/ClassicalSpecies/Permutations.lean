@@ -187,7 +187,7 @@ lemma build_function_from_pair_of_lists?_in_l_from_impl_image_in_l_to
             generalize d : (Decidable.decide (x = h)) = b
             lia
 
-def build_function_from_pair_of_lists?_is_some_for_same_length
+lemma build_function_from_pair_of_lists?_is_some_for_same_length
   {U: Type} [DecidableEq U] {l_from l_to: List U}
 : l_from.length = l_to.length
   → (build_function_from_pair_of_lists? l_from l_to).isSome = true
@@ -198,7 +198,7 @@ def build_function_from_pair_of_lists?_is_some_for_same_length
     apply gen_mappings?_if_same_length same_length
   rw [Option.isSome_iff_exists] at h; obtain ⟨x, xh⟩ := h; simp [xh]
 
-def build_function_from_pair_of_lists?_is_some_for_perms
+lemma build_function_from_pair_of_lists?_is_some_for_perms
   {U: Type} [DecidableEq U] {l_from l_to: List U}
 : l_from.Perm l_to
   → (build_function_from_pair_of_lists? l_from l_to).isSome = true
@@ -212,8 +212,7 @@ def build_function_from_pair_of_lists?_is_some_for_perms
   | .none => simp [ho] at h
   | .some x => simp
 
-def build_function_from_perm? {U: Type} [DecidableEq U] (p: Permutation U)
-: Option (U → U) :=
+def build_function_from_perm? {U: Type} [DecidableEq U] (p: Permutation U) : Option (U → U) :=
   build_function_from_pair_of_lists? p.l_from p.l_to
 
 lemma build_function_from_perm?_is_some {U: Type} [DecidableEq U] (p: Permutation U) :
@@ -254,26 +253,44 @@ def build_function_from_perm_ok {U: Type} [DecidableEq U] (p: Permutation U) :
   | none => intros is_some; simp at *
   | some x => intros is_some; apply x
 
-/- @[simp] def get_perm_inverse_ok {U: Type} [DecidableEq U]: -/
-/-   ∀(p: Permutation U), (get_perm_inverse p) ∘ (get_perm_function p) = id -/
-/- := by -/
-/-   intros p -/
-/-   generalize ho₁: build_function_from_pair_of_lists? p.l_from p.l_to = o₁ -/
-/-   generalize ho₂: build_function_from_pair_of_lists? p.l_to p.l_from = o₂ -/
-/-   simp -/
-/-   match o₁, o₂ with -/
-/-   | .none, _ | _, .none => -/
-/-     have is_some₁ := build_function_from_pair_of_lists?_is_some_for_perms p.perm -/
-/-     have is_some₂ := build_function_from_pair_of_lists?_is_some_for_perms (List.Perm.symm p.perm) -/
-/-     simp [ho₁, ho₂] at * -/
-/-   | .some x₁, .some x₂ => -/
-/-     rw! [ho₁, ho₂]; simp -/
-/-     funext x -/
-/-     generalize h_in_from : p.l_from.contains x = in_from -/
-/-     match in_from with -/
-/-     | .true => -/
-/-       simp -/
-/-     | .false => sorry -/
+@[simp] def get_perm_inverse_ok {U: Type} [DecidableEq U]:
+  ∀(p: Permutation U), (get_perm_inverse p) ∘ (get_perm_function p) = id
+:= by
+  intros p
+  generalize ho₁: build_function_from_pair_of_lists? p.l_from p.l_to = o₁
+  generalize ho₂: build_function_from_pair_of_lists? p.l_to p.l_from = o₂
+  simp
+  match o₁, o₂ with
+  | .none, _ | _, .none =>
+    have is_some₁ := build_function_from_pair_of_lists?_is_some_for_perms p.perm
+    have is_some₂ := build_function_from_pair_of_lists?_is_some_for_perms (List.Perm.symm p.perm)
+    simp [ho₁, ho₂] at *
+  | .some x₁, .some x₂ =>
+    rw! [ho₁, ho₂]; simp
+    funext x
+    unfold build_function_from_pair_of_lists? at ho₁
+    unfold build_function_from_pair_of_lists? at ho₂
+    generalize h_in_from : p.l_from.contains x = in_from
+    match in_from with
+    | .true =>
+      simp
+      have is_in := List.contains_iff.1 h_in_from
+      have osef :=
+        build_function_from_pair_of_lists?_in_l_from_impl_image_in_l_to
+          x x₁ is_in ho₁
+      obtain ⟨k, ⟨k_in, f_res⟩⟩ := osef
+      simp [f_res]
+      have osef :=
+        build_function_from_pair_of_lists?_in_l_from_impl_image_in_l_to
+          k x₂ k_in ho₂
+      obtain ⟨k', ⟨k'_in, f_res'⟩⟩ := osef
+      simp [f_res']
+      /- generalize heq : (Decidable.decide (k' = x)) = eq -/
+      /- match eq with -/
+      /- | true => lia -/
+      /- | false => -/
+      /-   apply of_decide_eq_false at heq -/
+    | .false => sorry
 
 /- lemma get_perm_function_bijective {U: Type} [DecidableEq U] (p: Permutation U) : -/
 /-   (get_perm_function p).Bijective -/
