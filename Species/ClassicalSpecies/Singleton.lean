@@ -4,7 +4,7 @@ structure SSingleton {U: Type} where
   value : U
 open SSingleton
 
-instance : @Species @SSingleton where
+instance SingletonSpecies: @Species @SSingleton where
   structures :=
     fun labels => by
       apply Finset.map

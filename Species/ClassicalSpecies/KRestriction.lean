@@ -1,6 +1,6 @@
 import Species.Basic
 
-instance (F: Type → Type) [FS: @Species F] (k: ℕ) : @Species F where
+instance KRestriction (F: Type → Type) [FS: @Species F] (k: ℕ) : @Species F where
   structures :=
     fun labels =>
       if labels.card == k
@@ -15,3 +15,7 @@ instance (F: Type → Type) [FS: @Species F] (k: ℕ) : @Species F where
   transport_id := by
     intros U fu
     apply Species.transport_id
+
+/- TODO singleton.lean vs this -/
+instance SingletonSpeciesBis (F : Type → Type) [FS : @Species F] : @Species F :=
+  KRestriction F 1

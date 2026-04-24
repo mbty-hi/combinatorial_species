@@ -18,7 +18,7 @@ def nodup_perm_lists_to_Permutation {U: Type} [DecidableEq U]
     nodup  := nd,
   }
 
-noncomputable instance : @Species Permutation where
+noncomputable instance PermutationSpecies: @Species Permutation where
   structures :=
     fun labels =>
       let ls := labels.toList

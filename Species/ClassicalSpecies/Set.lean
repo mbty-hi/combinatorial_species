@@ -10,8 +10,8 @@ import Mathlib.Order.Defs.LinearOrder
 import Species.Basic
 
 -- Set
-instance : @Species Set where
-  structures := fun ls => {Finset.toSet ls}
+instance SetSpecies: @Species Set where
+  structures := fun ls => {↑ls}
   transport := by
     intro U V σ σ_bij fu
     apply (Set.image σ fu)

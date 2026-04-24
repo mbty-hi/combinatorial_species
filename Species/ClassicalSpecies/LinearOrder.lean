@@ -57,7 +57,7 @@ def transport_FinStrictLinOrder
 }
 
 /- TODO workaround noncomputability -/
-noncomputable instance : @Species FinStrictLinOrder where
+noncomputable instance LinearOrderSpecies: @Species FinStrictLinOrder where
   structures := fun labels =>
     let ls_list := Finset.toList labels
     let ls_list_Nodup : ls_list.Nodup := by {

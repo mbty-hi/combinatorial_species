@@ -11,7 +11,7 @@ import Mathlib.Order.Defs.LinearOrder
 import Basic
 
 -- Finset
-instance : @Species Finset where
+instance FinsetSpecies: @Species Finset where
   structures := fun ls => {ls}
   transport := by
     intro U V σ σ_bij fu
