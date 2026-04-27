@@ -1,14 +1,5 @@
-import Init.Control.Lawful.Basic
-import Init.Data.List.Perm
-import Init.Data.List.Find
 import Mathlib.Data.Finset.Basic
-import Mathlib.Data.Finset.Functor
-import Mathlib.Data.List.Permutation
-import Mathlib.Data.Set.Basic
-import Mathlib.Data.Tree.Basic
-import Mathlib.Logic.Equiv.Embedding
-import Mathlib.Order.Defs.LinearOrder
-import Basic
+import Species.Basic
 
 -- Finset
 instance FinsetSpecies: @Species Finset where

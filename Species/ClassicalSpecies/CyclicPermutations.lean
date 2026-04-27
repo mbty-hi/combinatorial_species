@@ -1,4 +1,3 @@
-import Mathlib.Data.List.Permutation
 import Species.Basic
 
 /- The head of the ref_list is always the (implicit) first (or last, depending on how you view

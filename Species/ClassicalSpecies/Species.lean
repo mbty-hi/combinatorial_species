@@ -1,0 +1,11 @@
+import Species.ClassicalSpecies.CyclicPermutations
+import Species.ClassicalSpecies.Empty
+import Species.ClassicalSpecies.EmptySet
+import Species.ClassicalSpecies.Finset
+import Species.ClassicalSpecies.KRestriction
+import Species.ClassicalSpecies.LinearOrder
+import Species.ClassicalSpecies.Permutations
+import Species.ClassicalSpecies.Set
+import Species.ClassicalSpecies.Singleton
+import Species.ClassicalSpecies.SortedList
+

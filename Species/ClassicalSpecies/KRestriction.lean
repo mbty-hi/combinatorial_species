@@ -16,6 +16,8 @@ instance KRestriction (F: Type → Type) [FS: @Species F] (k: ℕ) : @Species F 
     intros U fu
     apply Species.transport_id
 
-/- TODO singleton.lean vs this -/
-instance SingletonSpeciesBis (F : Type → Type) [FS : @Species F] : @Species F :=
+instance KRestrictionToZero (F : Type → Type) [FS : @Species F] : @Species F :=
+  KRestriction F 1
+
+instance KRestrictionToOne (F : Type → Type) [FS : @Species F] : @Species F :=
   KRestriction F 1

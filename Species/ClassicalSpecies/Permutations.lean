@@ -1,4 +1,3 @@
-import Mathlib.Data.List.Permutation
 import Species.Basic
 
 -- Permutations

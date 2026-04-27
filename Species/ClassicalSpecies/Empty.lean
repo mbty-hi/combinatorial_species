@@ -3,7 +3,7 @@ import Species.Basic
 inductive SEmpty (U: Type) where
 
 instance EmptySpecies: @Species SEmpty where
-  structures := fun labels => {}
-  transport := by intros; contradiction
-  transport_trans := by intros; contradiction
-  transport_id := by intros; contradiction
+  structures      := fun _ => {}
+  transport       := fun _ empty => nomatch empty
+  transport_trans := fun _ _ _ _ _ _ _ empty => nomatch empty
+  transport_id    := fun _ empty => nomatch empty
