@@ -4,6 +4,10 @@ import Mathlib.Tactic.NthRewrite
 import Mathlib.Data.List.Nodup
 
 -- Map
+-- This definition of `dependent_map` is stronger than that of `map` as it provides a proof of the
+-- fact that the element being mapped belongs to the original list to the function doing the
+-- mapping.
+-- TODO stdlib's pmap actually does that same, switch to it.
 def dependent_map_aux
   {A B: Type} (ref_list: List A) (sub_list: List A) (sub_list_Sublist: sub_list.Sublist ref_list)
   (f: (a: A) → a ∈ ref_list → B)
@@ -145,17 +149,3 @@ theorem dependent_map_inj_preserves_Nodup:
   intro A B l f l_nd f_inj
   simp [dependent_map]
   apply dependent_map_aux_inj_preserves_Nodup l l _ f l_nd f_inj
-
--- Fold
-/-
-def dependent_foldl
-  {A ACC: Type}
-  (l: List A) (n: ℕ) (acc_init: ACC) (acc: ACC) (ll: n < l.length)
-  (acch:
-    acc =
-      match n with
-      | .zero => acc_init
-      | .succ n' => dependent_foldl l n' acc_init
-  )
-: ACC := by
--/
