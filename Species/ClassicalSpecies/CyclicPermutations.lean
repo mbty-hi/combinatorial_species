@@ -1,6 +1,5 @@
 import Mathlib.Data.List.Permutation
 import Species.Basic
-import Species.Utils.DependentFunctional
 
 /- The head of the ref_list is always the (implicit) first (or last, depending on how you view
    things) element in `data` (our explicit cycle list): this is how we avoid cyclical redundancy
@@ -17,9 +16,8 @@ def make_cyclic_permutations {U: Type} (labels: List U) (labels_nd: labels.Nodup
   have p_in_tail_perms_is_perm_of_labels_tail : ∀p, p ∈ tail_perms → labels.tail.Perm p := by
     intros p p_in_tail_perms; subst tail_perms; symm; apply List.perm_of_mem_permutations
     apply p_in_tail_perms
-  dependent_map
-    tail_perms
-    (fun p p_in_ps =>
+  List.pmap
+    (fun (p: List U) p_in_ps =>
       have p_perm_labels : p.Perm labels.tail := by
         apply List.Perm.symm; apply (p_in_tail_perms_is_perm_of_labels_tail p p_in_ps)
       {
@@ -29,6 +27,8 @@ def make_cyclic_permutations {U: Type} (labels: List U) (labels_nd: labels.Nodup
         is_cyclic_permutation := p_perm_labels,
       }
     )
+    tail_perms
+    (fun _ is_in => is_in)
 
 lemma make_cyclic_permutations_nodup {U: Type}:
   ∀(labels: List U) (labels_nd: labels.Nodup),
@@ -36,15 +36,14 @@ lemma make_cyclic_permutations_nodup {U: Type}:
 := by
   intros labels labels_nd
   induction labels with
-  | nil => simp [make_cyclic_permutations, dependent_map]
+  | nil => simp [make_cyclic_permutations]
   | cons h t ih =>
     have t_nd : t.Nodup := List.Nodup.of_cons labels_nd
     specialize ih t_nd
     simp [make_cyclic_permutations] at *
-    have t_permutations_nd : t.permutations.Nodup := List.nodup_permutations _ t_nd
-    apply dependent_map_inj_preserves_Nodup
-    . apply t_permutations_nd
+    apply List.Nodup.pmap
     . intros p p_in_t_permutations p' p'_in_t_permutations eq; cases eq; rfl
+    . apply (List.nodup_permutations _ t_nd)
 
 noncomputable instance CyclicPermutationSpecies: @Species CyclicPermutation where
   structures :=

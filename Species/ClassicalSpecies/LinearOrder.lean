@@ -7,7 +7,6 @@ import Mathlib.Data.List.Permutation
 import Mathlib.Logic.Equiv.Embedding
 import Mathlib.Order.Defs.LinearOrder
 import Species.Basic
-import Species.Utils.DependentFunctional
 
 -- Linear orders
 structure FinStrictLinOrder (U: Type) where
@@ -52,8 +51,7 @@ def transport_FinStrictLinOrder
         apply Function.Bijective.injective at σ_bij
         apply Function.Injective.eq_iff at σ_bij
         apply σ_bij.1 at ctr; contradiction
-      . apply ih
-        apply List.Nodup.of_cons ndh
+      . apply ih (List.Nodup.of_cons ndh)
 }
 
 /- TODO workaround noncomputability -/
@@ -69,11 +67,13 @@ noncomputable instance LinearOrderSpecies: @Species FinStrictLinOrder where
       unfold perms; apply List.nodup_permutations; assumption
     let f := (fun x xinp => FinStrictLinOrder.mk x (perms_Nodup_internal x xinp))
     let perms_ls : List (FinStrictLinOrder _) :=
-      dependent_map perms (fun x xinp => FinStrictLinOrder.mk x (perms_Nodup_internal x xinp))
+      List.pmap
+        (fun x xinp => FinStrictLinOrder.mk x (perms_Nodup_internal x xinp))
+        perms (fun _ is_in => is_in)
     let perms_ls_Nodup : perms_ls.Nodup := by
-      apply dependent_map_inj_preserves_Nodup
-      . assumption
+      apply List.Nodup.pmap
       . intro m n x y eq; simp at eq; subst eq; rfl
+      . assumption
     Nodup_List_to_Finset perms_ls perms_ls_Nodup
   transport := by
     intro U V σ σ_bij fu

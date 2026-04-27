@@ -1,6 +1,5 @@
 import Mathlib.Data.List.Permutation
 import Species.Basic
-import Species.Utils.DependentFunctional
 
 -- Permutations
 structure Permutation (U: Type) where
@@ -28,15 +27,17 @@ noncomputable instance PermutationSpecies: @Species Permutation where
         intros p p_in_ps; subst ps; symm; apply List.perm_of_mem_permutations; assumption
       have ps_nd : ps.Nodup := by apply List.nodup_permutations; assumption
       let ls_fcts :=
-        dependent_map
-           ps
+        List.pmap
            (fun p p_in_ps =>
              have ls_perm_p : ls.Perm p := by apply (p_in_ps_is_ls_perm p p_in_ps)
              nodup_perm_lists_to_Permutation ls p ls_perm_p ls_nd
            )
+           ps (fun _ is_in => is_in)
       have ls_fcts_nodup : ls_fcts.Nodup := by
-        subst ls_fcts; apply dependent_map_inj_preserves_Nodup; apply ps_nd
-        intros l₁ l₁in l₂ l₂in eq; simp [nodup_perm_lists_to_Permutation] at eq; lia
+        subst ls_fcts
+        apply List.Nodup.pmap
+        . intros l₁ l₁in l₂ l₂in eq; simp [nodup_perm_lists_to_Permutation] at eq; lia
+        . apply ps_nd
       ({
         val := Multiset.ofList ls_fcts,
         nodup := ls_fcts_nodup,
