@@ -6,5 +6,5 @@ open SEmptySet
 instance EmptySetSpecies: @Species SEmptySet where
   structures      := fun _   => {SEmptySetC}
   transport       := fun _ _ => SEmptySetC
-  transport_trans := by simp
-  transport_id    := by simp
+  transport_trans := fun _ _ _ => rfl
+  transport_id    := fun _ => rfl
