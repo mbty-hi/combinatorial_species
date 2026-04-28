@@ -5,14 +5,7 @@ structure SSingleton {U: Type} where
 open SSingleton
 
 instance SingletonSpecies: @Species @SSingleton where
-  structures :=
-    fun labels => by
-      apply Finset.map
-      . constructor; rotate_left; apply SSingleton.mk
-        unfold Function.Injective; intros a₁ a₂ h; lia
-      . apply labels
-  transport := by
-    intros U V σ σ_bij ssing_u
-    constructor; apply (σ ssing_u.value)
+  structures      := fun labels => labels.map ⟨SSingleton.mk, fun a₁ a₂ h => by simp at h; exact h⟩
+  transport       := by intros _ _ σ _ ssing_u; exact ⟨σ ssing_u.value⟩
   transport_trans := by simp
-  transport_id := by simp
+  transport_id    := by simp

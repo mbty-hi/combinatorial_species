@@ -10,5 +10,5 @@ instance KRestriction (F: Type → Type) [FS: @Species F] (k: ℕ) : @Species F 
   transport_trans := fun σ_bij τ_bij fu => Species.transport_trans σ_bij τ_bij fu
   transport_id    := fun fu => Species.transport_id fu
 
-instance KRestrictionToZero (F : Type → Type) [FS : @Species F] : @Species F := KRestriction F 0
-instance KRestrictionToOne  (F : Type → Type) [FS : @Species F] : @Species F := KRestriction F 1
+instance KRestrictionToZero (F: Type → Type) [FS: @Species F] : @Species F := KRestriction F 0
+instance KRestrictionToOne  (F: Type → Type) [FS: @Species F] : @Species F := KRestriction F 1
