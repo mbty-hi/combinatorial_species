@@ -1,6 +1,5 @@
 import Species.Basic
 
--- Linear orders
 structure FinStrictLinOrder (U: Type) where
   order: List U
   order_Nodup: order.Nodup

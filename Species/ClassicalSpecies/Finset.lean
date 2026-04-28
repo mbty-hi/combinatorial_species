@@ -1,7 +1,6 @@
 import Mathlib.Data.Finset.Basic
 import Species.Basic
 
--- Finset
 instance FinsetSpecies: @Species Finset where
   structures := fun ls => {ls}
   transport := by
@@ -12,7 +11,7 @@ instance FinsetSpecies: @Species Finset where
       apply inj
     apply (Finset.map σ_emb fu)
   transport_trans := by
-    intro U V W σ σ_bij τ τ_bij fu
+    intro U V W σ τ σ_bij τ_bij fu
     unfold Function.Bijective.comp
     have ⟨σ_inj, σ_surj⟩ := σ_bij
     have ⟨τ_inj, τ_surj⟩ := τ_bij

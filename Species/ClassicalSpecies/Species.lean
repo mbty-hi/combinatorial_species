@@ -8,4 +8,3 @@ import Species.ClassicalSpecies.Permutations
 import Species.ClassicalSpecies.Set
 import Species.ClassicalSpecies.Singleton
 import Species.ClassicalSpecies.SortedList
-

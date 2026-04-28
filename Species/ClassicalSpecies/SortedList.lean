@@ -1,4 +1,3 @@
--- Sorted lists
 -- TODO Does this actually belong here?
 /- def is_increasing_list (l: List ℕ) : Prop := -/
 /-   ∀(n: ℕ), -/

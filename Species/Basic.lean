@@ -16,13 +16,12 @@ class Species {F: Type → Type} where
   structures: {U: Type} → [DecidableEq U] → (labels: Finset U) → (Finset (F U))
   transport: {U V: Type} → {σ: U → V} → (σ_bij: Function.Bijective σ) → (f: F U) → F V
   transport_trans:
-    ∀ (U V W: Type)
-      {σ: U → V} (σ_bij: Function.Bijective σ)
-      {τ: V → W} (τ_bij: Function.Bijective τ)
-      (f: F U),
+    ∀{U V W: Type} {σ: U → V} {τ: V → W}
+     (σ_bij: Function.Bijective σ) (τ_bij: Function.Bijective τ)
+     (f: F U),
     @transport U W (τ ∘ σ) (Function.Bijective.comp τ_bij σ_bij) f
     = ((@transport V W τ τ_bij) ∘ (@transport U V σ σ_bij)) f
-  transport_id: ∀(U: Type) (f: F U), transport Function.bijective_id f = id f
+  transport_id: ∀{U: Type} (f: F U), transport Function.bijective_id f = id f
 
 def CatB (α: Type) : Type := CategoryTheory.Core (Finset α)
 

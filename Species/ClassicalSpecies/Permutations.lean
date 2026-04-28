@@ -1,6 +1,5 @@
 import Species.Basic
 
--- Permutations
 structure Permutation (U: Type) where
   l_from: List U
   l_to: List U

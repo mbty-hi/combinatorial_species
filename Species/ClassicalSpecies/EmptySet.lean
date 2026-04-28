@@ -4,7 +4,7 @@ inductive SEmptySet (U: Type) where | SEmptySetC
 open SEmptySet
 
 instance EmptySetSpecies: @Species SEmptySet where
-  structures := fun ls => {SEmptySetC}
-  transport := by intros; apply SEmptySetC
+  structures      := fun _   => {SEmptySetC}
+  transport       := fun _ _ => SEmptySetC
   transport_trans := by simp
-  transport_id := by simp
+  transport_id    := by simp
