@@ -12,16 +12,14 @@ structure CyclicPermutation (U: Type) where
 def make_cyclic_permutations {U: Type} {labels: List U} (labels_nd: labels.Nodup)
 : List (CyclicPermutation U) :=
   List.pmap
-    (fun p p_in_ps =>
-      {
+    (fun p p_in_ps => {
         data := p,
         ref_list := labels,
         ref_list_nd := labels_nd,
         is_cyclic_permutation := List.perm_of_mem_permutations p_in_ps
       }
     )
-    labels.tail.permutations
-    (fun _ is_in => is_in)
+    labels.tail.permutations (fun _ is_in => is_in)
 
 lemma make_cyclic_permutations_nodup {U: Type} {labels: List U} (labels_nd: labels.Nodup):
   (make_cyclic_permutations labels_nd).Nodup
@@ -32,9 +30,10 @@ lemma make_cyclic_permutations_nodup {U: Type} {labels: List U} (labels_nd: labe
 
 noncomputable instance CyclicPermutationSpecies: @Species CyclicPermutation where
   structures :=
-    fun labels =>
-      { val   := Multiset.ofList (make_cyclic_permutations labels.nodup_toList),
-        nodup := make_cyclic_permutations_nodup _ }
+    fun labels => {
+      val   := Multiset.ofList (make_cyclic_permutations labels.nodup_toList),
+      nodup := make_cyclic_permutations_nodup _
+    }
   transport := fun bij pu =>
     ⟨pu.data.map _, pu.ref_list.map _, pu.ref_list_nd.map bij.1,
      by rw [← List.map_tail]; exact pu.is_cyclic_permutation.map _⟩
