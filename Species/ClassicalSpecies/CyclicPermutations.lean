@@ -1,4 +1,5 @@
 import Species.Basic
+import Mathlib.Data.List.Permutation
 
 /- The head of the ref_list is always the (implicit) first (or last, depending on how you view
    things) element in `data` (our explicit cycle list): this is how we avoid cyclical redundancy
@@ -34,8 +35,8 @@ noncomputable instance CyclicPermutationSpecies: @Species CyclicPermutation wher
       val   := Multiset.ofList (make_cyclic_permutations labels.nodup_toList),
       nodup := make_cyclic_permutations_nodup _
     }
-  transport := fun bij pu =>
-    ⟨pu.data.map _, pu.ref_list.map _, pu.ref_list_nd.map bij.1,
-     by rw [← List.map_tail]; exact pu.is_cyclic_permutation.map _⟩
+  transport := fun σ s =>
+    ⟨s.data.map σ, s.ref_list.map σ, s.ref_list_nd.map σ.injective,
+     by rw [← List.map_tail]; exact s.is_cyclic_permutation.map σ⟩
   transport_trans := by simp
   transport_id    := by simp

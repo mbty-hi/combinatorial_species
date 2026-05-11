@@ -1,4 +1,5 @@
 import Species.Basic
+import Mathlib.Data.List.Permutation
 
 structure Permutation (U: Type) where
   l_from: List U
@@ -31,6 +32,6 @@ noncomputable instance PermutationSpecies: @Species Permutation where
           apply List.Nodup.pmap _ ps_nd
           intros _ _ _ _ _; simp [nodup_perm_lists_to_Permutation] at *; assumption
       }
-  transport := fun bij pu => ⟨pu.l_from.map _, pu.l_to.map _, pu.perm.map _, pu.nodup.map bij.1⟩
+  transport := fun σ s => ⟨s.l_from.map σ, s.l_to.map σ, s.perm.map σ.1, s.nodup.map σ.injective⟩
   transport_trans := by simp
   transport_id    := by simp

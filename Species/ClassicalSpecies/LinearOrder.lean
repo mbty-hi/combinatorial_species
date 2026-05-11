@@ -1,4 +1,6 @@
 import Species.Basic
+import Mathlib.Data.List.Permutation
+import Mathlib.Data.Finset.Dedup
 
 structure FinStrictLinOrder (U: Type) where
   order: List U
@@ -10,16 +12,10 @@ lemma permutations_preserves_nodup {α: Type} {l: List α}:
   let lpl' : l.Perm l' := (l'.mem_permutations.1 l'_in_lp).symm
   lnd.perm lpl'
 
-def Nodup_List_to_Finset {α: Type} (l: List α) (lnd: l.Nodup) : Finset α := {
-  val   := Multiset.ofList l,
-  nodup := lnd
-}
-
-def transport_FinStrictLinOrder
-  {U V: Type} (F: FinStrictLinOrder U) {σ: U → V} (σ_bij: σ.Bijective)
+def transport_FinStrictLinOrder {U V: Type} (F: FinStrictLinOrder U) (σ: U ≃ V)
 : FinStrictLinOrder V := {
-  order := F.order.map σ
-  order_Nodup := F.order_Nodup.map σ_bij.injective
+  order       := F.order.map σ
+  order_Nodup := F.order_Nodup.map σ.injective
 }
 
 /- TODO workaround noncomputability -/
@@ -38,7 +34,7 @@ noncomputable instance LinearOrderSpecies: @Species FinStrictLinOrder where
       apply List.Nodup.pmap
       . intro m n x y eq; simp at eq; subst eq; rfl
       . apply perms_Nodup_external
-    Nodup_List_to_Finset perms_ls perms_ls_Nodup
-  transport       := fun σ_bij fu => transport_FinStrictLinOrder fu σ_bij
+    ⟨perms_ls, perms_ls_Nodup⟩
+  transport       := fun σ s => transport_FinStrictLinOrder s σ
   transport_trans := by simp [transport_FinStrictLinOrder]
   transport_id    := by simp [transport_FinStrictLinOrder]

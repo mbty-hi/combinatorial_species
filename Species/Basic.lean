@@ -1,39 +1,61 @@
 import Init.Control.Lawful.Basic
-import Init.Data.List.Perm
-import Init.Data.List.Find
-import Mathlib.Algebra.BigOperators.Group.Finset.Sigma
-import Mathlib.Algebra.BigOperators.Group.Finset.Pi
 import Mathlib.CategoryTheory.Category.Basic
-import Mathlib.CategoryTheory.Core
+import Mathlib.CategoryTheory.Functor.Basic
 import Mathlib.Data.Finset.Basic
 import Mathlib.Data.Finset.Functor
-import Mathlib.Data.List.Permutation
 import Mathlib.Data.Set.Basic
-import Mathlib.Data.Tree.Basic
 import Mathlib.Logic.Equiv.Embedding
 
-class Species {F: Type → Type} where
-  structures: {U: Type} → [DecidableEq U] → (labels: Finset U) → (Finset (F U))
-  transport: {U V: Type} → {σ: U → V} → (σ_bij: Function.Bijective σ) → (f: F U) → F V
+class Species (F: Type → Type) where
+  structures: {U: Type} → [DecidableEq U] → (labels: Finset U) → Finset (F U)
+  transport: {U V: Type} → (U ≃ V) → F U → F V
   transport_trans:
-    ∀{U V W: Type} {σ: U → V} {τ: V → W}
-     (σ_bij: Function.Bijective σ) (τ_bij: Function.Bijective τ)
-     (f: F U),
-    @transport U W (τ ∘ σ) (Function.Bijective.comp τ_bij σ_bij) f
-    = ((@transport V W τ τ_bij) ∘ (@transport U V σ σ_bij)) f
-  transport_id: ∀{U: Type} (f: F U), transport Function.bijective_id f = id f
+    ∀ {U V W: Type} (σ: U ≃ V) (τ: V ≃ W) (f: F U),
+    transport (σ.trans τ) f = (transport τ ∘ transport σ) f
+  transport_id: ∀ {U: Type} (f: F U), transport (Equiv.refl U) f = f
 
-def CatB (α: Type) : Type := CategoryTheory.Core (Finset α)
+/- A theorem such as
+   ```
+   theorem transport_structures_ok
+     {F: Type → Type} {U V: Type} [DecidableEq U] [DecidableEq V]
+     (SF: Species F) (σ: U ≃ V) (labels: Finset U)
+   : SF.structures (labels.map σ.toEmbedding)
+     = (SF.structures labels).map ⟨SF.transport σ, by apply transport_injective⟩
+   ```
+   with
+   ```
+   theorem transport_injective
+     {F: Type → Type} (SF: Species F) {U V: Type} [DecidableEq U] [DecidableEq V] (σ: U ≃ V)
+   : (SF.transport σ).Injective :=
+     Function.LeftInverse.injective
+       (g := SF.transport σ.symm)
+       (fun fu => by
+         have x := SF.transport_trans σ σ.symm fu
+         simp at x
+         simp [SF.transport_id, ← x]
+       )
+   ```
+   would be a nice sanity check to have, but Lean does not let us prove it.
 
-/- /1- A species can be defined as an endofunctor on the category B (whose objects are FinSets and whose -/
-/-    morphisms are bijections) -1/ -/
-/- def SpeciesFunctorial {α β: Type} : Type := -/
-/-   Functor -/
+   Indeed, although it looks as though we should be able to do so by parametricity (i.e., as the
+   function is parametric, we cannot manipulate objects differently depending on their values: they
+   are opaque to us). Alas, the axiom of parametricity is not compatible with Lean's standard
+   axioms, as we can use the excluded middle to define (noncomputable) functions violating it:
+  ```
+  noncomputable def nonParametric {α : _} (xs : List α) : List α :=
+    if α = Nat then [] else xs
+  ```
+  (example from https://lean-lang.org/doc/reference/latest/Axioms/#axiom-consistency)
 
-/- instance SpeciesFunctorial_to_Species {F: Type → Type} where -/
+  Note that something similar could be proven for any concrete (and computable, or at least not evil
+  like in the above example) instance of Species.
 
-def SpeciesEquivalence {F: Type → Type} [S: @Species F] {U: Type} (s t: F U) : Prop :=
-  ∃(σ: U → U) (σ_bij: Function.Bijective σ), S.transport σ_bij s = t
+  TODO add as axiom?
+  -/
+
+/- TODO A species can be defined as an endofunctor on the category B (whose objects are FinSets and whose
+   morphisms are bijections). Conversion. -/
+/- open CategoryTheory -/
 
 -- FIXME
 notation:80 lhs:81 "[σ" rhs:80 "]" => Species.transport rhs lhs
