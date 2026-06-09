@@ -1,19 +1,10 @@
-import Init.Control.Lawful.Basic
 import Mathlib.CategoryTheory.Category.Basic
 import Mathlib.CategoryTheory.Functor.Basic
 import Mathlib.Data.Finset.Basic
 import Mathlib.Data.Finset.Functor
 import Mathlib.Data.Set.Basic
 import Mathlib.Logic.Equiv.Embedding
-
-/- A label type: finite, linearly ordered. The order is required for computationality (`Finset`
-   exposes a `sort` function that gives a list of its members, and it requires `LinearOrder`). -/
-class LabelType (U: Type) extends Fintype U, LinearOrder U
-
-/- Build `LabelType` from its parents. -/
-instance {U: Type} [Fintype U] [LinearOrder U] : LabelType U where
-  toFintype     := inferInstance
-  toLinearOrder := inferInstance
+import Species.Labels.LabelType
 
 class Species (F: Type → Type) where
   fintype: {U: Type} → [LabelType U] → Fintype (F U)
