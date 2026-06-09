@@ -14,3 +14,7 @@ version = "git#v4.28.0"
 
 [[lean_lib]]
 name = "Species"
+
+[[lean_lib]]
+name = "SpeciesTest" # not in defaultTargets
+globs = ["SpeciesTest.+"] # ensures that all files are run (no aggregator importing all submodules)
