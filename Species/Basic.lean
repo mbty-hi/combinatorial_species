@@ -1,9 +1,3 @@
-import Mathlib.CategoryTheory.Category.Basic
-import Mathlib.CategoryTheory.Functor.Basic
-import Mathlib.Data.Finset.Basic
-import Mathlib.Data.Finset.Functor
-import Mathlib.Data.Set.Basic
-import Mathlib.Logic.Equiv.Embedding
 import Species.Labels.LabelType
 
 class Species (F: Type → Type) where

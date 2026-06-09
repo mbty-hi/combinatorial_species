@@ -1,4 +1,4 @@
-import Species.Basic
+import Species.Labels.LabelType
 
 /- Finite natural numbers as labels. Just an alias around `Fin`: -/
 abbrev FinNat (n: ℕ) : Type := Fin n
