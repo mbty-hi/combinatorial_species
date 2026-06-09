@@ -1,9 +1,10 @@
 import Species.Basic
 
-inductive SEmpty (U: Type) where
+inductive SZero (U: Type) where
+open SZero
 
-instance EmptySpecies: @Species SEmpty where
-  structures      := fun _         => {}
+instance SZeroSpecies : Species SZero where
+  fintype         := ⟨∅, fun x => nomatch x⟩
   transport       := fun _   empty => nomatch empty
   transport_trans := fun _ _ empty => nomatch empty
   transport_id    := fun     empty => nomatch empty

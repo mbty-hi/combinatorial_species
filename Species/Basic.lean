@@ -6,57 +6,53 @@ import Mathlib.Data.Finset.Functor
 import Mathlib.Data.Set.Basic
 import Mathlib.Logic.Equiv.Embedding
 
+/- A label type: finite, linearly ordered. The order is required for computationality (`Finset`
+   exposes a `sort` function that gives a list of its members, and it requires `LinearOrder`). -/
+class LabelType (U: Type) extends Fintype U, LinearOrder U
+
+/- Build `LabelType` from its parents. -/
+instance {U: Type} [Fintype U] [LinearOrder U] : LabelType U where
+  toFintype     := inferInstance
+  toLinearOrder := inferInstance
+
 class Species (F: Type → Type) where
-  structures: {U: Type} → [DecidableEq U] → (labels: Finset U) → Finset (F U)
-  transport: {U V: Type} → (U ≃ V) → F U → F V
+  fintype: {U: Type} → [LabelType U] → Fintype (F U)
+  transport: {U V: Type} → [LabelType U] → [LabelType V] → (U ≃ V) → F U → F V
   transport_trans:
-    ∀ {U V W: Type} (σ: U ≃ V) (τ: V ≃ W) (f: F U),
+    ∀ {U V W: Type} [LabelType U] [LabelType V] [LabelType W] (σ: U ≃ V) (τ: V ≃ W) (f: F U),
     transport (σ.trans τ) f = (transport τ ∘ transport σ) f
-  transport_id: ∀ {U: Type} (f: F U), transport (Equiv.refl U) f = f
+  transport_id: ∀ {U: Type} [LabelType U] (f: F U), transport (Equiv.refl U) f = f
 
-/- A theorem such as
-   ```
-   theorem transport_structures_ok
-     {F: Type → Type} {U V: Type} [DecidableEq U] [DecidableEq V]
-     (SF: Species F) (σ: U ≃ V) (labels: Finset U)
-   : SF.structures (labels.map σ.toEmbedding)
-     = (SF.structures labels).map ⟨SF.transport σ, by apply transport_injective⟩
-   ```
-   with
-   ```
-   theorem transport_injective
-     {F: Type → Type} (SF: Species F) {U V: Type} [DecidableEq U] [DecidableEq V] (σ: U ≃ V)
-   : (SF.transport σ).Injective :=
-     Function.LeftInverse.injective
-       (g := SF.transport σ.symm)
-       (fun fu => by
-         have x := SF.transport_trans σ σ.symm fu
-         simp at x
-         simp [SF.transport_id, ← x]
-       )
-   ```
-   would be a nice sanity check to have, but Lean does not let us prove it.
+namespace Species
 
-   Indeed, although it looks as though we should be able to do so by parametricity (i.e., as the
-   function is parametric, we cannot manipulate objects differently depending on their values: they
-   are opaque to us). Alas, the axiom of parametricity is not compatible with Lean's standard
-   axioms, as we can use the excluded middle to define (noncomputable) functions violating it:
-  ```
-  noncomputable def nonParametric {α : _} (xs : List α) : List α :=
-    if α = Nat then [] else xs
-  ```
-  (example from https://lean-lang.org/doc/reference/latest/Axioms/#axiom-consistency)
+variable {F: Type → Type} [Species F] {U V: Type} [LabelType U] [LabelType V]
 
-  Note that something similar could be proven for any concrete (and computable, or at least not evil
-  like in the above example) instance of Species.
+/- For any `LabelType` U, there is a finite number of `F`-structures labelled with U. -/
+instance instFintypeOfSpecies : Fintype (F U) := Species.fintype
 
-  TODO add as axiom?
-  -/
+/- The finite set of `F`-structures on label type `U`. -/
+def structures : Finset (F U) := Finset.univ
 
-/- TODO A species can be defined as an endofunctor on the category B (whose objects are FinSets and whose
-   morphisms are bijections). Conversion. -/
-/- open CategoryTheory -/
+/- Transport bundled as an equivalence: every bijection between label types induces a bijection of
+   labelled structures. -/
+def transportEquiv (σ: U ≃ V) : F U ≃ F V where
+  toFun     := transport σ
+  invFun    := transport σ.symm
+  left_inv  := fun f => by
+    have h := transport_trans σ σ.symm f
+    rw [Equiv.self_trans_symm, transport_id] at h
+    exact h.symm
+  right_inv := fun f => by
+    have h := transport_trans σ.symm σ f
+    rw [Equiv.symm_trans_self, transport_id] at h
+    exact h.symm
 
--- FIXME
-notation:80 lhs:81 "[σ" rhs:80 "]" => Species.transport rhs lhs
-notation:80 lhs:81 "[" rhs:80 "]" => Species.get_structures rhs lhs
+/- Sanity check: structure count depends only on the cardinality of labels. -/
+theorem card_structures_eq (σ: U ≃ V) : Fintype.card (F U) = Fintype.card (F V) :=
+  Fintype.card_congr (transportEquiv σ)
+
+-- TODO test notations
+scoped notation:max F "[" U "]" => Species.structures (F := F) (U := U)
+scoped notation:max f "⟦" σ "⟧" => Species.transport σ f
+
+end Species
