@@ -7,6 +7,10 @@ import Species.Cardinality
 import Species.Operations.Add
 import Species.Operations.CartesianProd
 import Mathlib.Data.Finset.Sort
+import Species.Operations.Deriv
+
+variable {F G: Type → Type}
+
 
 #guard card SX 1        = 1
 #guard seq  SX 5        = [0, 1, 0, 0, 0]
@@ -15,6 +19,12 @@ import Mathlib.Data.Finset.Sort
 #guard seq  SZero 5     = [0, 0, 0, 0, 0]
 
 #guard seq (SE + SE)     5 = [2,2,2,2,2]
-#guard seq (SE × Finset) 5 = [1,2,4,8,16]
+#guard seq (Species.cartProd SE Finset) 5 = [1,2,4,8,16]
 
 #eval structures_canonical Arrangement 3
+
+
+theorem deriv_add :
+  Species.Deriv (F + G) = Species.Deriv F + Species.Deriv G := by
+  funext U
+  rfl
