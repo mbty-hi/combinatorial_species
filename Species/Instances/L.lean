@@ -13,7 +13,7 @@ instance instDecEqArrangement {U} [DecidableEq U] : DecidableEq (Arrangement U) 
   fun a b => decidable_of_iff (a.order = b.order)
     ⟨Arrangement.ext, fun h => congrArg Arrangement.order h⟩
 
-/- Display related instances for Arrangement -/
+/- Display related instances -/
 /- TODO integrate properly -/
 instance instReprArrangement {U} [Repr U] : Repr (Arrangement U) where
   reprPrec a prec := reprPrec a.order prec

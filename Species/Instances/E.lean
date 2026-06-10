@@ -1,11 +1,24 @@
 import Species.Basic
+import Mathlib.Data.Finset.Sort
+import Init.Data.Format.Basic
 
 /- Note that we do not store labels explicitly. Assuming that the type this is applied to is a
    `LabelType` (which it should be), we can easily recover them anyway. -/
-abbrev SE : Type → Type := fun _ => Unit
+structure SE (U: Type) : Type -- empty, one inhabitant: ⟨⟩
+
+instance {U} : Subsingleton (SE U) := ⟨fun _ _ => rfl⟩
+instance {U} : DecidableEq (SE U)  := fun _ _ => isTrue rfl
+instance {U} : Fintype (SE U)      := Fintype.ofSubsingleton ⟨⟩
+
+/- Display related instances -/
+instance instReprSE {U} [Repr U] [LabelType U] : Repr (SE U) where
+  reprPrec _ _ :=
+    "{" ++ Std.Format.joinSep ((Finset.univ : Finset U).sort (· ≤ ·) |>.map repr) ", " ++ "}"
+
+instance instLinearOrderSE {U} [Repr U] [LabelType U] : LinearOrder (SE U) := .ofSubsingleton
 
 instance SESpecies : Species SE where
   fintype         := inferInstance
-  transport       := fun _ _   => ()
+  transport       := fun _ _   => ⟨⟩
   transport_trans := fun _ _ _ => rfl
   transport_id    := fun _     => Subsingleton.elim _ _
