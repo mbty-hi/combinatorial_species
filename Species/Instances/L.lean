@@ -13,6 +13,14 @@ instance instDecEqArrangement {U} [DecidableEq U] : DecidableEq (Arrangement U) 
   fun a b => decidable_of_iff (a.order = b.order)
     ⟨Arrangement.ext, fun h => congrArg Arrangement.order h⟩
 
+/- Display related instances for Arrangement -/
+/- TODO integrate properly -/
+instance instReprArrangement {U} [Repr U] : Repr (Arrangement U) where
+  reprPrec a prec := reprPrec a.order prec
+
+instance instLinearOrderArrangement {U} [LinearOrder U] : LinearOrder (Arrangement U) :=
+  LinearOrder.lift' Arrangement.order (fun _ _ h => Arrangement.ext h)
+
 lemma permutations_preserves_nodup {α: Type} {l: List α}:
   l.Nodup → ∀l' ∈ l.permutations, l'.Nodup
 := fun lnd l' l'_in_lp =>

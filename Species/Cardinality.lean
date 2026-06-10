@@ -1,5 +1,24 @@
 import Species.Basic
-import Species.Labels.FinNat
+import Species.Labels.Canonical
+import Mathlib.Data.Finset.Sort
+
+/- TODO find a better name for this file -/
+
+/- Finset of all `F`-structures on `n` labels. -/
+def structures_fset (F: Type → Type) [Species F] (LabelT: Type) [LabelType LabelT]
+: Finset (F LabelT) :=
+  Finset.univ
+def structures_canonical_fset (F: Type → Type) [Species F] (n: ℕ) : Finset (F (Canonical n)) :=
+  structures_fset F (Canonical n)
+
+/- List of all `F`-structures on `n` labels. Requires LinearOrder on (F LabelT) -/
+def structures
+  (F: Type → Type) [Species F] (LabelT: Type) [LabelType LabelT] [LinearOrder (F (LabelT))]
+: List (F LabelT) :=
+  (structures_fset F LabelT).sort (· ≤ ·)
+def structures_canonical (F: Type → Type) (n: ℕ) [Species F] [LinearOrder (F (Canonical n))]
+: List (F (Canonical n)) :=
+  structures F (Canonical n)
 
 /- Number of `F`-structures on `n` labels. -/
 def card (F: Type → Type) [Species F] (n: ℕ) : ℕ := Fintype.card (F (FinNat n))
