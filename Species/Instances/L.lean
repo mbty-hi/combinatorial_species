@@ -13,22 +13,13 @@ instance instDecEqArrangement {U} [DecidableEq U] : DecidableEq (Arrangement U) 
   fun a b => decidable_of_iff (a.order = b.order)
     ⟨Arrangement.ext, fun h => congrArg Arrangement.order h⟩
 
-/- Display related instances -/
-/- TODO integrate properly -/
-instance instReprArrangement {U} [Repr U] : Repr (Arrangement U) where
-  reprPrec a prec := reprPrec a.order prec
-
-instance instLinearOrderArrangement {U} [LinearOrder U] : LinearOrder (Arrangement U) :=
-  LinearOrder.lift' Arrangement.order (fun _ _ h => Arrangement.ext h)
-
 lemma permutations_preserves_nodup {α: Type} {l: List α}:
   l.Nodup → ∀l' ∈ l.permutations, l'.Nodup
 := fun lnd l' l'_in_lp =>
   let lpl' : l.Perm l' := (l'.mem_permutations.1 l'_in_lp).symm
   lnd.perm lpl'
 
-/- There is a finite number of distinct Arrangements of (finite) label types. -/
-instance {U} [LabelType U] : Fintype (Arrangement U) where
+instance instFintypeArrangement {U} [LabelType U] : Fintype (Arrangement U) where
   elems := (
     let base := (Finset.univ (α := U)).sort (· ≤ ·)
     have base_nd : base.Nodup := Finset.sort_nodup _ _
@@ -64,7 +55,14 @@ def transport_Arrangement {U V: Type} (a: Arrangement U) (σ: U ≃ V) : Arrange
   complete := fun v => List.mem_map.mpr ⟨σ.symm v, a.complete _, σ.apply_symm_apply v⟩
 }
 
-instance LinearOrderSpecies: @Species Arrangement where
+/- Display related instances -/
+instance instReprArrangement {U} [Repr U] : Repr (Arrangement U) where
+  reprPrec a prec := reprPrec a.order prec
+instance instLinearOrderArrangement {U} [LinearOrder U] : LinearOrder (Arrangement U) :=
+  LinearOrder.lift' Arrangement.order (fun _ _ h => Arrangement.ext h)
+
+/- Species instance -/
+instance instSpeciesArrangement: @Species Arrangement where
   fintype         := inferInstance
   transport       := fun σ s => transport_Arrangement s σ
   transport_trans := by simp [transport_Arrangement]

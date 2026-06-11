@@ -13,11 +13,11 @@ instance {U} : Fintype (SE U)      := Fintype.ofSubsingleton ⟨⟩
 /- Display related instances -/
 instance instReprSE {U} [Repr U] [LabelType U] : Repr (SE U) where
   reprPrec _ _ :=
-    "{" ++ Std.Format.joinSep ((Finset.univ : Finset U).sort (· ≤ ·) |>.map repr) ", " ++ "}"
+    "{" ++ Std.Format.joinSep ((Finset.univ: Finset U).sort (· ≤ ·) |>.map repr) ", " ++ "}"
+instance instLinearOrderSE {U} : LinearOrder (SE U) := .ofSubsingleton
 
-instance instLinearOrderSE {U} [Repr U] [LabelType U] : LinearOrder (SE U) := .ofSubsingleton
-
-instance SESpecies : Species SE where
+/- Species instance -/
+instance instSpeciesSE: Species SE where
   fintype         := inferInstance
   transport       := fun _ _   => ⟨⟩
   transport_trans := fun _ _ _ => rfl
