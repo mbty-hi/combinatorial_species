@@ -24,6 +24,7 @@ import Species.Operations.Deriv
 #eval structures_canonical SE 3
 #eval structures_canonical SOne 0
 #eval structures_canonical SOne 3
+#eval structures_canonical SPowerset 3
 #eval structures_canonical SX 0
 #eval structures_canonical SX 1
 #eval structures_canonical SX 2
