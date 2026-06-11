@@ -20,6 +20,7 @@ import Species.Operations.Deriv
 #guard seq (SE + SE) 5 = [2, 2, 2, 2, 2]
 #guard seq (Species.cartProd SE Finset) 5 = [1, 2, 4, 8, 16]
 
+/- Simple structures -/
 #eval structures_canonical Arrangement 3
 #eval structures_canonical SE 3
 #eval structures_canonical SOne 0
@@ -30,4 +31,6 @@ import Species.Operations.Deriv
 #eval structures_canonical SX 2
 #eval structures_canonical SZero 0
 #eval structures_canonical SZero 3
-/- #eval structures_canonical (SE + Arrangement) 3 -/
+
+/- Combined structures -/
+#eval structures_canonical (SE + Arrangement) 3
