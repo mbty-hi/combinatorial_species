@@ -35,3 +35,5 @@ import Species.Operations.Deriv
 /- Combined structures -/
 #eval structures_canonical (SE + Arrangement) 3
 #eval structures_canonical (Species.cartProd SE Arrangement) 3
+#eval structures_canonical (Species.Deriv SE) 3
+#eval structures_canonical (Species.Deriv Arrangement) 3

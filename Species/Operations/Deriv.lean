@@ -6,19 +6,27 @@ namespace Species
 
 variable {F: Type → Type} [Species F]
 
-def Deriv (F : Type → Type) (U : Type) : Type := F (WithBot U)
+abbrev WithHole (U: Type) := WithBot U
+def Deriv (F: Type → Type) (U: Type) : Type := F (WithHole U)
 
+/- Display related instances -/
+instance instReprWithHole {U: Type} [Repr U] : Repr (WithHole U) where
+  reprPrec x _ :=
+    match x with
+    | none => "⋆"
+    | some x => repr x
+instance instReprDeriv {F: Type → Type} {U: Type} [Repr (F (WithHole U))] : Repr (Deriv F U) :=
+  inferInstanceAs (Repr (F (WithHole U)))
+
+instance instLinearOrderDeriv {F: Type → Type} {U: Type} [LinearOrder (F (WithHole U))]
+: LinearOrder (Deriv F U) :=
+  inferInstanceAs (LinearOrder (F (WithHole U)))
+
+/- Species instance -/
 instance instSpeciesDeriv : Species (Deriv F) where
-  fintype := fun {U} [LabelType U] =>
-    show Fintype (F (WithBot U)) from inferInstance
-
+  fintype               := fun {U} [LabelType U] => show Fintype (F (WithBot U)) from inferInstance
   transport {U V} _ _ σ := Species.transport (F := F) (Equiv.withBotCongr σ)
-
-  transport_trans := fun {U V W} _ _ _ σ τ f => by
-    simp [Species.transport_trans]
-
-  transport_id := fun {U} _ f => by
-    simp [Species.transport_id]
-
+  transport_trans       := fun {U V W} _ _ _ σ τ f => by simp [Species.transport_trans]
+  transport_id          := fun {U} _ f => by simp [Species.transport_id]
 
 end Species
