@@ -7,12 +7,12 @@ abbrev SPowerset : Type → Type := Finset
 
 /- Display related instances -/
 namespace Display
-instance instReprSPowerset {U} [LinearOrder U] [Repr U] : Repr (SPowerset U) where
+instance instReprSPowerset {α : Type} [LinearOrder α] [Repr α] : Repr (SPowerset α) where
   reprPrec s _ := "{" ++ Std.Format.joinSep ((s.sort (· ≤ ·)).map repr) ", " ++ "}"
-instance instLinearOrderSPowerset {U} [LinearOrder U] : LinearOrder (SPowerset U) :=
+instance instLinearOrderSPowerset {α} [LinearOrder α] : LinearOrder (SPowerset α) :=
   -- use lexicographic order
   LinearOrder.lift'
-    (fun s => (toLex (s.card, s.sort (· ≤ ·)) : ℕ ×ₗ List U))
+    (fun s => (toLex (s.card, s.sort (· ≤ ·)) : ℕ ×ₗ List α))
     (fun _ _ h =>
       (Function.LeftInverse.injective (fun s => Finset.sort_toFinset s (· ≤ ·)))
         (congrArg (fun p => (ofLex p).2) h))

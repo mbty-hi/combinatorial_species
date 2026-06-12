@@ -1,12 +1,12 @@
 import Species.Basic
 
-inductive SZero (U: Type) where
+inductive SZero (α : Type) where
 open SZero
 
 /- Display related instances -/
-instance instReprSZero         {U} [Repr U] : Repr (SZero U) where reprPrec z _ := nomatch z
-instance instSubsingletonSZero {U} : Subsingleton (SZero U) := ⟨fun a => nomatch a⟩
-instance instLinearOrderSZero  {U} : LinearOrder (SZero U) := .ofSubsingleton
+instance instReprSZero         {α} [Repr α] : Repr (SZero α) where reprPrec z _ := nomatch z
+instance instSubsingletonSZero {α} : Subsingleton (SZero α) := ⟨fun a => nomatch a⟩
+instance instLinearOrderSZero  {α} : LinearOrder (SZero α) := .ofSubsingleton
 
 /- Species instance -/
 instance instSpeciesSZero : Species SZero where

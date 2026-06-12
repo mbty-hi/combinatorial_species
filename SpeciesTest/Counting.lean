@@ -17,7 +17,7 @@ import Species.Operations.Deriv
 #guard seq  SZero 5     = [0, 0, 0, 0, 0]
 #guard seq  SOne 5      = [1, 0, 0, 0, 0]
 
-#guard seq (Species.add SE SE) 5 = [2, 2, 2, 2, 2]
+#guard seq (Species.add SE SE)          5 = [2, 2, 2, 2, 2]
 #guard seq (Species.cartProd SE Finset) 5 = [1, 2, 4, 8, 16]
 
 /- Simple structures -/

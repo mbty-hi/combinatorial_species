@@ -1,9 +1,6 @@
 import Species.Operations.Add
 import Species.Operations.Deriv
 
-variable {F G: Type → Type}
-
-theorem deriv_add :
+theorem deriv_add {F G : Type → Type} :
   Species.Deriv (Species.add F G) = Species.add (Species.Deriv F) (Species.Deriv G)
-:= by
-  funext U; rfl
+:= by rfl

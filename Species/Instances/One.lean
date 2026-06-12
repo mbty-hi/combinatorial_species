@@ -1,13 +1,13 @@
 import Species.Basic
 
-abbrev SOne (U: Type) : Type := U → Empty
+abbrev SOne (α : Type) : Type := α → Empty
 
 /- Display related instances -/
-instance instReprSOne        {U} [Repr U] : Repr (SOne U) where reprPrec _ _ := "•"
-instance instLinearOrderSOne {U} : LinearOrder (SOne U) := .ofSubsingleton
+instance instReprSOne        {α} [Repr α] : Repr (SOne α) where reprPrec _ _ := "•"
+instance instLinearOrderSOne {α} : LinearOrder (SOne α) := .ofSubsingleton
 
 /- Species instance -/
-instance instSpeciesSOne: Species SOne where
+instance instSpeciesSOne : Species SOne where
   fintype         := inferInstance
   transport       := fun σ f v => f (σ.symm v)
   transport_trans := fun _ _ _ => Subsingleton.elim _ _

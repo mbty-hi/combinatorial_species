@@ -8,8 +8,8 @@ import Mathlib.CategoryTheory.Groupoid
 open CategoryTheory
 
 structure FinBij where
-  α: Type
-  [inst: LabelType α]
+  α : Type
+  [inst : LabelType α]
 
 attribute [instance] FinBij.inst
 
