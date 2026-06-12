@@ -1,29 +1,34 @@
 import Species.Basic
+import Mathlib.Data.Prod.Lex
 
 namespace Species
 
-variable {F G : Type → Type} [Species F] [Species G] {U: Type}
+variable {F G: Type → Type} [Species F] [Species G] {U: Type}
 
-def cartProd (F G : Type → Type) (U : Type) : Type := F U × G U
+def cartProd (F G: Type → Type) (U: Type) : Type := F U × G U
 
 --notation:65 F " × " G => Species.cartProd F G
-
 instance : Prod (Type → Type) (Type → Type) where
   fst := F
   snd := G
 
+/- Display related instances -/
+instance instReprCartProd {F G : Type → Type} {U : Type} [Repr (F U)] [Repr (G U)]
+: Repr ((cartProd F G) U) :=
+  inferInstanceAs (Repr (F U × G U))
+
+instance instLinearOrderCartProd
+  {F G : Type → Type} {U : Type} [LinearOrder (F U)] [LinearOrder (G U)]
+: LinearOrder ((cartProd F G) U) :=
+  inferInstanceAs (LinearOrder (F U ×ₗ G U))
+
+/- Species instance -/
+-- TODO find ways to use × instead of cartProd
 --instance instSpeciesCartProd : Species (fun t => (F t) × (G t)) where
-instance instSpeciesCartProd : Species (cartProd F G) where --find ways to use × instead of cartProd
-  fintype := fun {U} _ =>
-    show Fintype (F U × G U) from inferInstance
-
-  transport := fun {U V} _ _ σ ⟨f, g⟩ =>
-    (transport σ f, transport σ g)
-
-  transport_trans := fun {U V W} _ _ _ σ τ ⟨f, g⟩ => by
-    simp [transport_trans]
-
-  transport_id := fun {U} _ ⟨f, g⟩ => by
-    simp [transport_id]
+instance instSpeciesCartProd : Species (cartProd F G) where
+  fintype         := fun {U} _                    => show Fintype (F U × G U) from inferInstance
+  transport       := fun {U V} _ _ σ ⟨f, g⟩       => (transport σ f, transport σ g)
+  transport_trans := fun {U V W} _ _ _ σ τ ⟨f, g⟩ => by simp [transport_trans]
+  transport_id    := fun {U} _ ⟨f, g⟩             => by simp [transport_id]
 
 end Species
