@@ -7,8 +7,9 @@ import Species.Instances.Zero
 import Species.Cardinality
 import Species.Operations.Add
 import Species.Operations.CartesianProd
-import Mathlib.Data.Finset.Sort
 import Species.Operations.Deriv
+import Species.Operations.Restrict
+import Mathlib.Data.Finset.Sort
 
 #guard card SX 1        = 1
 #guard seq  SX 5        = [0, 1, 0, 0, 0]
@@ -19,6 +20,7 @@ import Species.Operations.Deriv
 
 #guard seq (Species.add SE SE)          5 = [2, 2, 2, 2, 2]
 #guard seq (Species.cartProd SE Finset) 5 = [1, 2, 4, 8, 16]
+#guard seq (Restrict SPowerset 3)       5 = [0, 0, 0, 8, 0]
 
 /- Simple structures -/
 #eval structures_canonical Arrangement 3
@@ -37,3 +39,5 @@ import Species.Operations.Deriv
 #eval structures_canonical (Species.cartProd SE Arrangement) 3
 #eval structures_canonical (Species.Deriv SE) 3
 #eval structures_canonical (Species.Deriv Arrangement) 3
+#eval structures_canonical (Restrict SPowerset 3) 5
+#eval structures_canonical (Restrict SPowerset 3) 3
