@@ -17,7 +17,7 @@ import Species.Operations.Deriv
 #guard seq  SZero 5     = [0, 0, 0, 0, 0]
 #guard seq  SOne 5      = [1, 0, 0, 0, 0]
 
-#guard seq (SE + SE) 5 = [2, 2, 2, 2, 2]
+#guard seq (Species.add SE SE) 5 = [2, 2, 2, 2, 2]
 #guard seq (Species.cartProd SE Finset) 5 = [1, 2, 4, 8, 16]
 
 /- Simple structures -/
@@ -33,7 +33,7 @@ import Species.Operations.Deriv
 #eval structures_canonical SZero 3
 
 /- Combined structures -/
-#eval structures_canonical (SE + Arrangement) 3
+#eval structures_canonical (Species.add SE Arrangement) 3
 #eval structures_canonical (Species.cartProd SE Arrangement) 3
 #eval structures_canonical (Species.Deriv SE) 3
 #eval structures_canonical (Species.Deriv Arrangement) 3
