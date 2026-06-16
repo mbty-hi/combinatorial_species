@@ -1,14 +1,6 @@
-import Species.Instances.E
-import Species.Instances.L
-import Species.Instances.One
-import Species.Instances.Powerset
-import Species.Instances.X
-import Species.Instances.Zero
+import Species.Instances.Instances
 import Species.Cardinality
-import Species.Operations.Add
-import Species.Operations.CartesianProd
-import Species.Operations.Deriv
-import Species.Operations.Restrict
+import Species.Operations.Operations
 import Mathlib.Data.Finset.Sort
 
 #guard card SX 1        = 1
@@ -17,6 +9,7 @@ import Mathlib.Data.Finset.Sort
 #guard seq  SPowerset 5 = [1, 2, 4, 8, 16]
 #guard seq  SZero 5     = [0, 0, 0, 0, 0]
 #guard seq  SOne 5      = [1, 0, 0, 0, 0]
+#guard seq  SCycle 5    = [0, 1, 1, 2, 6]
 
 #guard seq (Species.add SE SE)          5 = [2, 2, 2, 2, 2]
 #guard seq (Species.cartProd SE Finset) 5 = [1, 2, 4, 8, 16]
@@ -33,6 +26,7 @@ import Mathlib.Data.Finset.Sort
 #eval structures_canonical SX 2
 #eval structures_canonical SZero 0
 #eval structures_canonical SZero 3
+#eval structures_canonical SCycle 4
 
 /- Combined structures -/
 #eval structures_canonical (Species.add SE Arrangement) 3

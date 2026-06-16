@@ -7,7 +7,7 @@ import Mathlib.Data.Finset.Sort
 structure Arrangement (α : Type) where
   order    : List α
   nodup    : order.Nodup
-  complete : ∀u, u ∈ order
+  complete : ∀ (x : α), x ∈ order
 
 instance instDecEqArrangement {α} [DecidableEq α] : DecidableEq (Arrangement α) :=
   fun a b => decidable_of_iff (a.order = b.order)
