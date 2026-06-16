@@ -11,8 +11,6 @@ import Mathlib.Data.Fintype.Perm
 def SCycle (α : Type) := {σ : Equiv.Perm α // Nonempty α ∧ ∀ x y, σ.SameCycle x y}
 
 /- Display related instances -/
-/- instance instReprSCycle {α} [Fintype α] [LinearOrder α] [Repr α] : Repr (SCycle α) where -/
-/-   reprPrec s _ := repr ((Finset.univ.sort (· ≤ ·)).map (fun x => (x, s.1 x))) -/
 -- Representation in cycle form (e.g., (1, 3, 2))
 instance instReprSCycle {α} [Fintype α] [LinearOrder α] [Repr α] : Repr (SCycle α) where
   reprPrec s _ :=
