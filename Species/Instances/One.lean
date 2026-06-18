@@ -1,6 +1,11 @@
 import Species.Basic
 
-abbrev SOne (α : Type) : Type := α → Empty
+def SOne (α : Type) : Type := α → Empty
+
+instance instFintypeSOne {α} [Fintype α] [DecidableEq α] : Fintype (SOne α) :=
+  inferInstanceAs (Fintype (α → Empty))
+instance instSubsingletonSOne {α} : Subsingleton (SOne α) :=
+  inferInstanceAs (Subsingleton (α → Empty))
 
 /- Display related instances -/
 instance instReprSOne        {α} [Repr α] : Repr (SOne α) where reprPrec _ _ := "•"
