@@ -1,7 +1,6 @@
 import Species.Basic
 import Mathlib.GroupTheory.Perm.Cycle.Basic
 import Mathlib.GroupTheory.Perm.Cycle.Concrete
-import Mathlib.GroupTheory.Perm.Cycle.Factors
 import Mathlib.Data.Fintype.Perm
 
 /- The species of cycles is defined as `Equiv.Perm α` (i.e., `α ≃ α`) with some restrictions:
