@@ -11,9 +11,9 @@ import Mathlib.Data.Finset.Sort
 #guard seq  SOne 5      = [1, 0, 0, 0, 0]
 #guard seq  SCycle 5    = [0, 1, 1, 2, 6]
 
-#guard seq (Species.add SE SE)          5 = [2, 2, 2, 2, 2]
-#guard seq (Species.cartProd SE Finset) 5 = [1, 2, 4, 8, 16]
-#guard seq (Restrict SPowerset 3)       5 = [0, 0, 0, 8, 0]
+#guard seq (Species.add SE SE)             5 = [2, 2, 2, 2, 2]
+#guard seq (Species.cartProd SE SPowerset) 5 = [1, 2, 4, 8, 16]
+#guard seq (Restrict SPowerset 3)          5 = [0, 0, 0, 8, 0]
 
 /- Simple structures -/
 #eval structures_canonical Arrangement 3

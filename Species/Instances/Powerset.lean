@@ -3,7 +3,10 @@ import Mathlib.Data.Fintype.Powerset
 import Mathlib.Data.Finset.Sort
 import Mathlib.Data.Prod.Lex
 
-abbrev SPowerset : Type → Type := Finset
+def SPowerset : Type → Type := Finset
+
+instance instFintypeSPowerset {α} [Fintype α] : Fintype (SPowerset α) :=
+  inferInstanceAs (Fintype (Finset α))
 
 /- Display related instances -/
 namespace Display
