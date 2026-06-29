@@ -32,7 +32,7 @@ instance instReprSPermutation {α} [Fintype α] [LinearOrder α] [Repr α]
   reprPrec p _ := -- representation for a specific SPermutation
     Std.Format.join ((orbits p).map fun c => "(" ++ Std.Format.joinSep (c.map repr) ", " ++ ")")
 
--- Sorting only by number of orbits × contents
+-- Sorting only by (number of orbits) × contents
 instance instLinearOrderSPermutation {α} [Fintype α] [LinearOrder α]
 : LinearOrder (SPermutation α) :=
   LinearOrder.lift'
@@ -50,7 +50,7 @@ instance instLinearOrderSPermutation {α} [Fintype α] [LinearOrder α]
         simp only [List.getElem?_map, List.getElem?_eq_getElem hlt, hi] at hmap
         simpa using hmap)
 
--- Sorting by number of orbits × size of these orbits × contents.
+-- Sorting by (number of orbits) × (list of sizes of these orbits) × (contents).
 -- Leads to stack overflows even with very small sizes, the underlying issue is hard to pinpoint.
 -- Ideally, we would prove the `orbits` function injective and just sort on
 -- `(orbits p).mergeSort (fun a b => decide (a.length ≤ b.length))`.
@@ -59,11 +59,12 @@ instance instLinearOrderSPermutation {α} [Fintype α] [LinearOrder α]
 /-   LinearOrder.lift' -/
 /-     (fun p => -/
 /-       let orbits := (orbits p).mergeSort (fun a b => decide (a.length ≤ b.length)) -/
-/-       toLex (orbits.map List.length, toLex (orbits, (Finset.univ.sort (· ≤ ·)).map p))) -/
+/-       toLex (orbits.map List.length, toLex (orbits, (Finset.univ.sort (· ≤ ·)).map p.1))) -/
 /-     (fun p₁ p₂ h => by -/
-/-       have h2 : (Finset.univ.sort (· ≤ ·)).map p₁ = (Finset.univ.sort (· ≤ ·)).map p₂ := -/
+/-       have h2 : (Finset.univ.sort (· ≤ ·)).map p₁.1 = (Finset.univ.sort (· ≤ ·)).map p₂.1 := -/
 /-         congrArg (fun p => (ofLex (ofLex p).2).2) h -/
-/-       ext x -/
+/-       refine Equiv.ext (fun x => ?_) -/
+/-       show p₁.1 x = p₂.1 x -/
 /-       have hx : x ∈ Finset.univ.sort (· ≤ ·) := (Finset.mem_sort _).mpr (Finset.mem_univ x) -/
 /-       obtain ⟨i, hlt, hi⟩ := List.mem_iff_getElem.mp hx -/
 /-       have hmap := congrArg (·[i]?) h2 -/
