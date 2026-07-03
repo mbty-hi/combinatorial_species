@@ -58,21 +58,26 @@ instance {U} [LabelType U] : DecidablePred (IsSplit (U := U)) := fun p => by
 
 theorem map_refl_emb {U} (A : Finset U) :
     A.map (Equiv.refl U).toEmbedding = A := by
-  ext a; simp [Finset.mem_map, Equiv.coe_toEmbedding]
+  ext a; simp
 
 theorem blockEquiv_refl {U} (A : Finset U) :
     HEq (blockEquiv (Equiv.refl U) A) (Equiv.refl {x // x ∈ A}) := by
   have h : A.map (Equiv.refl U).toEmbedding = A := map_refl_emb A
   -- express blockEquiv at refl as `refl` transported along the index equality
-  have key : blockEquiv (Equiv.refl U) A = h.symm ▸ Equiv.refl {x // x ∈ A} := by
+  have heq_refl_of_val_eq : ∀ (A': Finset U) (h_eq: A'=A) (e: Equiv {x // x∈A} {x // x∈A'}),
+    (∀ x, (e x).val = x.val) → HEq e (Equiv.refl {x // x ∈ A}) := by
+    rintro A' rfl e h_val
+    apply heq_of_eq
     apply Equiv.ext
-    rintro ⟨a, ha⟩
+    intro x
     apply Subtype.ext
-    -- both sides have underlying value `a`: LHS via subtypeEquiv+refl, RHS since ▸ moves only the proof
-    rcases h.symm with rfl          -- legal *inside* key: goal here is the same-typed Eq, not the HEq
-    simp [blockEquiv, Equiv.subtypeEquiv_apply, Equiv.coe_toEmbedding]
-  rw [key]
-  exact eqRec_heq h.symm (Equiv.refl {x // x ∈ A})
+    exact h_val x
+
+  apply heq_refl_of_val_eq (A.map (Equiv.refl U).toEmbedding) h (blockEquiv (Equiv.refl U) A)
+
+  intro x
+  simp[blockEquiv, Equiv.subtypeEquiv_apply]
+
 
 instance instSpeciesMul : Species (mul F G) where
   fintype := fun {U} _ => by unfold mul; infer_instance
