@@ -11,8 +11,8 @@ def mul (F G : Type → Type) (U : Type) : Type :=
 
 -- σ restricts to each color class; precomposition by σ.symm relabels the coloring.
 -- block equiv on the `true` class:  {u // d u} ≃ {v // (d ∘ σ.symm) v}
-def colorEquiv {U V} (σ : U ≃ V) (d : U → Bool) (b : Bool) :
-    {u // d u = b} ≃ {v // (d ∘ σ.symm) v = b} :=
+def colorEquiv {U V} (σ : U ≃ V) (d : U → Bool) (b : Bool)
+: {u // d u = b} ≃ {v // (d ∘ σ.symm) v = b} :=
   σ.subtypeEquiv (fun u => by simp [Function.comp, Equiv.symm_apply_apply])
 
 def mul.transport {U V} [LabelType U] [LabelType V] (σ : U ≃ V)
