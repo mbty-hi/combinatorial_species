@@ -3,6 +3,8 @@ import Species.Cardinality
 import Species.Operations.Operations
 import Mathlib.Data.Finset.Sort
 
+#synth Repr (Species.mul SE Arrangement (Canonical 3))
+#synth Repr (Σ d : Canonical 3 → Bool, SE {u // d u = true} × Arrangement {u // d u = false})
 #guard card SX 1           = 1
 #guard seq  SX 5           = [0, 1, 0, 0, 0]
 #guard seq  SE 5           = [1, 1, 1, 1, 1]
@@ -20,6 +22,8 @@ import Mathlib.Data.Finset.Sort
 /- Simple structures -/
 #eval structures_canonical Arrangement 3
 #eval structures_canonical SCycle 4
+#eval structures_canonical SCycle 0
+#eval structures_canonical Arrangement 0
 #eval structures_canonical SE 3
 #eval structures_canonical SOne 0
 #eval structures_canonical SOne 3
@@ -33,6 +37,11 @@ import Mathlib.Data.Finset.Sort
 
 /- Combined structures -/
 #eval structures_canonical (Species.add SE Arrangement) 3
+#eval structures_canonical (Species.add SE (Species.add SE SE)) 3
+#eval structures_canonical (Species.mul SE Arrangement) 3
+#eval structures_canonical (Species.mul SE SE) 5
+#eval structures_canonical (Species.mul (Species.add SCycle Arrangement) SPermutation) 3
+#eval structures_canonical (Species.mul (Species.mul SCycle Arrangement) SPermutation) 3
 #eval structures_canonical (Species.cartProd SE Arrangement) 3
 #eval structures_canonical (Species.Deriv SE) 3
 #eval structures_canonical (Species.Deriv Arrangement) 3

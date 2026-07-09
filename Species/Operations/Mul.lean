@@ -1,53 +1,104 @@
 import Species.Basic
+import Mathlib.Data.Finset.Sort
 import Mathlib.Data.Fintype.Sigma
+import Mathlib.Data.List.Basic
+import Mathlib.Data.Prod.Lex
 
 namespace Species
 
-variable {F G : Type → Type} [Species F] [Species G]
-variable {U V : Type} [LabelType U] [LabelType V]
+variable {F G : Type → Type} [Species F] [Species G] {U V : Type}
 
 def mul (F G : Type → Type) (U : Type) : Type :=
   Σ d : U → Bool, F {u // d u = true} × G {u // d u = false}
 
--- σ restricts to each color class; precomposition by σ.symm relabels the coloring.
--- block equiv on the `true` class:  {u // d u} ≃ {v // (d ∘ σ.symm) v}
-def colorEquiv {U V} (σ : U ≃ V) (d : U → Bool) (b : Bool)
-: {u // d u = b} ≃ {v // (d ∘ σ.symm) v = b} :=
-  σ.subtypeEquiv (fun u => by simp [Function.comp, Equiv.symm_apply_apply])
+/- Relabelling a split: `v` falls in the same block as its `σ`-preimage. -/
+abbrev transportSplit {U V : Type} (σ : U ≃ V) (split : U → Bool) : V → Bool :=
+  split ∘ σ.symm
 
-def mul.transport {U V} [LabelType U] [LabelType V] (σ : U ≃ V)
-: mul F G U → mul F G V :=
-  fun ⟨d, f, g⟩ =>
-    ⟨ d ∘ σ.symm,
-      Species.transport (colorEquiv σ d true) f,
-      Species.transport (colorEquiv σ d false) g ⟩
+/- There is a bijection between blocks before and after transport. -/
+def blockEquiv {U V} (σ : U ≃ V) (split : U → Bool) (b : Bool)
+: {u // split u = b} ≃ {v // transportSplit σ split v = b} :=
+  σ.subtypeEquiv (fun u => by simp [Equiv.symm_apply_apply])
 
-theorem colorEquiv_trans {U V W} (σ : U ≃ V) (τ : V ≃ W) (d : U → Bool) (b : Bool) :
-    colorEquiv (σ.trans τ) d b
-      = (colorEquiv σ d b).trans (colorEquiv τ (d ∘ σ.symm) b) := by
-  apply Equiv.ext; rintro ⟨u, hu⟩; apply Subtype.ext; rfl
-  -- both send u ↦ τ (σ u); the `d ∘ σ.symm` index on the middle type lines up definitionally
-
+/- Species instance -/
 instance instSpeciesMul : Species (mul F G) where
-  fintype := fun {U} _ => by unfold mul; infer_instance   -- Pi.fintype: Fintype (U → Bool)
-  transport := fun σ x => mul.transport σ x
+  fintype := fun {U} _ => by unfold mul; infer_instance
+  transport := fun σ ⟨split, f_struct, g_struct⟩ => ⟨
+    transportSplit σ split,
+    Species.transport (blockEquiv σ split true) f_struct,
+    Species.transport (blockEquiv σ split false) g_struct
+  ⟩
   transport_id := by
-    rintro U _ ⟨d, f, g⟩
-    -- index d ∘ refl.symm ≡ d definitionally ⇒ fibers homogeneous
-    simp only [mul.transport, Equiv.refl_symm]
-    -- remaining: colorEquiv refl d b = Equiv.refl _, then Species.transport_id
+    rintro U _ ⟨d, f, g⟩; simp [Equiv.refl_symm]
     refine Sigma.ext rfl (heq_of_eq ?_)
-    ext <;> simp [colorEquiv, Equiv.subtypeEquiv]
-    · exact Species.transport_id f
-    · exact Species.transport_id g
+    ext <;> simp [blockEquiv, Equiv.subtypeEquiv] <;> apply Species.transport_id
   transport_trans := by
     rintro U V W _ _ _ σ τ ⟨d, f, g⟩
-    simp only [mul.transport]
     refine Sigma.ext rfl (heq_of_eq ?_)
     apply Prod.ext
-    · rw [colorEquiv_trans]
-      exact Species.transport_trans (colorEquiv σ d true) (colorEquiv τ (d ∘ σ.symm) true) f
-    · rw [colorEquiv_trans]
-      exact Species.transport_trans (colorEquiv σ d false) (colorEquiv τ (d ∘ σ.symm) false) g
+      <;> apply Species.transport_trans (blockEquiv σ d _) (blockEquiv τ (d ∘ σ.symm) _)
+
+/- Display related instances -/
+variable
+  [LabelType U] [LabelType V]
+  [∀ d : U → Bool, LinearOrder (F {u // d u = true})]
+  [∀ d : U → Bool, LinearOrder (G {u // d u = false})]
+  /- Note that `[∀ d : U → Bool, ∀ b : Bool, LinearOrder (F {u // d u = b})]` would not work. -/
+
+instance instReprMul
+  {F G : Type → Type} {U : Type} [LabelType U] [Repr U]
+  [∀ d : U → Bool, Repr (F {u // d u = true})]
+  [∀ d : U → Bool, Repr (G {u // d u = false})]
+: Repr ((mul F G) U) where
+  reprPrec x p :=
+    let left  := (Finset.univ.filter (x.1 · = true )).sort (· ≤ ·)
+    let right := (Finset.univ.filter (x.1 · = false)).sort (· ≤ ·)
+    Repr.addAppParen f!"{repr left} ↦ {reprArg x.2.1} · {repr right} ↦ {reprArg x.2.2}" p
+
+-- Get the rank of some value of an ordered finite type (position in the associated order).
+def rankOf {α : Type} [Fintype α] [LinearOrder α] (y : α) : ℕ :=
+  ((Finset.univ : Finset α).sort (· ≤ ·)).idxOf y
+
+lemma rankOf_injective {α} [Fintype α] [LinearOrder α]
+: Function.Injective (rankOf (α := α)) := by
+  intro a b h
+  have ha : a ∈ (Finset.univ : Finset α).sort (· ≤ ·) := by simp
+  exact (List.idxOf_inj ha).mp h
+
+-- We order the components our species according to the labels assigned to the true block and the
+-- ranks of their components in according to their own order.
+def mulKey (x : mul F G U) : List U ×ₗ (ℕ ×ₗ ℕ) :=
+  toLex ((Finset.univ.filter (x.1 · = true)).sort (· ≤ ·), toLex (rankOf x.2.1, rankOf x.2.2))
+
+lemma true_block_contents_determines_split {split₁ split₂ : U → Bool}
+  (h :
+    (Finset.univ.filter (split₁ · = true)).sort (· ≤ ·)
+    = (Finset.univ.filter (split₂ · = true)).sort (· ≤ ·)
+  )
+: split₁ = split₂ := by
+  have hset : Finset.univ.filter (split₁ · = true) = Finset.univ.filter (split₂ · = true) := by
+    have := congrArg List.toFinset h
+    simpa [Finset.sort_toFinset] using this
+  funext u
+  have := Finset.ext_iff.mp hset u
+  simp only [Finset.mem_filter, Finset.mem_univ, true_and] at this
+  cases hu1 : split₁ u <;> cases hu2 : split₂ u <;> simp_all
+
+lemma mulKey_injective : Function.Injective (mulKey (F := F) (G := G) (U := U)) := by
+  rintro ⟨d₁, f₁, g₁⟩ ⟨d₂, f₂, g₂⟩ h
+  rw [Prod.ext_iff, Prod.ext_iff] at h
+  obtain ⟨hL, hf, hg⟩ := h
+  have hd : d₁ = d₂ := true_block_contents_determines_split hL
+  subst hd
+  have roi_f := rankOf_injective hf
+  have roi_g := rankOf_injective hg
+  subst_vars; simp
+
+instance instLinearOrderMul
+  {F G : Type → Type} {α : Type} [Species F] [Species G] [LabelType α]
+  [∀ d : α → Bool, LinearOrder (F {u // d u = true})]
+  [∀ d : α → Bool, LinearOrder (G {u // d u = false})]
+: LinearOrder ((mul F G) α) :=
+  LinearOrder.lift' mulKey mulKey_injective
 
 end Species
