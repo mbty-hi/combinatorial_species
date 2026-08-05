@@ -1,4 +1,5 @@
 import Species.Basic
+import Mathlib.Data.Finite.Sigma
 import Mathlib.Data.Finset.Sort
 import Mathlib.Data.Fintype.Sigma
 import Mathlib.Data.List.Basic
@@ -22,7 +23,14 @@ def blockEquiv {U V} (σ : U ≃ V) (split : U → Bool) (b : Bool)
 
 /- Species instance -/
 instance instSpeciesMul : Species (mul F G) where
-  fintype := fun {U} _ => by unfold mul; infer_instance
+  finite := by
+    intros U _; unfold mul
+    /- Surface instances -/
+    haveI : ∀ d : U → Bool, Finite (F {u // d u = true}) :=
+      fun d => Species.finite (F := F) (U := {u // d u = true})
+    haveI : ∀ d : U → Bool, Finite (G {u // d u = false}) :=
+      fun d => Species.finite (F := G) (U := {u // d u = false})
+    infer_instance
   transport := fun σ ⟨split, f_struct, g_struct⟩ => ⟨
     transportSplit σ split,
     Species.transport (blockEquiv σ split true) f_struct,
@@ -38,11 +46,23 @@ instance instSpeciesMul : Species (mul F G) where
     apply Prod.ext
       <;> apply Species.transport_trans (blockEquiv σ d _) (blockEquiv τ (d ∘ σ.symm) _)
 
+instance instSpeciesCompMul [SpeciesComp F] [SpeciesComp G] : SpeciesComp (mul F G) where
+  fintype := fun {U} _ => by unfold mul; infer_instance
+  decEq := by
+    intros U _; unfold mul
+    /- Surface instances -/
+    haveI : ∀ d : U → Bool, DecidableEq (F {u // d u = true}) :=
+      fun d => SpeciesComp.decEq (F := F) (U := {u // d u = true})
+    haveI : ∀ d : U → Bool, DecidableEq (G {u // d u = false}) :=
+      fun d => SpeciesComp.decEq (F := G) (U := {u // d u = false})
+    infer_instance
+
 /- Display related instances -/
 variable
   [LabelType U] [LabelType V]
   [∀ d : U → Bool, LinearOrder (F {u // d u = true})]
   [∀ d : U → Bool, LinearOrder (G {u // d u = false})]
+  [SpeciesComp F] [SpeciesComp G]
   /- Note that `[∀ d : U → Bool, ∀ b : Bool, LinearOrder (F {u // d u = b})]` would not work. -/
 
 instance instReprMul
@@ -84,6 +104,7 @@ lemma true_block_contents_determines_split {split₁ split₂ : U → Bool}
   simp only [Finset.mem_filter, Finset.mem_univ, true_and] at this
   cases hu1 : split₁ u <;> cases hu2 : split₂ u <;> simp_all
 
+omit [Species F] [Species G] in
 lemma mulKey_injective : Function.Injective (mulKey (F := F) (G := G) (U := U)) := by
   rintro ⟨d₁, f₁, g₁⟩ ⟨d₂, f₂, g₂⟩ h
   rw [Prod.ext_iff, Prod.ext_iff] at h
@@ -95,10 +116,10 @@ lemma mulKey_injective : Function.Injective (mulKey (F := F) (G := G) (U := U)) 
   subst_vars; simp
 
 instance instLinearOrderMul
-  {F G : Type → Type} {α : Type} [Species F] [Species G] [LabelType α]
+  {F G : Type → Type} {α : Type}
+  [Species F] [Species G] [SpeciesComp F] [SpeciesComp G] [LabelType α]
   [∀ d : α → Bool, LinearOrder (F {u // d u = true})]
   [∀ d : α → Bool, LinearOrder (G {u // d u = false})]
 : LinearOrder ((mul F G) α) :=
   LinearOrder.lift' mulKey mulKey_injective
-
 end Species

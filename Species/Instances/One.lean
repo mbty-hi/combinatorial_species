@@ -1,19 +1,23 @@
 import Species.Basic
 
-def SOne (α : Type) : Type := α → Empty
+def SOne (U : Type) : Type := U → Empty
 
-instance instFintypeSOne {α} [Fintype α] [DecidableEq α] : Fintype (SOne α) :=
-  inferInstanceAs (Fintype (α → Empty))
-instance instSubsingletonSOne {α} : Subsingleton (SOne α) :=
-  inferInstanceAs (Subsingleton (α → Empty))
+instance instFintypeSOne {U} [Fintype U] [DecidableEq U] : Fintype (SOne U) :=
+  inferInstanceAs (Fintype (U → Empty))
+instance instSubsingletonSOne {U} : Subsingleton (SOne U) :=
+  inferInstanceAs (Subsingleton (U → Empty))
 
 /- Display related instances -/
-instance instReprSOne        {α} [Repr α] : Repr (SOne α) where reprPrec _ _ := "•"
-instance instLinearOrderSOne {α} : LinearOrder (SOne α) := .ofSubsingleton
+instance instReprSOne        {U} [Repr U] : Repr (SOne U) where reprPrec _ _ := "•"
+instance instLinearOrderSOne {U} : LinearOrder (SOne U) := .ofSubsingleton
 
 /- Species instance -/
 instance instSpeciesSOne : Species SOne where
-  fintype         := inferInstance
+  finite          := inferInstance
   transport       := fun σ f v => f (σ.symm v)
   transport_trans := fun _ _ _ => Subsingleton.elim _ _
   transport_id    := fun _     => Subsingleton.elim _ _
+
+instance instSpeciesCompSOne : SpeciesComp SOne where
+  fintype := inferInstance
+  decEq   := inferInstance
