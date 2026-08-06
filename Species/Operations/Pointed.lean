@@ -1,17 +1,27 @@
 import Species.Basic
+import Mathlib.Data.Finite.Prod
 import Mathlib.Data.Prod.Lex
 
 namespace Species
 
-variable {F : Type → Type} [Species F] {α : Type}
+variable {F : Type → Type} [Species F] {U : Type}
 
-def Pointed (F : Type → Type) (α : Type) : Type := α × F α
-
+def Pointed (F : Type → Type) (U : Type) : Type := U × F U
 
 instance instSpeciesPointed : Species (Pointed F) where
-  fintype         := fun {α} _                    => show Fintype (α × F α ) from inferInstance
-  transport       := fun {α β} _ _ σ x         => (σ x.1, Species.transport σ x.2)
-  transport_trans := fun {α β γ} _ _ _ σ τ f => by simp [Species.transport_trans]
-  transport_id    := fun {α} _ f             => by simp [Species.transport_id]
+  finite := by
+    intros U _; unfold Pointed
+    haveI := Species.finite (F := F) (U := U)
+    infer_instance
+  transport       := fun {U V} _ _ σ x       => (σ x.1, Species.transport σ x.2)
+  transport_trans := fun {U V W} _ _ _ σ τ f => by simp [Species.transport_trans]
+  transport_id    := fun {U} _ f             => by simp [Species.transport_id]
+
+instance instSpeciesCompPointed [SpeciesComp F] : SpeciesComp (Pointed F) where
+  fintype := fun {U} _  => show Fintype (U × F U) from inferInstance
+  decEq := by
+    intros U _; unfold Pointed
+    haveI := SpeciesComp.decEq (F := F) (U := U)
+    infer_instance
 
 end Species

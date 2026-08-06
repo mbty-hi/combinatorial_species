@@ -5,18 +5,18 @@ import Mathlib.GroupTheory.Perm.Cycle.Concrete
 
 def SPermutation := Equiv.Perm
 
-instance insetFintypeSPermutation {α} [Fintype α] [DecidableEq α] : Fintype (SPermutation α) :=
-  inferInstanceAs (Fintype (Equiv.Perm α))
+instance insetFintypeSPermutation {U} [Fintype U] [DecidableEq U] : Fintype (SPermutation U) :=
+  inferInstanceAs (Fintype (Equiv.Perm U))
 
 /- List of orbits ordered by length and contents -/
-private def orbits {α} [Fintype α] [LinearOrder α] (p : SPermutation α) : List (List α) :=
-  let labels : List α := Finset.univ.sort (· ≤ ·)
-  let orbits : List (List α) :=
+private def orbits {U} [Fintype U] [LinearOrder U] (p : SPermutation U) : List (List U) :=
+  let labels : List U := Finset.univ.sort (· ≤ ·)
+  let orbits : List (List U) :=
     -- Handling things one orbit at a time. We fold over all elements of type α to ensure that we
     -- meet every orbit.
     (labels.foldl
       -- acc : elements whose orbits have been seen × orbits
-      (fun (acc : List α × List (List α)) (x : α) =>
+      (fun (acc : List U × List (List U)) (x : U) =>
         if x ∈ acc.1 then acc -- containing orbit already seen: skip
         else
           let orbit_raw := p.toList x -- returns the one orbit that contains x
@@ -27,14 +27,14 @@ private def orbits {α} [Fintype α] [LinearOrder α] (p : SPermutation α) : Li
   orbits.mergeSort (fun a b => a.length ≤ b.length) -- shorter orbits first
 
 /- Display related instances -/
-instance instReprSPermutation {α} [Fintype α] [LinearOrder α] [Repr α]
-: Repr (SPermutation α) where
+instance instReprSPermutation {U} [Fintype U] [LinearOrder U] [Repr U]
+: Repr (SPermutation U) where
   reprPrec p _ := -- representation for a specific SPermutation
     Std.Format.join ((orbits p).map fun c => "(" ++ Std.Format.joinSep (c.map repr) ", " ++ ")")
 
 -- Sorting only by (number of orbits) × contents
-instance instLinearOrderSPermutation {α} [Fintype α] [LinearOrder α]
-: LinearOrder (SPermutation α) :=
+instance instLinearOrderSPermutation {U} [Fintype U] [LinearOrder U]
+: LinearOrder (SPermutation U) :=
   LinearOrder.lift'
     (fun p =>
       let orbits := (orbits p).mergeSort (fun a b => decide (a.length ≤ b.length))
@@ -54,8 +54,8 @@ instance instLinearOrderSPermutation {α} [Fintype α] [LinearOrder α]
 -- Leads to stack overflows even with very small sizes, the underlying issue is hard to pinpoint.
 -- Ideally, we would prove the `orbits` function injective and just sort on
 -- `(orbits p).mergeSort (fun a b => decide (a.length ≤ b.length))`.
-/- instance instLinearOrderSPermutation {α} [Fintype α] [LinearOrder α] -/
-/- : LinearOrder (SPermutation α) := -/
+/- instance instLinearOrderSPermutation {U} [Fintype U] [LinearOrder U] -/
+/- : LinearOrder (SPermutation U) := -/
 /-   LinearOrder.lift' -/
 /-     (fun p => -/
 /-       let orbits := (orbits p).mergeSort (fun a b => decide (a.length ≤ b.length)) -/
@@ -72,8 +72,12 @@ instance instLinearOrderSPermutation {α} [Fintype α] [LinearOrder α]
 /-       simpa using hmap) -/
 
 /- Species instance -/
-instance instSpeciesSPermutation : @Species SPermutation where
-  fintype         := inferInstance
+instance instSpeciesSPermutation : Species SPermutation where
+  finite          := by unfold SPermutation; infer_instance
   transport       := fun σ   p => σ.permCongr p
   transport_trans := fun σ τ p => by apply Equiv.ext; simp
   transport_id    := fun     p => by apply Equiv.ext; simp
+
+instance instSpeciesCompSPermutation : SpeciesComp SPermutation where
+  fintype := inferInstance
+  decEq   := inferInstance
