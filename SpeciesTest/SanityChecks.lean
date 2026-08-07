@@ -34,10 +34,46 @@ def foobar {U} {b : Bool} {split : Option U → Bool} (foo : split none = !b) :
   right_inv := fun _ => rfl
 
 
+def barfoo {U} {b : Bool} {split : Option U → Bool} (hn : split none = b) :
+    Option {u // split (some u) = b} ≃ {v // split v = b} where
+  toFun
+    | none => ⟨none, hn⟩
+    | some ⟨u, hu⟩ => ⟨some u, hu⟩
+  invFun
+    | ⟨none, _⟩ => none
+    | ⟨some u, hu⟩ => some ⟨u, hu⟩
+  left_inv := by rintro (_ | ⟨u, hu⟩) <;> rfl
+  right_inv := by rintro ⟨(_ | u), hv⟩ <;> rfl
 
 
+def e {α} {split : α → Bool} {b: Bool} :
+{u : Option α // Option.rec b (fun val => split val) u = b} ≃ Option {v // split v = b} where
+  toFun
+    | ⟨none, _⟩ => none
+    | ⟨some val, hv⟩ => some ⟨val, hv⟩
+  invFun
+    | none => ⟨none, rfl⟩
+    | some ⟨val, hv⟩ => ⟨val, hv⟩
+  left_inv := by rintro ⟨(_ | val), hv⟩ <;> rfl
+  right_inv := by rintro (_ | ⟨val, hv⟩) <;> rfl
 
-def deriv_mul {U : Type} :
+def f {α} {split : α → Bool} {b: Bool} :
+    {u : Option α // Option.rec (!b) (fun val => split val) u = b}
+      ≃ {v : α // split v = b}
+where
+  toFun
+    | ⟨none, h⟩ => absurd h (by simp)
+    | ⟨some val, hv⟩ => ⟨val, hv⟩
+  invFun
+    | ⟨val, hv⟩ => ⟨some val, hv⟩
+  left_inv := by
+    rintro ⟨(_ | val), hv⟩
+    · exact absurd hv (by simp)
+    · rfl
+  right_inv := fun _ => rfl
+
+
+def deriv_mul {U : Type}  [Finite U]:
   Species.Deriv (Species.mul F G) U
   ≃ Species.add (Species.mul (Species.Deriv F) G) (Species.mul F (Species.Deriv G)) U
 := by
@@ -59,27 +95,36 @@ def deriv_mul {U : Type} :
       case false.val.snd =>
         simp [split']
         constructor
-        . let subEquiv : { u : Option U // split u = true } ≃ { u : U // split (some u) = true } := {
-            toFun := fun ⟨u, h⟩ => match u with
-              | some x => ⟨x, h⟩
-              | none   => False.elim (by rw [hs] at h; contradiction)
-            invFun := fun ⟨x, h⟩ => ⟨some x, h⟩
-            left_inv := fun ⟨u, h⟩ => match u with
-              | some x => rfl
-              | none   => False.elim (by rw [hs] at h; contradiction)
-            right_inv := fun ⟨x, h⟩ => rfl
-          }
-          exact Species.transport subEquiv Fstruct
-        .
+        . apply Species.transportEquiv (foobar hs) Fstruct
+        . apply (Species.transportEquiv (barfoo hs)).symm Gstruct
     . apply Sum.inl
       constructor
       case true.val.fst => exact split'
       case true.val.snd =>
         simp[split']
         constructor
-
-
+        . apply (Species.transportEquiv (barfoo hs)).symm Fstruct
+        . apply Species.transportEquiv (foobar hs) Gstruct
 
   case invFun =>
-  case right_inv =>
-  case left_inv =>
+    rintro (⟨split, ⟨Fstruct, Gstruct⟩⟩ | ⟨split, ⟨Fstruct, Gstruct⟩⟩)
+    . constructor
+      case inl.fst =>
+        rintro (_ | ou)
+        . exact true
+        . exact split ou
+      case inl.snd =>
+        constructor
+        . apply (Species.transportEquiv e).symm Fstruct
+        . apply (Species.transportEquiv f).symm Gstruct
+    . constructor
+      case inr.fst =>
+        rintro (_ | ou)
+        . exact false
+        . exact split ou
+      case inr.snd =>
+        constructor
+        . apply (Species.transportEquiv f).symm Fstruct
+        . apply (Species.transportEquiv e).symm Gstruct
+  case right_inv => simp
+  case left_inv => sorry
