@@ -43,6 +43,10 @@ def transportEquiv (σ : U ≃ V) : F U ≃ F V where
     rw [Equiv.symm_trans_self, Species.transport_id] at h
     exact h.symm
 
+theorem transportEquiv_symm {U V} {F: Type → Type} [Finite U] [Finite V] [Species F] (σ : U ≃ V)
+: (Species.transportEquiv (F := F) σ.symm) = (Species.transportEquiv (F := F) σ).symm :=
+  Equiv.ext fun _ => rfl
+
 end Species
 
 namespace SpeciesComp
