@@ -14,7 +14,6 @@ class SpeciesComp (F : Type → Type) extends Species F where
   fintype : {U : Type} → [LabelType U] → Fintype (F U)
   decEq   : {U : Type} → [LabelType U] → DecidableEq (F U)
 
-
 namespace Species
 
 variable {F : Type → Type} [Species F] {U V : Type} [Finite U] [Finite V]
