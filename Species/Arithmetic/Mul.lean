@@ -27,6 +27,29 @@ def mul_zero {S: Type → Type} [Species S] {U} [Finite U] : Species.mul S SZero
   left_inv := by rintro ⟨d,foo,⟨⟩⟩
   right_inv := by rintro ⟨d,foo,⟨⟩⟩
 
+def mul_comm {F G : Type → Type} [Species F] [Species G] {U} [Finite U] :
+Species.mul F G U ≃ Species.mul G F U where
+  toFun := by
+    unfold mul
+    rintro ⟨d,Fstrut,Gstrut⟩
+    refine ⟨fun x => !(d x), ?_, ?_⟩
+    . simp; exact Gstrut
+    . simp; exact Fstrut
+  invFun := by
+    unfold mul
+    rintro ⟨d,Gstrut,Fstrut⟩
+    refine ⟨fun x => !(d x), ?_, ?_⟩
+    . simp; exact Fstrut
+    . simp; exact Gstrut
+  left_inv := by
+    rintro ⟨d,Fstrut, Gstrut⟩
+    simp
+    congr <;> simp
+  right_inv := by
+    rintro ⟨d, Gstrut, Fstrut⟩
+    simp
+    congr <;> simp
+
 /- `(mul SOne S) U` is a partitioning of `U` by a boolean predicate `d`. The set of labels making
    `d` true carries an `SOne`-structure, and its complement carries an `S`-structure. Since there
    are no `SOne`-structures for nonempty label sets, `d` must return `false` for all inputs. The
