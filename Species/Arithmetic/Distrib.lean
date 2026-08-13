@@ -6,8 +6,8 @@ import Species.Instances.Zero
 
 namespace Species
 
-def left_distrib (F G H: Type → Type) U : Species.mul F (Species.add G H) U
-≃ Species.add (Species.mul F G) (Species.mul F H) U where
+def left_distrib {F G H: Type → Type} [Species F] [Species G] [Species H] {U} [Finite U] :
+Species.mul F (Species.add G H) U ≃ Species.add (Species.mul F G) (Species.mul F H) U where
   toFun := by
     unfold add mul
     simp
@@ -29,8 +29,8 @@ def left_distrib (F G H: Type → Type) U : Species.mul F (Species.add G H) U
     rintro ⟨d,Fstrut, Gstrut⟩
     <;> simp
 
-def right_distrib (F G H: Type → Type) U : Species.mul (Species.add F G) H U
-≃ Species.add (Species.mul F H) (Species.mul G H) U where
+def right_distrib {F G H: Type → Type} [Species F] [Species G] [Species H] {U} [Finite U] :
+Species.mul (Species.add F G) H U ≃ Species.add (Species.mul F H) (Species.mul G H) U where
   toFun := by
     unfold add mul
     rintro ⟨d, (Fstrut | Gstrut), Hstrut⟩

@@ -1,8 +1,31 @@
 import Species.Basic
 import Species.Operations.Mul
 import Species.Instances.One
+import Species.Instances.Zero
 
 namespace Species
+
+def zero_mul {S: Type → Type} [Species S] {U} [Finite U] : Species.mul SZero S U
+≃ SZero U where
+  toFun := by
+    unfold mul
+    rintro ⟨d,⟨⟩,bar⟩
+  invFun := by
+    unfold mul
+    rintro ⟨⟩
+  left_inv := by rintro ⟨d,⟨⟩, bar⟩
+  right_inv := by rintro ⟨d,⟨⟩, bar⟩
+
+def mul_zero {S: Type → Type} [Species S] {U} [Finite U] : Species.mul S SZero U
+≃ SZero U where
+  toFun := by
+    unfold mul
+    rintro ⟨d,foo,⟨⟩⟩
+  invFun := by
+    unfold mul
+    rintro ⟨⟩
+  left_inv := by rintro ⟨d,foo,⟨⟩⟩
+  right_inv := by rintro ⟨d,foo,⟨⟩⟩
 
 /- `(mul SOne S) U` is a partitioning of `U` by a boolean predicate `d`. The set of labels making
    `d` true carries an `SOne`-structure, and its complement carries an `S`-structure. Since there

@@ -4,7 +4,8 @@ import Species.Instances.One
 import Species.Instances.Zero
 
 namespace Species
-  def add_zero (S: Type → Type) U : (Species.add S SZero) U ≃ S U where
+  def add_zero {S: Type → Type} [Species S] {U} [Finite U] : (Species.add S SZero) U
+  ≃ S U where
     toFun
       | .inl x => x
       | .inr x => nomatch x
@@ -12,7 +13,8 @@ namespace Species
     left_inv  := by simp [Function.LeftInverse]; rintro (_ | x); simp; nomatch x
     right_inv := by simp [Function.RightInverse, Function.LeftInverse]
 
-  def zero_add (S: Type → Type) U : (Species.add SZero S) U ≃ S U where
+  def zero_add {S: Type → Type} [Species S] {U} [Finite U] : (Species.add SZero S) U
+  ≃ S U where
     toFun
       | .inl x => nomatch x
       | .inr x => x
@@ -20,8 +22,8 @@ namespace Species
     left_inv  := by simp [Function.LeftInverse]; rintro (x | _); nomatch x; simp
     right_inv := by simp [Function.RightInverse, Function.LeftInverse]
 
-  def add_assoc (F G H: Type → Type) U : (Species.add (Species.add F G) H) U
-  ≃ (Species.add F (Species.add G H)) U where
+  def add_assoc {F G H: Type → Type} [Species F] [Species G] [Species H] {U} [Finite U] :
+  (Species.add (Species.add F G) H) U ≃ (Species.add F (Species.add G H)) U where
     toFun := by
       unfold add
       rintro ((foo | bar) | baz)
@@ -38,7 +40,8 @@ namespace Species
     left_inv := by rintro ((foo | bar) | baz) <;> simp
     right_inv := by rintro (foo | bar | baz) <;> simp
 
-  def add_comm (F G : Type → Type) U : Species.add F G U ≃ Species.add G F U where
+  def add_comm {F G : Type → Type} [Species F] [Species G] {U} [Finite U] :
+  Species.add F G U ≃ Species.add G F U where
     toFun := by
       unfold add
       rintro (foo | bar)
