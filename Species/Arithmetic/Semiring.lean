@@ -1,6 +1,7 @@
 import Species.Arithmetic.Add
 import Species.Arithmetic.Mul
 import Species.Basic
+import Species.Arithmetic.Add
 import Species.Instances.One
 import Species.Instances.Zero
 import Species.Operations.Add
@@ -39,7 +40,4 @@ namespace Species
     left_distrib := sorry -- done
     right_distrib := sorry -- done
     -- npow
-
-
-
 end Species

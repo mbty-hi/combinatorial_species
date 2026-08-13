@@ -32,9 +32,9 @@ instance {U : Type} [LabelType U] (F : Type → Type) [Species F]
 /- Transport bundled as an equivalence: every bijection between label types induces a bijection of
    labelled structures. -/
 def transportEquiv (σ : U ≃ V) : F U ≃ F V where
-  toFun     := Species.transport σ
-  invFun    := Species.transport σ.symm
-  left_inv  := fun f => by
+  toFun    := Species.transport σ
+  invFun   := Species.transport σ.symm
+  left_inv := fun f => by
     have h := Species.transport_trans σ σ.symm f
     rw [Equiv.self_trans_symm, Species.transport_id] at h
     exact h.symm
@@ -55,14 +55,6 @@ variable {F : Type → Type} [SpeciesComp F] {U V : Type} [LabelType U] [LabelTy
 
 /- For any `LabelType U`, there is a finite number of `F`-structures labelled with `U`. -/
 instance instFintypeOfSpecies : Fintype (F U) := fintype
-
-/- Relabelling is an action of `Equiv.Perm U` on `F U` (`σ • f := transport σ f`). Its orbits are
-   the isomorphism types of `F`-structures. -/
-instance {U : Type} [LabelType U] (F : Type → Type) [Species F]
-: MulAction (Equiv.Perm U) (F U) where
-  smul σ f       := Species.transport σ f
-  one_smul       := Species.transport_id
-  mul_smul σ τ f := Species.transport_trans τ σ f
 
 /- The finite set of `F`-structures on label type `U`. -/
 def structures : Finset (F U) := Finset.univ

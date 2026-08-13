@@ -111,6 +111,157 @@ def mul_one {S : Type → Type} [Species S] {U} [Finite U] : (mul S SOne) U ≃ 
     · rw [transportEquiv_symm, Equiv.symm_apply_apply]
     · funext x; nomatch x
 
-  right_inv := by intros _; simp[transportEquiv_symm, Equiv.apply_symm_apply]
+  right_inv := by intros _; simp [transportEquiv_symm, Equiv.apply_symm_apply]
+
+--        c₁             d₁          The left branch is taken when the function returns false
+--       / \            / \          The right branch is taken when the function returns true
+--     c₂   \          /   d₂
+--    /  \   \        /   /  \
+-- ((S₁)(S₂))(S₃)  (S₁)((S₂)(S₃))
+
+/- Basically, we need to express c₁ and c₂ in terms of d₁ and d₂, and vice versa. The difficulty is
+   that c₂ and d₂ are dependent functions that are parameterized on c₁ having returned false, and d₁
+   having returned true, respectively. -/
+
+@[simp]
+def d_to_c₁ {U} (d₁ : U → Bool) (d₂ : {u // d₁ u = true} → Bool) : U → Bool :=
+  fun x => if h : d₁ x = true then d₂ ⟨x, h⟩ else false
+
+@[simp]
+def c_to_d₁ {U} (c₁ : U → Bool) (c₂ : {u // c₁ u = false} → Bool) :=
+  fun x => if h : c₁ x = false then c₂ ⟨x, h⟩ else true
+
+def mul_assoc : … := mulMul_equiv_mul3.trans mul_mulMul_equiv_mul3.symm
+
+def assocEquiv₁ {U} (d₁ : U → Bool) (d₂ : {u // d₁ u = true} → Bool)
+: {y : {u // d₁ u = true} // d₂ y = true} ≃ {u // assocDecider d₁ d₂ u = true} :=
+  (Equiv.subtypeSubtypeEquivSubtypeExists _ _).trans
+    (Equiv.subtypeEquivRight fun u => by by_cases h : d₁ u = true <;> simp [assocDecider, h])
+
+def assocEquiv₂ {U} (d₁ : U → Bool) (d₂ : {u // d₁ u = true} → Bool)
+: {y : {u // assocDecider d₁ d₂ u = false} // d₁ y.val = true}
+  ≃ {y : {u // d₁ u = true} // d₂ y = false}
+:=
+  ((Equiv.subtypeSubtypeEquivSubtypeExists _ _).trans
+    (Equiv.subtypeEquivRight fun u => by by_cases h : d₁ u = true <;> simp [assocDecider, h])
+  ).trans
+  (Equiv.subtypeSubtypeEquivSubtypeExists _ _).symm
+
+def assocEquiv₃ {U} (d₁ : U → Bool) (d₂ : {u // d₁ u = true} → Bool)
+: {y : {u // assocDecider d₁ d₂ u = false} // d₁ y.val = false} ≃ {u // d₁ u = false} :=
+  (Equiv.subtypeSubtypeEquivSubtypeExists _ _).trans
+    (Equiv.subtypeEquivRight fun u => by
+      constructor
+      · rintro ⟨_, h⟩; exact h
+      · intro h; exact ⟨by simp [assocDecider, h], h⟩)
+
+def invEquiv₁ {U} (d₁ : U → Bool) (d₂ : {u // d₁ u = false} → Bool)
+: {y : {u // invDecider d₁ d₂ u = true} // d₁ y.val = true} ≃ {u // d₁ u = true} :=
+  (Equiv.subtypeSubtypeEquivSubtypeExists _ _).trans
+    (Equiv.subtypeEquivRight fun u => by
+      constructor
+      · rintro ⟨_, h⟩; exact h
+      · intro h; exact ⟨by simp [invDecider, h], h⟩)
+
+def invEquiv₂ {U} (d₁ : U → Bool) (d₂ : {u // d₁ u = false} → Bool)
+: {y : {u // invDecider d₁ d₂ u = true} // d₁ y.val = false}
+  ≃ {y : {u // d₁ u = false} // d₂ y = true}
+:=
+  ((Equiv.subtypeSubtypeEquivSubtypeExists _ _).trans
+    (Equiv.subtypeEquivRight fun u => by by_cases h : d₁ u = false <;> simp [invDecider, h])
+  ).trans
+    (Equiv.subtypeSubtypeEquivSubtypeExists _ _).symm
+
+def invEquiv₃ {U} (d₁ : U → Bool) (d₂ : {u // d₁ u = false} → Bool)
+: {u // invDecider d₁ d₂ u = false} ≃ {y : {u // d₁ u = false} // d₂ y = false} :=
+  (Equiv.subtypeEquivRight fun u => by by_cases h : d₁ u = false <;> simp [invDecider, h]).trans
+  (Equiv.subtypeSubtypeEquivSubtypeExists _ _).symm
+
+lemma mul_mk_congr
+  {S T : Type → Type} [Species S] [Species T] {U} [Finite U]
+  {d d' : U → Bool} (hd : d = d')
+  {s : S {u // d u = true}} {s' : S {u // d' u = true}}
+  {t : T {u // d u = false}} {t' : T {u // d' u = false}}
+  (hs : HEq s s') (ht : HEq t t')
+: (⟨d, s, t⟩ : mul S T U) = ⟨d', s', t'⟩ := by
+  subst hd; rw [eq_of_heq hs, eq_of_heq ht]
+
+/- Helper A: a composite transport along a val-preserving round trip is
+   heterogeneously the identity. Packages transport_trans + transport_id + Equiv.ext. -/
+theorem transport_comp_heq {S : Type → Type} [Species S] {α β : Type}
+    [Finite α] [Finite β] {γ : Type} [Finite γ]
+    (e₁ : α ≃ β) (e₂ : β ≃ γ) (h : γ = α)
+    (hval : ∀ a, HEq ((e₁.trans e₂) a) a) (s : S α) :
+    HEq (Species.transport e₂ (Species.transport e₁ s)) s := by
+  rw [show Species.transport e₂ (Species.transport e₁ s)
+        = Species.transport (e₁.trans e₂) s from
+      (Species.transport_trans e₁ e₂ s).symm]
+  subst h
+  rw [show e₁.trans e₂ = Equiv.refl γ from Equiv.ext fun a => eq_of_heq (hval a),
+      Species.transport_id]
+
+/-- Equiv between subtypes induced by a decider equality. Val-preserving by construction. -/
+def deciderCast {U : Type} {d d' : U → Bool} (h : d = d') (b : Bool) :
+    {u // d u = b} ≃ {u // d' u = b} :=
+  Equiv.subtypeEquivRight fun u => by rw [h]
+
+@[simp] theorem deciderCast_rfl {U : Type} (d : U → Bool) (b : Bool) :
+    deciderCast (rfl : d = d) b = Equiv.refl _ :=
+  Equiv.ext fun _ => Subtype.ext rfl
+
+theorem mul_ext {S T : Type → Type} [Species S] [Species T] {U} [Finite U]
+    {d d' : U → Bool} {s : S _} {s' : S _} {t : T _} {t' : T _}
+    (hd : d = d')
+    (hs : Species.transport (deciderCast hd true) s = s')
+    (ht : Species.transport (deciderCast hd false) t = t') :
+    (⟨d, (s, t)⟩ : mul S T U) = ⟨d', (s', t')⟩ := by
+  subst hd
+  simp only [deciderCast_rfl, Species.transport_id] at hs ht
+  rw [hs, ht]
+
+def mul_assoc {S₁ S₂ S₃ : Type → Type} [Species S₁] [Species S₂] [Species S₃] {U} [Finite U]
+: (mul (mul S₁ S₂) S₃) U ≃ (mul S₁ (mul S₂ S₃)) U where
+  toFun := by
+    rintro ⟨d₁, ⟨⟨d₂, ⟨s₁, s₂⟩⟩, s₃⟩⟩
+    refine ⟨?d₁, ⟨?s₁, ⟨?d₂, ⟨?s₂, ?s₃⟩⟩⟩⟩
+    case d₁ => exact (fun x => if h : d₁ x = true then d₂ ⟨x, h⟩ else false)
+    case d₂ => exact (fun x => d₁ x.val)
+    case s₁ => exact Species.transport (assocEquiv₁ d₁ d₂) s₁
+    case s₂ => exact Species.transport (assocEquiv₂ d₁ d₂).symm s₂
+    case s₃ => exact Species.transport (assocEquiv₃ d₁ d₂).symm s₃
+
+  invFun := by
+    rintro ⟨d₁, ⟨s₁, ⟨d₂, ⟨s₂, s₃⟩⟩⟩⟩
+    refine ⟨?d₁', ⟨⟨?d₂', ⟨?s₁', ?s₂'⟩⟩, ?s₃'⟩⟩
+    . exact (fun x => if h : d₁ x = false then d₂ ⟨x, h⟩ else true)
+    . exact (fun x => d₁ x)
+    · exact Species.transport (invEquiv₁ d₁ d₂).symm s₁
+    · exact Species.transport (invEquiv₂ d₁ d₂).symm s₂
+    · exact Species.transport (invEquiv₃ d₁ d₂).symm s₃
+
+  left_inv := by
+    rintro ⟨d₁, ⟨⟨d₂, s₁, s₂⟩, s₃⟩⟩
+    dsimp only
+    have hD :
+      (fun x => if h : (if h : d₁ x = true then d₂ ⟨x, h⟩ else false) = false then d₁ x else true)
+      = d₁ := by
+        funext x
+        by_cases h₁ : d₁ x = true
+        · by_cases h₂ : d₂ ⟨x, h₁⟩ = true <;> simp [h₁, h₂]
+        · simp [h₁]
+    refine Sigma.ext hD ?_
+    congr! 1
+    refine mul_ext hD ?_ ?_
+    · refine mul_ext hd₂ ?_ ?_    -- hd₂ : inner decider = d₂, transported along deciderCast hD true
+      · -- transport (deciderCast hd₂ true) (transport (deciderCast hD true) (transport (invEquiv₁ …).symm (transport (assocEquiv₁ …) s₁))) = s₁
+        exact transport_roundtrip4 …
+      · exact transport_roundtrip4 …
+    · -- transport (deciderCast hD false) (transport (invEquiv₃ …).symm (transport (assocEquiv₃ …).symm s₃)) = s₃
+      exact transport_roundtrip3 …
+
+  right_inv := by
+    rintro ⟨d₁, ⟨s₁, ⟨d₂, ⟨s₂, s₃⟩⟩⟩⟩
+    dsimp only
+    sorry
 
 end Species

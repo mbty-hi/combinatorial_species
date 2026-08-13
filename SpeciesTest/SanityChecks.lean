@@ -73,7 +73,7 @@ where
   right_inv := fun _ => rfl
 
 
-def deriv_mul {U : Type}  [Finite U]:
+def deriv_mul {U : Type} [Finite U]:
   Species.Deriv (Species.mul F G) U
   ≃ Species.add (Species.mul (Species.Deriv F) G) (Species.mul F (Species.Deriv G)) U
 := by
