@@ -27,17 +27,18 @@ namespace Species
       induction n with
       | zero => unfold nsmulRec; grind
       | succ n ih => unfold nsmulRec; grind
-    add_zero := sorry
-    zero_add := sorry
-    add_assoc := sorry
-    add_comm := sorry
+    add_zero := sorry -- done
+    zero_add := sorry -- done
+    add_assoc := sorry -- done
+    add_comm := sorry -- done
     zero_mul := sorry
     mul_zero := sorry
-    one_mul := sorry
-    mul_one := sorry
+    one_mul := sorry -- done
+    mul_one := sorry -- done
     mul_assoc := sorry
-    left_distrib := sorry
-    right_distrib := sorry
+    left_distrib := sorry -- done
+    right_distrib := sorry -- done
+    -- npow
 
 
 
