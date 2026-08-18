@@ -1,16 +1,7 @@
 import Species.Basic
 import Species.Labels.LabelType
-
-import Mathlib.Data.Fintype.Sets
-import Mathlib.Data.Fintype.Basic
-import Species.Labels.LabelType
-import Mathlib.Data.Fintype.Sigma
-
+import Mathlib.Data.Finite.Sigma
 import Mathlib.Data.Setoid.Basic
-
-import Mathlib.Order.Basic
-import Mathlib.Data.Finset.Max
-import Species.Labels.LabelType
 
 /- We encode composition as a decidable equivalence relation on the label set (U → U → Bool)
    (like a coloring, except that there is no order between equivalence classes, so we do not need to
@@ -56,6 +47,12 @@ namespace DecSetoid
       case property => subst block; apply (s.quotEquiv σ).injective; simp [quotEquiv]
     left_inv  := fun ⟨block, _⟩ => Subtype.ext (σ.symm_apply_apply block)
     right_inv := fun ⟨block, _⟩ => Subtype.ext (σ.apply_symm_apply block)
+
+-- BEGSLOP
+@[simp] theorem quotEquiv_refl (s : DecSetoid α)
+: s.quotEquiv (Equiv.refl α) = Equiv.refl (Quotient s.toSetoid) :=
+  Equiv.ext fun q => q.inductionOn fun _ => rfl
+-- ENDSLOP
 end DecSetoid
 
 -- The actual operation definition
@@ -65,7 +62,8 @@ structure Composition (F G: Type → Type) (U: Type) where
   inner    : Π (eqv_class : Quotient partition.toSetoid), G { x // ⟦x⟧ = eqv_class }
 
 namespace Composition
-  variable {U V : Type} [LabelType U] [LabelType V] {F G : Type → Type} [Species F] [Species G]
+  variable {U V W : Type} [Finite U] [Finite V] [Finite W]
+  variable {F G : Type → Type} [Species F] [Species G]
 
   def transport (σ : U ≃ V) (c : Composition F G U) : Composition F G V where
     partition := c.partition.map σ
@@ -75,4 +73,54 @@ namespace Composition
         Species.transport
           (c.partition.blockEquiv σ b)
           (c.inner ((c.partition.quotEquiv σ).symm b))
+
+-- BEGSLOP
+theorem transport_id (c : Composition F G U) : transport (Equiv.refl U) c = c := by
+  obtain ⟨p, o, i⟩ := c; simp only [transport, Composition.mk.injEq]
+  refine ⟨rfl, ?_, ?_⟩
+  . apply heq_of_eq; rw [DecSetoid.quotEquiv_refl]; exact Species.transport_id o
+  . apply heq_of_eq; funext b; refine Quotient.inductionOn b fun x => Species.transport_id _
+
+theorem transport_trans (σ : U ≃ V) (τ : V ≃ W) (c : Composition F G U)
+: transport (σ.trans τ) c = (transport τ ∘ transport σ) c := by
+  obtain ⟨p, o, i⟩ := c
+  simp only [transport, Function.comp_apply, Composition.mk.injEq]
+  refine ⟨rfl, ?_, ?_⟩
+  . apply heq_of_eq
+    have foo := Species.transport_trans (p.quotEquiv σ) ((p.map σ).quotEquiv τ) o
+    simp at foo; simp [← foo]; congr
+    exact Equiv.ext fun q => q.inductionOn fun x => rfl
+  . refine heq_of_eq (funext fun b => ?_)
+    refine Quotient.inductionOn b fun z => ?_
+    exact Species.transport_trans
+      (p.blockEquiv σ (((p.map σ).quotEquiv τ).symm (Quotient.mk _ z)))
+      ((p.map σ).blockEquiv τ (Quotient.mk _ z)) _
+
+def equivSigma
+: Composition F G U ≃ Σ s : DecSetoid U,
+  F (Quotient s.toSetoid) × ∀ b, G {x // Quotient.mk s.toSetoid x = b}
+where
+  toFun c     := ⟨c.partition, c.outer, c.inner⟩
+  invFun p    := ⟨p.1, p.2.1, p.2.2⟩
+  left_inv _  := rfl
+  right_inv _ := rfl
+
+instance {α : Type} [Finite α] : Finite (DecSetoid α) :=
+  Finite.of_injective (fun s => s.d) (fun s₁ s₂ h => by cases s₁; cases s₂; simpa using h)
+-- ENDSLOP
+
+/-   theorem transport_id: ∀ (c : Composition F G U), transport (Equiv.refl U) c = c := by -/
+/-     rintro ⟨c_part, c_out, c_in⟩ -/
+/-     simp [transport] -/
+/-     refine ⟨?outs, ?ins⟩ -/
+/-     /1- case parts => simp [DecSetoid.map] -1/ -/
+/-     case outs => sorry -/
+/-     case ins => simp [decSetoid.quotEquiv, DecSetoid.blockEquiv]; sim -/
+
+instance instSpeciesComposition : Species (Composition F G) where
+  finite          := Finite.of_equiv _ equivSigma.symm
+  transport       := transport
+  transport_id    := transport_id
+  transport_trans := transport_trans
+
 end Composition

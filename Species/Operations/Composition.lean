@@ -6,6 +6,7 @@ import Mathlib.Data.List.Basic
 import Mathlib.Data.Prod.Lex
 import Mathlib.GroupTheory.GroupAction.Basic
 import Mathlib.Order.Partition.Basic
+import Mathlib.SetTheory.Cardinal.Finite
 
 /- Previous definition of `Comp`, but lead to noncomputability -/
 /- /1- The type of `B`s belonging to `P.parts` -1/ -/
@@ -95,59 +96,76 @@ def Comp (F G : Type → Type) [Species F] (U : Type) : Type :=
   Σ n : ℕ, Quotient (permSetoid F G U n)
 
 section CompFintype
-variable {F G : Type → Type} [Species F] [Species G] {U : Type} [LabelType U] {n : ℕ}
+variable {F G : Type → Type} [SpeciesComp F] [SpeciesComp G] {U : Type} [LabelType U] {n : ℕ}
 
-instance : DecidableEq (F (Fin n)) :=
-  (Fintype.equivFin (F (Fin n))).injective.decidableEq
+/- instance : DecidableEq (F (Fin n)) := -/
+/-   (Fintype.equivFin (F (Fin n))).injective.decidableEq -/
 
 -- DecidableEq for fibres, from their Fintype (computable)
-instance : DecidableEq (F (Fin n)) := Fintype.decidableEqOfFintype
-instance (c : Coloring U n) (i : Fin n) : DecidableEq (G {u // c.color u = i}) :=
-  Fintype.decidableEqOfFintype
+/- instance : DecidableEq (F (Fin n)) := Fintype.decidableEqOfFintype -/
+/- instance (c : Coloring U n) (i : Fin n) : DecidableEq (G {u // c.color u = i}) := -/
+/-   Fintype.decidableEqOfFintype -/
 
 -- hence DecidableEq on CompRaw (Σ/×/Π of decidable-eq, Coloring via funext over Fintype)
-instance : DecidableEq (CompRaw F G U n) := by unfold CompRaw; infer_instance
+/- instance : DecidableEq (CompRaw F G U n) := by unfold CompRaw; infer_instance -/
 
 -- the orbit relation is a decidable ∃ over the finite Perm (Fin n)
-instance : DecidableRel (permSetoid F G U n).r := fun cr cr' =>
-  decidable_of_iff (∃ p : Equiv.Perm (Fin n), relabel cr p = cr')
-    (by rfl)   -- orbitRel unfolds to this ∃
+/- instance : DecidableRel (permSetoid F G U n).r := fun cr cr' => -/
+/-   decidable_of_iff (∃ p : Equiv.Perm (Fin n), relabel cr p = cr') -/
+/-     (by rfl)   -- orbitRel unfolds to this ∃ -/
 
 -- Fintype of the quotient, then of Comp
-instance : Fintype (Quotient (permSetoid F G U n)) := Quotient.fintype _
-noncomputable instance : Fintype (Comp F G U) := Fintype.ofEquiv _ truncEquiv.symm
-end CompFintype
+/- instance : Fintype (Quotient (permSetoid F G U n)) := Quotient.fintype _ -/
+/- noncomputable instance : Fintype (Comp F G U) := Fintype.ofEquiv _ truncEquiv.symm -/
+/- end CompFintype -/
 
 /-- A surjection from a finite type bounds the target's cardinality. -/
-theorem Coloring.card_le {U : Type} [Fintype U] {n : ℕ} (c : Coloring U n)
-: n ≤ Fintype.card U := by
-  have := Fintype.card_le_of_surjective c.color c.surj
+theorem Coloring.card_le {U : Type} [Finite U] {n : ℕ} (c : Coloring U n)
+: n ≤ Nat.card U := by
+  have := Nat.card_le_card_of_surjective c.color c.surj
   simpa using this
 
 /-- No colouring exists with more blocks than labels. -/
-theorem Coloring.isEmpty_of_gt {U : Type} [Fintype U] {n : ℕ} (h : Fintype.card U < n)
+theorem Coloring.isEmpty_of_gt {U : Type} [Finite U] {n : ℕ} (h : Nat.card U < n)
 : IsEmpty (Coloring U n) :=
   ⟨fun c => absurd (c.card_le) (not_le.mpr h)⟩
 
 /-- Hence the raw data is empty there too. -/
 theorem CompRaw.isEmpty_of_gt
-  {F G : Type → Type} {U : Type} [Fintype U] {n : ℕ} (h : Fintype.card U < n)
+  {F G : Type → Type} {U : Type} [Fintype U] {n : ℕ} (h : Nat.card U < n)
 : IsEmpty (CompRaw F G U n) :=
   ⟨fun cr => (Coloring.isEmpty_of_gt h).elim cr.1⟩
 
 theorem Comp.card_le
-  {F G : Type → Type} [Species F] {U : Type} [LabelType U] {n : ℕ}
+  {F G : Type → Type} [Species F] {U : Type} [Finite U] {n : ℕ}
   (q : Quotient (permSetoid F G U n))
-: n ≤ Fintype.card U :=
+: n ≤ Nat.card U :=
   Quotient.inductionOn q (fun cr => cr.1.card_le)
 
-def truncEquiv {F G : Type → Type} [Species F] {U : Type} [LabelType U] :
-  Comp F G U ≃ Σ n : Fin (Fintype.card U + 1), Quotient (permSetoid F G U n.val)
+def truncEquiv {F G : Type → Type} [Species F] {U : Type} [Finite U] :
+  Comp F G U ≃ Σ n : Fin (Nat.card U + 1), Quotient (permSetoid F G U n.val)
 where
   toFun  := fun ⟨n, q⟩ => ⟨⟨n, Nat.lt_succ_of_le (Comp.card_le q)⟩, q⟩
   invFun := fun ⟨n, q⟩ => ⟨n.val, q⟩
   left_inv  := fun _ => rfl
   right_inv := fun _ => rfl
+
+section Finite
+
+variable {F G : Type → Type} [Species F] [Species G] {U : Type} [Finite U] {n : ℕ}
+
+instance : Finite (CompRaw F G U n) := by
+  unfold CompRaw
+  haveI : Finite (Coloring U n) :=
+    Finite.of_injective (fun c => c.color) (fun c₁ c₂ h => by cases c₁; cases c₂; simp_all)
+  haveI : Finite (F (Fin n)) := Species.finite
+  haveI : ∀ (c : Coloring U n) (i : Fin n), Finite (G {u // c.color u = i}) :=
+    fun c i => Species.finite
+  infer_instance
+
+instance : Finite (Comp F G U) := Finite.of_equiv _ truncEquiv.symm
+
+end Finite
 
 /-- `σ` restricted to block `i`. -/
 def transportBlock {U V : Type} {n : ℕ} (σ : U ≃ V) (color : U → Fin n) (i : Fin n) :
@@ -178,6 +196,44 @@ theorem transport_cast {G} [Species G] {α β : Type} [LTα : LabelType α] (h :
 
 section CompSpecies
 variable {F G : Type → Type} [Species F] [Species G]
+
+theorem CompRaw.transport_relabel
+  {F G} [Species F] [Species G] {U V} [LabelType U] [LabelType V]
+  {n} (σ : U ≃ V) (cr : CompRaw F G U n) (p : Equiv.Perm (Fin n)) :
+  CompRaw.transport σ (relabel cr p) = relabel (CompRaw.transport σ cr) p
+:= by
+  obtain ⟨c, φ, γ⟩ := cr
+  refine Sigma.ext rfl (heq_of_eq ?_)
+  refine Prod.ext rfl ?_
+  funext i
+  simp only [CompRaw.transport, relabel]
+  rw [transport_cast, transport_cast]
+  rw [transport_trans_apply, transport_trans_apply]
+  congr 1
+  apply Equiv.ext
+  rintro ⟨u, hu⟩
+  apply Subtype.ext
+  rfl
+
+instance instSpecies : Species (Comp F G) where
+  finite := inferInstance
+  transport := fun {U V} _ _ σ x =>
+    -- lift CompRaw.transport through the quotient using CompRaw.transport_relabel
+    match x with
+    | ⟨n, q⟩ =>
+      ⟨n, Quotient.map (CompRaw.transport σ)
+            (fun a b ⟨p, hp⟩ => ⟨p, by rw [← CompRaw.transport_relabel, hp]⟩) q⟩
+  transport_id := by
+    rintro U _ ⟨n, q⟩
+    -- reduce to CompRaw via Quotient.ind, then CompRaw-level transport_id
+    refine Sigma.ext rfl (heq_of_eq ?_)
+    induction q using Quotient.ind with
+    | _ cr => sorry   -- CompRaw.transport (Equiv.refl U) cr ≈ cr  (Quotient.sound)
+  transport_trans := by
+    rintro U V W _ _ _ σ τ ⟨n, q⟩
+    refine Sigma.ext rfl (heq_of_eq ?_)
+    induction q using Quotient.ind with
+    | _ cr => sorry   -- CompRaw.transport (σ.trans τ) cr ≈ transport τ (transport σ cr)
 
 instance instSpeciesComp : Species (Comp F G) where
   fintype := fun {U} _ => by
