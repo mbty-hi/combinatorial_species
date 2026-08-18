@@ -10,7 +10,7 @@ namespace Species
 variable {F G : Type → Type} [Species F] [Species G] {U V : Type}
 
 def mul (F G : Type → Type) (U : Type) : Type :=
-  Σ d : U → Bool, F {u // d u = true} × G {u // d u = false}
+  Σ d : U → Bool, F {u // d u = false} × G {u // d u = true}
 
 /- Relabelling a split: `v` falls in the same block as its `σ`-preimage. -/
 abbrev transportSplit {U V : Type} (σ : U ≃ V) (split : U → Bool) : V → Bool :=
@@ -26,15 +26,15 @@ instance instSpeciesMul : Species (mul F G) where
   finite := by
     intros U _; unfold mul
     /- Surface instances -/
-    haveI : ∀ d : U → Bool, Finite (F {u // d u = true}) :=
-      fun d => Species.finite (F := F) (U := {u // d u = true})
-    haveI : ∀ d : U → Bool, Finite (G {u // d u = false}) :=
-      fun d => Species.finite (F := G) (U := {u // d u = false})
+    haveI : ∀ d : U → Bool, Finite (F {u // d u = false}) :=
+      fun d => Species.finite (F := F) (U := {u // d u = false})
+    haveI : ∀ d : U → Bool, Finite (G {u // d u = true}) :=
+      fun d => Species.finite (F := G) (U := {u // d u = true})
     infer_instance
   transport := fun σ ⟨split, f_struct, g_struct⟩ => ⟨
     transportSplit σ split,
-    Species.transport (blockEquiv σ split true) f_struct,
-    Species.transport (blockEquiv σ split false) g_struct
+    Species.transport (blockEquiv σ split false) f_struct,
+    Species.transport (blockEquiv σ split true) g_struct
   ⟩
   transport_id := by
     rintro U _ ⟨d, f, g⟩; simp [Equiv.refl_symm]
@@ -51,28 +51,28 @@ instance instSpeciesCompMul [SpeciesComp F] [SpeciesComp G] : SpeciesComp (mul F
   decEq := by
     intros U _; unfold mul
     /- Surface instances -/
-    haveI : ∀ d : U → Bool, DecidableEq (F {u // d u = true}) :=
-      fun d => SpeciesComp.decEq (F := F) (U := {u // d u = true})
-    haveI : ∀ d : U → Bool, DecidableEq (G {u // d u = false}) :=
-      fun d => SpeciesComp.decEq (F := G) (U := {u // d u = false})
+    haveI : ∀ d : U → Bool, DecidableEq (F {u // d u = false}) :=
+      fun d => SpeciesComp.decEq (F := F) (U := {u // d u = false})
+    haveI : ∀ d : U → Bool, DecidableEq (G {u // d u = true}) :=
+      fun d => SpeciesComp.decEq (F := G) (U := {u // d u = true})
     infer_instance
 
 /- Display related instances -/
 variable
   [LabelType U] [LabelType V]
-  [∀ d : U → Bool, LinearOrder (F {u // d u = true})]
-  [∀ d : U → Bool, LinearOrder (G {u // d u = false})]
+  [∀ d : U → Bool, LinearOrder (F {u // d u = false})]
+  [∀ d : U → Bool, LinearOrder (G {u // d u = true})]
   [SpeciesComp F] [SpeciesComp G]
   /- Note that `[∀ d : U → Bool, ∀ b : Bool, LinearOrder (F {u // d u = b})]` would not work. -/
 
 instance instReprMul
   {F G : Type → Type} {U : Type} [LabelType U] [Repr U]
-  [∀ d : U → Bool, Repr (F {u // d u = true})]
-  [∀ d : U → Bool, Repr (G {u // d u = false})]
+  [∀ d : U → Bool, Repr (F {u // d u = false})]
+  [∀ d : U → Bool, Repr (G {u // d u = true })]
 : Repr ((mul F G) U) where
   reprPrec x p :=
-    let left  := (Finset.univ.filter (x.1 · = true )).sort (· ≤ ·)
-    let right := (Finset.univ.filter (x.1 · = false)).sort (· ≤ ·)
+    let left  := (Finset.univ.filter (x.1 · = false)).sort (· ≤ ·)
+    let right := (Finset.univ.filter (x.1 · = true )).sort (· ≤ ·)
     Repr.addAppParen f!"{repr left} ↦ {reprArg x.2.1} · {repr right} ↦ {reprArg x.2.2}" p
 
 -- Get the rank of some value of an ordered finite type (position in the associated order).
@@ -85,18 +85,18 @@ lemma rankOf_injective {α} [Fintype α] [LinearOrder α]
   have ha : a ∈ (Finset.univ : Finset α).sort (· ≤ ·) := by simp
   exact (List.idxOf_inj ha).mp h
 
--- We order the components our species according to the labels assigned to the true block and the
+-- We order the components our species according to the labels assigned to the false block and the
 -- ranks of their components in according to their own order.
 def mulKey (x : mul F G U) : List U ×ₗ (ℕ ×ₗ ℕ) :=
-  toLex ((Finset.univ.filter (x.1 · = true)).sort (· ≤ ·), toLex (rankOf x.2.1, rankOf x.2.2))
+  toLex ((Finset.univ.filter (x.1 · = false)).sort (· ≤ ·), toLex (rankOf x.2.2, rankOf x.2.1))
 
-lemma true_block_contents_determines_split {split₁ split₂ : U → Bool}
+lemma false_block_contents_determines_split {split₁ split₂ : U → Bool}
   (h :
-    (Finset.univ.filter (split₁ · = true)).sort (· ≤ ·)
-    = (Finset.univ.filter (split₂ · = true)).sort (· ≤ ·)
+    (Finset.univ.filter (split₁ · = false)).sort (· ≤ ·)
+    = (Finset.univ.filter (split₂ · = false)).sort (· ≤ ·)
   )
 : split₁ = split₂ := by
-  have hset : Finset.univ.filter (split₁ · = true) = Finset.univ.filter (split₂ · = true) := by
+  have hset : Finset.univ.filter (split₁ · = false) = Finset.univ.filter (split₂ · = false) := by
     have := congrArg List.toFinset h
     simpa [Finset.sort_toFinset] using this
   funext u
@@ -109,7 +109,7 @@ lemma mulKey_injective : Function.Injective (mulKey (F := F) (G := G) (U := U)) 
   rintro ⟨d₁, f₁, g₁⟩ ⟨d₂, f₂, g₂⟩ h
   rw [Prod.ext_iff, Prod.ext_iff] at h
   obtain ⟨hL, hf, hg⟩ := h
-  have hd : d₁ = d₂ := true_block_contents_determines_split hL
+  have hd : d₁ = d₂ := false_block_contents_determines_split hL
   subst hd
   have roi_f := rankOf_injective hf
   have roi_g := rankOf_injective hg
@@ -118,8 +118,41 @@ lemma mulKey_injective : Function.Injective (mulKey (F := F) (G := G) (U := U)) 
 instance instLinearOrderMul
   {F G : Type → Type} {α : Type}
   [Species F] [Species G] [SpeciesComp F] [SpeciesComp G] [LabelType α]
-  [∀ d : α → Bool, LinearOrder (F {u // d u = true})]
-  [∀ d : α → Bool, LinearOrder (G {u // d u = false})]
+  [∀ d : α → Bool, LinearOrder (F {u // d u = false})]
+  [∀ d : α → Bool, LinearOrder (G {u // d u = true})]
 : LinearOrder ((mul F G) α) :=
   LinearOrder.lift' mulKey mulKey_injective
+
+-- Other results
+def deciderCast {U : Type} {d d' : U → Bool} (h : d = d') (b : Bool)
+: {u // d u = b} ≃ {u // d' u = b} :=
+  Equiv.subtypeEquivRight fun u => by rw [h]
+
+@[simp] theorem deciderCast_rfl {U : Type} (d : U → Bool) (b : Bool)
+: deciderCast (rfl : d = d) b = Equiv.refl _ :=
+  Equiv.ext fun _ => Subtype.ext rfl
+
+theorem mul_ext {S T : Type → Type} [Species S] [Species T] {U : Type} [Finite U]
+  {d d' : U → Bool}
+  {s : S {u // d u = false}} {s' : S {u // d' u = false}}
+  {t : T {u // d u = true}}  {t' : T {u // d' u = true}}
+  (hd : d = d')
+  (hs : Species.transport (deciderCast hd false) s = s')
+  (ht : Species.transport (deciderCast hd true) t = t')
+: (⟨d, (s, t)⟩ : mul S T U) = ⟨d', (s', t')⟩ := by
+  subst hd
+  simp only [deciderCast_rfl, Species.transport_id] at hs ht
+  rw [hs, ht]
+
+theorem mul_transport_mk
+  {S T : Type → Type} [Species S] [Species T] {α β : Type} [Finite α] [Finite β]
+  (σ : α ≃ β) (d : α → Bool) (s : S {u // d u = false}) (t : T {u // d u = true})
+: Species.transport (F := mul S T) σ ⟨d, (s, t)⟩
+  = ⟨
+    transportSplit σ d,
+    (Species.transport (blockEquiv σ d false) s,
+    Species.transport (blockEquiv σ d true) t)
+  ⟩
+:= rfl
+
 end Species

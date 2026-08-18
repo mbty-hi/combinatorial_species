@@ -47,6 +47,20 @@ theorem transportEquiv_symm {U V} {F: Type → Type} [Finite U] [Finite V] [Spec
 : (Species.transportEquiv (F := F) σ.symm) = (Species.transportEquiv (F := F) σ).symm :=
   Equiv.ext fun _ => rfl
 
+theorem transport_transport
+  {F : Type → Type} [Species F] {α β γ : Type}
+  [Finite α] [Finite β] [Finite γ] (σ : α ≃ β) (τ : β ≃ γ) (f : F α)
+: Species.transport τ (Species.transport σ f) = Species.transport (σ.trans τ) f := by
+  have h := Species.transport_trans (F := F) σ τ f
+  rw [Function.comp_apply] at h
+  exact h.symm
+
+theorem transport_eq_self_of_val
+  {F : Type → Type} [Species F] {α : Type} [Finite α] (e : α ≃ α) (h : ∀ a, e a = a) (f : F α)
+: Species.transport e f = f := by
+  have he : e = Equiv.refl α := Equiv.ext h
+  rw [he, Species.transport_id]
+
 end Species
 
 namespace SpeciesComp
