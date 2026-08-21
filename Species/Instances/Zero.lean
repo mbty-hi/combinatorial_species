@@ -10,10 +10,10 @@ instance instLinearOrderSZero  {U} : LinearOrder (SZero U) := .ofSubsingleton
 
 /- Species instance -/
 instance instSpeciesSZero : Species SZero where
-  finite          := inferInstance
-  transport       := fun _   empty => nomatch empty
-  transport_trans := fun _ _ empty => nomatch empty
-  transport_id    := fun     empty => nomatch empty
+  finite         := inferInstance
+  transport      := fun _   empty => nomatch empty
+  id_transport   := fun     empty => nomatch empty
+  comp_transport := fun _ _ empty => nomatch empty
 
 instance instSpeciesCompSZero : SpeciesComp SZero where
   fintype := ⟨∅, fun x => nomatch x⟩

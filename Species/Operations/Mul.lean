@@ -36,15 +36,15 @@ instance instSpeciesMul : Species (mul F G) where
     Species.transport (blockEquiv σ split false) f_struct,
     Species.transport (blockEquiv σ split true) g_struct
   ⟩
-  transport_id := by
+  id_transport := by
     rintro U _ ⟨d, f, g⟩; simp [Equiv.refl_symm]
     refine Sigma.ext rfl (heq_of_eq ?_)
-    ext <;> simp [blockEquiv, Equiv.subtypeEquiv] <;> apply Species.transport_id
-  transport_trans := by
+    ext <;> simp [blockEquiv, Equiv.subtypeEquiv] <;> apply Species.id_transport
+  comp_transport := by
     rintro U V W _ _ _ σ τ ⟨d, f, g⟩
     refine Sigma.ext rfl (heq_of_eq ?_)
     apply Prod.ext
-      <;> apply Species.transport_trans (blockEquiv σ d _) (blockEquiv τ (d ∘ σ.symm) _)
+      <;> apply Species.comp_transport (blockEquiv σ d _) (blockEquiv τ (d ∘ σ.symm) _)
 
 instance instSpeciesCompMul [SpeciesComp F] [SpeciesComp G] : SpeciesComp (mul F G) where
   fintype := fun {U} _ => by unfold mul; infer_instance
@@ -141,7 +141,7 @@ theorem mul_ext {S T : Type → Type} [Species S] [Species T] {U : Type} [Finite
   (ht : Species.transport (deciderCast hd true) t = t')
 : (⟨d, (s, t)⟩ : mul S T U) = ⟨d', (s', t')⟩ := by
   subst hd
-  simp only [deciderCast_rfl, Species.transport_id] at hs ht
+  simp only [deciderCast_rfl, Species.id_transport] at hs ht
   rw [hs, ht]
 
 theorem mul_transport_mk

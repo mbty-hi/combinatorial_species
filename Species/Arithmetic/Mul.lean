@@ -142,7 +142,7 @@ theorem Mul₃_ext {S₀ S₁ S₂ : Type → Type} [Species S₀] [Species S₁
   (⟨d, (s₀, s₁, s₂)⟩ : Mul₃ S₀ S₁ S₂ U) = ⟨d', (s₀', s₁', s₂')⟩
 := by
   subst hd
-  simp only [colorCast_rfl, Species.transport_id] at h₀ h₁ h₂
+  simp only [colorCast_rfl, Species.id_transport] at h₀ h₁ h₂
   rw [h₀, h₁, h₂]
 
 -- Functions to switch between (d₁, d₂) and d

@@ -27,9 +27,9 @@ instance instSpeciesAdd : Species (add F G) where
     haveI := Species.finite (F := F) (U := U)
     haveI := Species.finite (F := G) (U := U)
     infer_instance
-  transport       := fun {U V} _ _ σ         => Sum.map (transport σ) (transport σ)
-  transport_trans := fun {U V W} _ _ _ σ τ f => by cases f <;> simp [Species.transport_trans]
-  transport_id    := fun {U} _ f             => by cases f <;> simp [Species.transport_id]
+  transport      := fun {U V} _ _ σ         => Sum.map (transport σ) (transport σ)
+  id_transport   := fun {U} _ f             => by cases f <;> simp [Species.id_transport]
+  comp_transport := fun {U V W} _ _ _ σ τ f => by cases f <;> simp [Species.comp_transport]
 
 instance instSpeciesCompAdd [SpeciesComp F] [SpeciesComp G] : SpeciesComp (add F G) where
   fintype := fun {U} [LabelType U] => show Fintype (F U ⊕ G U) from inferInstance

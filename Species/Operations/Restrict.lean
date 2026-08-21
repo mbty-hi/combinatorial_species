@@ -20,9 +20,9 @@ instance RestrictSpecies (F : Type → Type) [Species F] (k : ℕ) : Species (Re
     intros U _; unfold Restrict
     haveI : Finite (F U) := Species.finite
     infer_instance
-  transport       := fun σ x => ⟨Species.transport σ x.1, by rw [← Nat.card_congr σ]; exact x.2⟩
-  transport_trans := fun σ τ x => Subtype.ext (Species.transport_trans σ τ x.1)
-  transport_id    := fun x     => Subtype.ext (Species.transport_id x.1)
+  transport      := fun σ x => ⟨Species.transport σ x.1, by rw [← Nat.card_congr σ]; exact x.2⟩
+  id_transport   := fun x     => Subtype.ext (Species.id_transport x.1)
+  comp_transport := fun σ τ x => Subtype.ext (Species.comp_transport σ τ x.1)
 
 instance instFintypeRestrict {F} [SpeciesComp F] (k : ℕ) {U} [LabelType U]
 : Fintype (Restrict F k U) :=

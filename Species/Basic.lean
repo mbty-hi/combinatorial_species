@@ -5,8 +5,8 @@ import Species.Labels.LabelType
 class Species (F : Type → Type) where
   finite : {U : Type} → [Finite U] → Finite (F U)
   transport : {U V : Type} → [Finite U] → [Finite V] → (U ≃ V) → F U → F V
-  transport_id : ∀ {U} [Finite U] (f : F U), transport (Equiv.refl U) f = f
-  transport_trans :
+  id_transport : ∀ {U} [Finite U] (f : F U), transport (Equiv.refl U) f = f
+  comp_transport :
     ∀ {U V W} [Finite U] [Finite V] [Finite W] (σ : U ≃ V) (τ : V ≃ W) (f : F U),
     transport (σ.trans τ) f = (transport τ ∘ transport σ) f
 
@@ -26,8 +26,8 @@ instance instFiniteOfSpecies : Finite (F U) := Species.finite
 instance {U : Type} [LabelType U] (F : Type → Type) [Species F]
 : MulAction (Equiv.Perm U) (F U) where
   smul σ f       := transport σ f
-  one_smul       := transport_id
-  mul_smul σ τ f := transport_trans τ σ f
+  one_smul       := id_transport
+  mul_smul σ τ f := comp_transport τ σ f
 
 /- Transport bundled as an equivalence: every bijection between label types induces a bijection of
    labelled structures. -/
@@ -35,12 +35,12 @@ def transportEquiv (σ : U ≃ V) : F U ≃ F V where
   toFun    := Species.transport σ
   invFun   := Species.transport σ.symm
   left_inv := fun f => by
-    have h := Species.transport_trans σ σ.symm f
-    rw [Equiv.self_trans_symm, Species.transport_id] at h
+    have h := Species.comp_transport σ σ.symm f
+    rw [Equiv.self_trans_symm, Species.id_transport] at h
     exact h.symm
   right_inv := fun f => by
-    have h := Species.transport_trans σ.symm σ f
-    rw [Equiv.symm_trans_self, Species.transport_id] at h
+    have h := Species.comp_transport σ.symm σ f
+    rw [Equiv.symm_trans_self, Species.id_transport] at h
     exact h.symm
 
 theorem transportEquiv_symm {U V} {F: Type → Type} [Finite U] [Finite V] [Species F] (σ : U ≃ V)
@@ -51,7 +51,7 @@ theorem transport_transport
   {F : Type → Type} [Species F] {α β γ : Type}
   [Finite α] [Finite β] [Finite γ] (σ : α ≃ β) (τ : β ≃ γ) (f : F α)
 : Species.transport τ (Species.transport σ f) = Species.transport (σ.trans τ) f := by
-  have h := Species.transport_trans (F := F) σ τ f
+  have h := Species.comp_transport (F := F) σ τ f
   rw [Function.comp_apply] at h
   exact h.symm
 
@@ -59,7 +59,7 @@ theorem transport_eq_self_of_val
   {F : Type → Type} [Species F] {α : Type} [Finite α] (e : α ≃ α) (h : ∀ a, e a = a) (f : F α)
 : Species.transport e f = f := by
   have he : e = Equiv.refl α := Equiv.ext h
-  rw [he, Species.transport_id]
+  rw [he, Species.id_transport]
 
 end Species
 

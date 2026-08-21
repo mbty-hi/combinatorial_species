@@ -47,12 +47,12 @@ instance instSpeciesSCycle : Species SCycle where
   transport := fun σ s =>
     ⟨σ.permCongr s.1, s.2.1.map σ,
      fun x y => permCongr_sameCycle σ s.1 (s.2.2 (σ.symm x) (σ.symm y))⟩
-  transport_trans := fun σ τ s =>
+  id_transport := fun s => Subtype.ext (by show (Equiv.refl _).permCongr s.1 = s.1; ext x; simp)
+  comp_transport := fun σ τ s =>
     Subtype.ext (by
       show (σ.trans τ).permCongr s.1 = τ.permCongr (σ.permCongr s.1)
       ext x; simp [Equiv.permCongr_apply, Equiv.trans_apply, Equiv.symm_trans_apply]
     )
-  transport_id := fun s => Subtype.ext (by show (Equiv.refl _).permCongr s.1 = s.1; ext x; simp)
 
 instance instSpeciesCompSCycle : SpeciesComp SCycle where
   fintype := by

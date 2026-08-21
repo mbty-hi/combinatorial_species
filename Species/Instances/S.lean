@@ -73,10 +73,10 @@ instance instLinearOrderSPermutation {U} [Fintype U] [LinearOrder U]
 
 /- Species instance -/
 instance instSpeciesSPermutation : Species SPermutation where
-  finite          := by unfold SPermutation; infer_instance
-  transport       := fun σ   p => σ.permCongr p
-  transport_trans := fun σ τ p => by apply Equiv.ext; simp
-  transport_id    := fun     p => by apply Equiv.ext; simp
+  finite         := by unfold SPermutation; infer_instance
+  transport      := fun σ   p => σ.permCongr p
+  id_transport   := fun     p => by apply Equiv.ext; simp
+  comp_transport := fun σ τ p => by apply Equiv.ext; simp
 
 instance instSpeciesCompSPermutation : SpeciesComp SPermutation where
   fintype := inferInstance

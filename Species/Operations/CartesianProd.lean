@@ -29,9 +29,9 @@ instance instSpeciesCartProd : Species (cartProd F G) where
     haveI := Species.finite (F := F) (U := U)
     haveI := Species.finite (F := G) (U := U)
     infer_instance
-  transport       := fun {U V} _ _ σ ⟨f, g⟩       => (transport σ f, transport σ g)
-  transport_trans := fun {U V W} _ _ _ σ τ ⟨f, g⟩ => by simp [transport_trans]
-  transport_id    := fun {U} _ ⟨f, g⟩             => by simp [transport_id]
+  transport      := fun {U V} _ _ σ ⟨f, g⟩       => (transport σ f, transport σ g)
+  id_transport   := fun {U} _ ⟨f, g⟩             => by simp [id_transport]
+  comp_transport := fun {U V W} _ _ _ σ τ ⟨f, g⟩ => by simp [comp_transport]
 
 instance instSpeciesCompCartProd [SpeciesComp F] [SpeciesComp G] : SpeciesComp (cartProd F G) where
   fintype := fun {U} _ => show Fintype (F U × G U) from inferInstance

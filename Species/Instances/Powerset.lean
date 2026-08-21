@@ -27,9 +27,9 @@ instance instSpeciesSPowerset : Species SPowerset where
     intros U _
     haveI : Fintype U := Fintype.ofFinite U
     infer_instance
-  transport       := fun σ s => s.map σ.toEmbedding
-  transport_trans := by intro _ _ _ σ τ f; simp [Finset.map_map]
-  transport_id    := by intro _ f; simp
+  transport      := fun σ s => s.map σ.toEmbedding
+  id_transport   := by intro _ f; simp
+  comp_transport := by intro _ _ _ σ τ f; simp [Finset.map_map]
 
 instance instSpeciesCompSPowerset : SpeciesComp SPowerset where
   fintype := inferInstance

@@ -28,9 +28,9 @@ instance instSpeciesDeriv : Species (Deriv F) where
     intros U _; unfold Deriv
     haveI := Species.finite (F := F) (U := WithHole U)
     infer_instance
-  transport       := fun {U V} _ _ σ         => Species.transport (F := F) (Equiv.withBotCongr σ)
-  transport_trans := fun {U V W} _ _ _ σ τ f => by simp [Species.transport_trans]
-  transport_id    := fun {U} _ f             => by simp [Species.transport_id]
+  transport      := fun {U V} _ _ σ         => Species.transport (F := F) (Equiv.withBotCongr σ)
+  id_transport   := fun {U} _ f             => by simp [Species.id_transport]
+  comp_transport := fun {U V W} _ _ _ σ τ f => by simp [Species.comp_transport]
 
 instance instSpeciesCompDeriv [SpeciesComp F] : SpeciesComp (Deriv F) where
   fintype := fun {U} [LabelType U] => show Fintype (F (WithBot U)) from inferInstance

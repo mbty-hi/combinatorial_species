@@ -18,10 +18,10 @@ instance instLinearOrderSE {U} : LinearOrder (SE U) := .ofSubsingleton
 
 /- Species instance -/
 instance instSpeciesSE : Species SE where
-  finite          := inferInstance
-  transport       := fun _ _   => ⟨⟩
-  transport_trans := fun _ _ _ => rfl
-  transport_id    := fun _     => Subsingleton.elim _ _
+  finite         := inferInstance
+  transport      := fun _ _   => ⟨⟩
+  id_transport   := fun _     => Subsingleton.elim _ _
+  comp_transport := fun _ _ _ => rfl
 
 instance instSpeciesCompSE : SpeciesComp SE where
   fintype := inferInstance

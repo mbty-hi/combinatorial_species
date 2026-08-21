@@ -13,9 +13,9 @@ instance instSpeciesPointed : Species (Pointed F) where
     intros U _; unfold Pointed
     haveI := Species.finite (F := F) (U := U)
     infer_instance
-  transport       := fun {U V} _ _ σ x       => (σ x.1, Species.transport σ x.2)
-  transport_trans := fun {U V W} _ _ _ σ τ f => by simp [Species.transport_trans]
-  transport_id    := fun {U} _ f             => by simp [Species.transport_id]
+  transport      := fun {U V} _ _ σ x       => (σ x.1, Species.transport σ x.2)
+  id_transport   := fun {U} _ f             => by simp [Species.id_transport]
+  comp_transport := fun {U V W} _ _ _ σ τ f => by simp [Species.comp_transport]
 
 instance instSpeciesCompPointed [SpeciesComp F] : SpeciesComp (Pointed F) where
   fintype := fun {U} _  => show Fintype (U × F U) from inferInstance

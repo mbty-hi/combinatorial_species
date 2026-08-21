@@ -15,10 +15,10 @@ instance instLinearOrderSX {U} : LinearOrder (SX U) := .ofSubsingleton
 
 /- Species instance -/
 instance instSpeciesSX : Species SX where
-  finite          := inferInstance
-  transport       := fun σ e => e.trans σ
-  transport_trans := by intro _ _ _ σ τ e; simp [Equiv.trans_assoc]
-  transport_id    := by intro _ e; simp
+  finite         := inferInstance
+  transport      := fun σ e => e.trans σ
+  id_transport   := by intro _ e; simp
+  comp_transport := by intro _ _ _ σ τ e; simp [Equiv.trans_assoc]
 
 instance instSpeciesCompSX : SpeciesComp SX where
   fintype := inferInstance

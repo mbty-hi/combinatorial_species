@@ -70,9 +70,9 @@ instance instSpeciesArrangement : Species Arrangement where
     haveI : Fintype α := Fintype.ofFinite α
     haveI : LinearOrder α := IsWellOrder.linearOrder WellOrderingRel
     exact Finite.of_fintype (Arrangement α)
-  transport       := fun σ s => transport_Arrangement s σ
-  transport_trans := by simp [transport_Arrangement]
-  transport_id    := by simp [transport_Arrangement]
+  transport      := fun σ s => transport_Arrangement s σ
+  id_transport   := by simp [transport_Arrangement]
+  comp_transport := by simp [transport_Arrangement]
 
 instance instSpeciesCompArrangement : SpeciesComp Arrangement where
   fintype := inferInstance

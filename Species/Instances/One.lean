@@ -13,10 +13,10 @@ instance instLinearOrderSOne {U} : LinearOrder (SOne U) := .ofSubsingleton
 
 /- Species instance -/
 instance instSpeciesSOne : Species SOne where
-  finite          := inferInstance
-  transport       := fun σ f v => f (σ.symm v)
-  transport_trans := fun _ _ _ => Subsingleton.elim _ _
-  transport_id    := fun _     => Subsingleton.elim _ _
+  finite         := inferInstance
+  transport      := fun σ f v => f (σ.symm v)
+  id_transport   := fun _     => Subsingleton.elim _ _
+  comp_transport := fun _ _ _ => Subsingleton.elim _ _
 
 instance instSpeciesCompSOne : SpeciesComp SOne where
   fintype := inferInstance
