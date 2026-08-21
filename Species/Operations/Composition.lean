@@ -33,8 +33,8 @@ def quotEquiv (s : DecSetoid α) (σ : α ≃ β)
   constructor <;> intros h <;> simp [toSetoid, map] at * <;> exact h
 
 @[simp] theorem quotEquiv_refl (s : DecSetoid α)
-: s.quotEquiv (Equiv.refl α) = Equiv.refl (Quotient s.toSetoid) :=
-  Equiv.ext fun q => q.inductionOn fun _ => rfl
+: s.quotEquiv (Equiv.refl α) = Equiv.refl (Quotient s.toSetoid) := by
+  ext ⟨q⟩; rfl
 
 -- This is about remapping blocks.
 def blockEquiv (s : DecSetoid α) (σ : α ≃ β) (block : Quotient (s.map σ).toSetoid)
@@ -87,34 +87,27 @@ theorem comp_transport (σ : U ≃ V) (τ : V ≃ W) (c : Composition F G U)
   . apply heq_of_eq
     have foo := Species.comp_transport (p.quotEquiv σ) ((p.map σ).quotEquiv τ) o
     simp at foo; simp [← foo]; congr
-    exact Equiv.ext fun q => q.inductionOn fun x => rfl
-  . refine heq_of_eq (funext fun b => ?_)
+    ext ⟨q⟩; rfl
+  . apply heq_of_eq
+    apply (funext fun b => ?_)
     refine Quotient.inductionOn b fun z => ?_
     exact Species.comp_transport
       (p.blockEquiv σ (((p.map σ).quotEquiv τ).symm (Quotient.mk _ z)))
       ((p.map σ).blockEquiv τ (Quotient.mk _ z)) _
 
--- BEGSLOP
+-- Expressing composition as a dependent triple
 def equivSigma
-: Composition F G U ≃ Σ s : DecSetoid U,
-  F (Quotient s.toSetoid) × ∀ b, G {x // Quotient.mk s.toSetoid x = b}
+: Composition F G U
+  ≃ Σ s : DecSetoid U, F (Quotient s.toSetoid) × ∀ b, G {x // Quotient.mk s.toSetoid x = b}
 where
   toFun c     := ⟨c.partition, c.outer, c.inner⟩
-  invFun p    := ⟨p.1, p.2.1, p.2.2⟩
+  invFun      := fun ⟨s, f, g_blocks⟩ => ⟨s, f, g_blocks⟩
   left_inv _  := rfl
   right_inv _ := rfl
 
+-- Required for Finite.of_equiv
 instance {α : Type} [Finite α] : Finite (DecSetoid α) :=
   Finite.of_injective (fun s => s.d) (fun s₁ s₂ h => by cases s₁; cases s₂; simpa using h)
--- ENDSLOP
-
-/-   theorem id_transport: ∀ (c : Composition F G U), transport (Equiv.refl U) c = c := by -/
-/-     rintro ⟨c_part, c_out, c_in⟩ -/
-/-     simp [transport] -/
-/-     refine ⟨?outs, ?ins⟩ -/
-/-     /1- case parts => simp [DecSetoid.map] -1/ -/
-/-     case outs => sorry -/
-/-     case ins => simp [decSetoid.quotEquiv, DecSetoid.blockEquiv]; sim -/
 
 instance instSpeciesComposition : Species (Composition F G) where
   finite         := Finite.of_equiv _ equivSigma.symm
