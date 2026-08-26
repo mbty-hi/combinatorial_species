@@ -73,58 +73,58 @@ where
   right_inv := fun _ => rfl
 
 
-def deriv_mul {U : Type} [Finite U]:
-  Species.Deriv (Species.mul F G) U
-  ≃ Species.add (Species.mul (Species.Deriv F) G) (Species.mul F (Species.Deriv G)) U
-:= by
-  unfold Species.Deriv
-  unfold Species.add
-  unfold Species.mul
-  unfold Species.WithHole
-  unfold WithBot
-  simp
-  constructor
-  case toFun =>
-    rintro ⟨split, ⟨Fstruct, Gstruct⟩⟩
-    let split' := fun u => split (Option.some u)
-    -- have foo : ∀u, split' u = split (Option.some u) := by
-    cases hs : split Option.none
-    . apply Sum.inr
-      constructor
-      case false.val.fst => exact split'
-      case false.val.snd =>
-        simp [split']
-        constructor
-        . apply Species.transportEquiv (foobar hs) Fstruct
-        . apply (Species.transportEquiv (barfoo hs)).symm Gstruct
-    . apply Sum.inl
-      constructor
-      case true.val.fst => exact split'
-      case true.val.snd =>
-        simp[split']
-        constructor
-        . apply (Species.transportEquiv (barfoo hs)).symm Fstruct
-        . apply Species.transportEquiv (foobar hs) Gstruct
+/- def deriv_mul {U : Type} [Finite U]: -/
+/-   Species.Deriv (Species.mul F G) U -/
+/-   ≃ Species.add (Species.mul (Species.Deriv F) G) (Species.mul F (Species.Deriv G)) U -/
+/- := by -/
+/-   unfold Species.Deriv -/
+/-   unfold Species.add -/
+/-   unfold Species.mul -/
+/-   unfold Species.WithHole -/
+/-   unfold WithBot -/
+/-   simp -/
+/-   constructor -/
+/-   case toFun => -/
+/-     rintro ⟨split, ⟨Fstruct, Gstruct⟩⟩ -/
+/-     let split' := fun u => split (Option.some u) -/
+/-     -- have foo : ∀u, split' u = split (Option.some u) := by -/
+/-     cases hs : split Option.none -/
+/-     . apply Sum.inr -/
+/-       constructor -/
+/-       case false.val.fst => exact split' -/
+/-       case false.val.snd => -/
+/-         simp [split'] -/
+/-         constructor -/
+/-         . apply Species.transportEquiv (foobar hs) Fstruct -/
+/-         . apply (Species.transportEquiv (barfoo hs)).symm Gstruct -/
+/-     . apply Sum.inl -/
+/-       constructor -/
+/-       case true.val.fst => exact split' -/
+/-       case true.val.snd => -/
+/-         simp[split'] -/
+/-         constructor -/
+/-         . apply (Species.transportEquiv (barfoo hs)).symm Fstruct -/
+/-         . apply Species.transportEquiv (foobar hs) Gstruct -/
 
-  case invFun =>
-    rintro (⟨split, ⟨Fstruct, Gstruct⟩⟩ | ⟨split, ⟨Fstruct, Gstruct⟩⟩)
-    . constructor
-      case inl.fst =>
-        rintro (_ | ou)
-        . exact true
-        . exact split ou
-      case inl.snd =>
-        constructor
-        . apply (Species.transportEquiv e).symm Fstruct
-        . apply (Species.transportEquiv f).symm Gstruct
-    . constructor
-      case inr.fst =>
-        rintro (_ | ou)
-        . exact false
-        . exact split ou
-      case inr.snd =>
-        constructor
-        . apply (Species.transportEquiv f).symm Fstruct
-        . apply (Species.transportEquiv e).symm Gstruct
-  case right_inv => simp
-  case left_inv => sorry
+/-   case invFun => -/
+/-     rintro (⟨split, ⟨Fstruct, Gstruct⟩⟩ | ⟨split, ⟨Fstruct, Gstruct⟩⟩) -/
+/-     . constructor -/
+/-       case inl.fst => -/
+/-         rintro (_ | ou) -/
+/-         . exact true -/
+/-         . exact split ou -/
+/-       case inl.snd => -/
+/-         constructor -/
+/-         . apply (Species.transportEquiv e).symm Fstruct -/
+/-         . apply (Species.transportEquiv f).symm Gstruct -/
+/-     . constructor -/
+/-       case inr.fst => -/
+/-         rintro (_ | ou) -/
+/-         . exact false -/
+/-         . exact split ou -/
+/-       case inr.snd => -/
+/-         constructor -/
+/-         . apply (Species.transportEquiv f).symm Fstruct -/
+/-         . apply (Species.transportEquiv e).symm Gstruct -/
+/-   case right_inv => simp -/
+/-   case left_inv => sorry -/
