@@ -82,7 +82,7 @@ def mul_one {S : Type → Type} [Species S] {U} [Finite U] : (mul S SOne) U ≃ 
   invFun := by
     intros s; unfold mul SOne
     refine ⟨fun _ => false, ?s, ?one⟩ -- we define `d` as `fun _ => false`
-    case s   =>
+    case s =>
       have equiv : {u // false = false} ≃ U := Equiv.subtypeUnivEquiv (by simp)
       exact transportEquiv equiv.symm s
     case one => intros x; nomatch x -- nothing ends up in the set carrying an `SOne`-structure
