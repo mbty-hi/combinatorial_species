@@ -1,15 +1,22 @@
-import Species.Operations.Add
-import Species.Operations.Mul
-import Species.Operations.Deriv
-import Species.Instances.E
+import Species.Operations.Operations
+import Species.Instances.Instances
 import Species.Basic
 
-variable {F G : Type -> Type} [Species F] [Species G]
+namespace Species
 
-def deriv_SE {α : Type}: Species.Deriv SE α ≃ SE α
-:= by
-  constructor
-  case toFun => intro x; constructor
-  case invFun => intro x; constructor
-  case right_inv => intro x; simp
-  case left_inv => unfold Species.Deriv; intro x; simp
+variable {F G : Type -> Type} [Species F] [Species G] {U: Type} [Finite U]
+
+def deriv_SE: Deriv SE U ≃ SE U where
+  toFun     x := ⟨⟩
+  invFun    x := ⟨⟩
+  right_inv x := rfl
+  left_inv    := by unfold Species.Deriv; intro x; simp
+
+-- TODO
+/- def deriv_Cycle_is_LinearOrder: Deriv SCycle U ≃ Arrangement U where -/
+/-   toFun := sorry -/
+/-   invFun      := sorry -/
+/-   right_inv   := by sorry -/
+/-   left_inv    := by sorry -/
+
+end Species

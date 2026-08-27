@@ -3,5 +3,6 @@
 lemmas. -/
 
 import Species.Arithmetic.Add
+import Species.Arithmetic.Deriv
 import Species.Arithmetic.Distrib
 import Species.Arithmetic.Mul
