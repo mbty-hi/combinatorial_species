@@ -3,6 +3,8 @@ import Mathlib.SetTheory.Cardinal.Finite
 import Mathlib.Data.Finite.Sigma
 import Mathlib.Data.Fintype.Sigma
 
+namespace Species
+
 def Restrict (F : Type → Type) (k : ℕ) (U : Type) : Type :=
   { _x : F U // Nat.card U = k }
 
@@ -36,3 +38,5 @@ instance RestrictCompSpecies (F : Type → Type) [SpeciesComp F] (k : ℕ) : Spe
     intros U _ _ _; unfold Restrict
     haveI := SpeciesComp.decEq (F := F) (U := U)
     infer_instance
+
+end Species

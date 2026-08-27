@@ -52,3 +52,5 @@ Species.mul (Species.add F G) H U ≃ Species.add (Species.mul F H) (Species.mul
     simp
     rintro (⟨d,Fstrut, Hstrut⟩ | ⟨d, Gstrut, Hstrut⟩)
     <;> simp
+
+end Species

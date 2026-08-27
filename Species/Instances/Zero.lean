@@ -1,5 +1,7 @@
 import Species.Basic
 
+namespace Species
+
 inductive SZero (α : Type) where
 open SZero
 
@@ -18,3 +20,5 @@ instance instSpeciesSZero : Species SZero where
 instance instSpeciesCompSZero : SpeciesComp SZero where
   fintype := ⟨∅, fun x => nomatch x⟩
   decEq   := inferInstance
+
+end Species

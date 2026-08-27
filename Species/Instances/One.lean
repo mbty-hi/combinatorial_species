@@ -1,5 +1,7 @@
 import Species.Basic
 
+namespace Species
+
 def SOne (U : Type) : Type := U → Empty
 
 instance instFintypeSOne {U} [Fintype U] [DecidableEq U] : Fintype (SOne U) :=
@@ -21,3 +23,5 @@ instance instSpeciesSOne : Species SOne where
 instance instSpeciesCompSOne : SpeciesComp SOne where
   fintype := inferInstance
   decEq   := inferInstance
+
+end Species

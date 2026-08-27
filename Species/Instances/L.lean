@@ -3,6 +3,8 @@ import Mathlib.Data.List.Permutation
 import Mathlib.Data.Finset.Sort
 import Mathlib.SetTheory.Cardinal.Order
 
+namespace Species
+
 /- Arrangement: concrete ordering of the elements of the type. -/
 @[ext] -- Automatically generate Arrangement.ext
 structure Arrangement (U : Type) where
@@ -77,3 +79,5 @@ instance instSpeciesArrangement : Species Arrangement where
 instance instSpeciesCompArrangement : SpeciesComp Arrangement where
   fintype := inferInstance
   decEq   := inferInstance
+
+end Species

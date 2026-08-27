@@ -4,6 +4,8 @@ import Mathlib.Data.Finite.Sigma
 import Mathlib.Data.Finset.Max
 import Mathlib.Data.Setoid.Basic
 
+namespace Species
+
 /- We encode composition as a decidable equivalence relation on the label type (U → U → Bool)
    (like a coloring, except that there is no order between equivalence classes, so we do not need to
    manually correct for overcounting). -/
@@ -206,3 +208,5 @@ instance instSpeciesCompComposition [SpeciesComp F] [SpeciesComp G]
   fintype := Fintype.ofEquiv _ equivSigma.symm
   decEq   := Equiv.decidableEq equivSigma
 end Composition
+
+end Species

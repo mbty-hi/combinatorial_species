@@ -2,6 +2,8 @@ import Mathlib.RingTheory.PowerSeries.Basic
 import Mathlib.SetTheory.Cardinal.Finite
 import Species.Basic
 
+namespace Species
+
 /- (fₙ)~ : number of isomorphism types of F-structures on [n] -/
 noncomputable def TGS_coeff (F) [SpeciesComp F] (n : ℕ) : ℕ :=
   Nat.card (MulAction.orbitRel.Quotient (Equiv.Perm (Fin n)) (F (Fin n)))
@@ -12,3 +14,5 @@ noncomputable def TGS_coeff (F) [SpeciesComp F] (n : ℕ) : ℕ :=
 /- Type generating series : F̃(x) = Σ ((fₙ)∼ * xⁿ) -/
 noncomputable def TGS (F) [SpeciesComp F] : PowerSeries ℚ :=
   PowerSeries.mk fun n => (TGS_coeff F n)
+
+end Species

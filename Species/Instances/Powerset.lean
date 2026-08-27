@@ -3,6 +3,8 @@ import Mathlib.Data.Fintype.Powerset
 import Mathlib.Data.Finset.Sort
 import Mathlib.Data.Prod.Lex
 
+namespace Species
+
 def SPowerset : Type → Type := Finset
 
 instance instFintypeSPowerset {U} [Fintype U] : Fintype (SPowerset U) :=
@@ -34,3 +36,5 @@ instance instSpeciesSPowerset : Species SPowerset where
 instance instSpeciesCompSPowerset : SpeciesComp SPowerset where
   fintype := inferInstance
   decEq   := inferInstance
+
+end Species

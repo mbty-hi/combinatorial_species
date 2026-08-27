@@ -2,7 +2,7 @@ import Species.Operations.Operations
 import Species.Instances.Instances
 import Species.Basic
 
-namespace Species
+open Species
 
 variable {F G : Type -> Type} [Species F] [Species G] {U: Type} [Finite U]
 
@@ -18,5 +18,3 @@ def deriv_SE: Deriv SE U ≃ SE U where
 /-   invFun      := sorry -/
 /-   right_inv   := by sorry -/
 /-   left_inv    := by sorry -/
-
-end Species

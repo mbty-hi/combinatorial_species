@@ -1,6 +1,8 @@
 import Species.Basic
 import Mathlib.CategoryTheory.Groupoid
 
+namespace Species
+
 /- Defines `FinBij`, which corresponds to Joyal's `B` category.
    Objects are `LabelType`s, morphisms are bijections.
    TODO actually use this somewhere -/
@@ -25,3 +27,5 @@ instance : Groupoid FinBij where
   inv        := Equiv.symm
   inv_comp f := Equiv.ext fun x => f.apply_symm_apply x
   comp_inv f := Equiv.ext fun x => f.symm_apply_apply x
+
+end Species

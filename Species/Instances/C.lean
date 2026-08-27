@@ -3,6 +3,8 @@ import Mathlib.GroupTheory.Perm.Cycle.Basic
 import Mathlib.GroupTheory.Perm.Cycle.Concrete
 import Mathlib.Data.Fintype.Perm
 
+namespace Species
+
 /- The species of cycles is defined as `Equiv.Perm U` (i.e., `U ≃ U`) with some restrictions:
    * `Nonempty` blocks the definition of cycles of length zero (remember that permutations can be
      defined as E∘C).
@@ -60,3 +62,5 @@ instance instSpeciesCompSCycle : SpeciesComp SCycle where
     haveI : Decidable (Nonempty α) := decidable_of_iff (0 < Fintype.card α) Fintype.card_pos_iff
     exact inferInstanceAs (Fintype {σ : Equiv.Perm α // Nonempty α ∧ ∀ x y, σ.SameCycle x y})
   decEq := inferInstance
+
+end Species

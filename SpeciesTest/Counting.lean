@@ -3,6 +3,8 @@ import Species.Cardinality
 import Species.Operations.Operations
 import Mathlib.Data.Finset.Sort
 
+open Species
+
 #synth Repr (Species.mul SE Arrangement (Canonical 3))
 #synth Repr (Σ d : Canonical 3 → Bool, SE {u // d u = true} × Arrangement {u // d u = false})
 #guard card SX 1           = 1

@@ -1,6 +1,8 @@
 import Species.Basic
 import Mathlib.Data.Fintype.Perm
 
+namespace Species
+
 def SX (U : Type) := Fin 1 ≃ U
 
 instance instFintypeSX {U} [Fintype U] [DecidableEq U] : Fintype (SX U) :=
@@ -23,3 +25,5 @@ instance instSpeciesSX : Species SX where
 instance instSpeciesCompSX : SpeciesComp SX where
   fintype := inferInstance
   decEq   := inferInstance
+
+end Species

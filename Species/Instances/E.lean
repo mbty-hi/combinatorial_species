@@ -2,6 +2,8 @@ import Species.Basic
 import Mathlib.Data.Finset.Sort
 import Init.Data.Format.Basic
 
+namespace Species
+
 /- Note that we do not store labels explicitly. Assuming that the type this is applied to is a
    `LabelType` (which it should be), we can easily recover them anyway. -/
 structure SE (U : Type) : Type -- empty, one inhabitant: ⟨⟩
@@ -26,3 +28,5 @@ instance instSpeciesSE : Species SE where
 instance instSpeciesCompSE : SpeciesComp SE where
   fintype := inferInstance
   decEq   := inferInstance
+
+end Species

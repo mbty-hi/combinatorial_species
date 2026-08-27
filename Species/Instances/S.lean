@@ -3,6 +3,8 @@ import Mathlib.Data.Prod.Lex
 import Mathlib.GroupTheory.Perm.Cycle.Basic
 import Mathlib.GroupTheory.Perm.Cycle.Concrete
 
+namespace Species
+
 def SPermutation := Equiv.Perm
 
 instance insetFintypeSPermutation {U} [Fintype U] [DecidableEq U] : Fintype (SPermutation U) :=
@@ -81,3 +83,5 @@ instance instSpeciesSPermutation : Species SPermutation where
 instance instSpeciesCompSPermutation : SpeciesComp SPermutation where
   fintype := inferInstance
   decEq   := inferInstance
+
+end Species

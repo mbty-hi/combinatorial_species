@@ -379,3 +379,5 @@ def mul_assoc
   {S₁ S₂ S₃ : Type → Type} [Species S₁] [Species S₂] [Species S₃] {U} [Finite U]
 : (mul (mul S₁ S₂) S₃) U ≃ (mul S₁ (mul S₂ S₃)) U :=
   Mul₃_equiv₂.trans (@Mul₃_equiv₁ S₁ S₂ S₃ _ _ _ U _).symm
+
+end Species

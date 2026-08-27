@@ -1,2 +1,3 @@
+import Species.Series.CycleIndexSeries
 import Species.Series.ExponentialGeneratingSeries
 import Species.Series.TypeGeneratingSeries

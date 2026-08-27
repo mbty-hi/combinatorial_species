@@ -41,4 +41,5 @@ instance instSpeciesCompCartProd [SpeciesComp F] [SpeciesComp G] : SpeciesComp (
     haveI := SpeciesComp.decEq (F := F) (U := U)
     haveI := SpeciesComp.decEq (F := G) (U := U)
     infer_instance
+
 end Species
