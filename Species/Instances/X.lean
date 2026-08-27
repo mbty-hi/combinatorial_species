@@ -3,26 +3,26 @@ import Mathlib.Data.Fintype.Perm
 
 namespace Species
 
-def SX (U : Type) := Fin 1 ≃ U
+def X (U : Type) := Fin 1 ≃ U
 
-instance instFintypeSX {U} [Fintype U] [DecidableEq U] : Fintype (SX U) :=
+instance instFintypeX {U} [Fintype U] [DecidableEq U] : Fintype (X U) :=
   inferInstanceAs (Fintype (Fin 1 ≃ U))
-instance instSubsingletonSX {U} : Subsingleton (SX U) :=
+instance instSubsingletonX {U} : Subsingleton (X U) :=
   inferInstanceAs (Subsingleton (Fin 1 ≃ U))
 
 /- Display related instances -/
-instance instReprSX {U} [Repr U] : Repr (SX U) where
+instance instReprX {U} [Repr U] : Repr (X U) where
   reprPrec x _ := reprPrec (x.1 0) 0
-instance instLinearOrderSX {U} : LinearOrder (SX U) := .ofSubsingleton
+instance instLinearOrderX {U} : LinearOrder (X U) := .ofSubsingleton
 
 /- Species instance -/
-instance instSpeciesSX : Species SX where
+instance instSpeciesX : Species X where
   finite         := inferInstance
   transport      := fun σ e => e.trans σ
   id_transport   := by intro _ e; simp
   comp_transport := by intro _ _ _ σ τ e; simp [Equiv.trans_assoc]
 
-instance instSpeciesCompSX : SpeciesComp SX where
+instance instSpeciesCompX : SpeciesComp X where
   fintype := inferInstance
   decEq   := inferInstance
 

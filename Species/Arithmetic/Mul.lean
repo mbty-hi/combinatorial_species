@@ -6,39 +6,35 @@ import Mathlib.Tactic.FinCases
 
 namespace Species
 
-def zero_mul {S: Type → Type} [Species S] {U} [Finite U] : Species.mul SZero S U ≃ SZero U where
-  toFun     := by unfold mul; rintro ⟨d,⟨⟩,bar⟩
-  invFun    := by unfold mul; rintro ⟨⟩
+def zero_mul {F: Type → Type} [Species F] {U} [Finite U] : Mul Zero F U ≃ Zero U where
+  toFun     := by unfold Mul; rintro ⟨d,⟨⟩,bar⟩
+  invFun    := by unfold Mul; rintro ⟨⟩
   left_inv  := by rintro ⟨d,⟨⟩, bar⟩
   right_inv := by rintro ⟨d,⟨⟩, bar⟩
 
-def mul_zero {S: Type → Type} [Species S] {U} [Finite U] : Species.mul S SZero U ≃ SZero U where
-  toFun     := by unfold mul; rintro ⟨d,foo,⟨⟩⟩
-  invFun    := by unfold mul; rintro ⟨⟩
+def mul_zero {F: Type → Type} [Species F] {U} [Finite U] : Mul F Zero U ≃ Zero U where
+  toFun     := by unfold Mul; rintro ⟨d,foo,⟨⟩⟩
+  invFun    := by unfold Mul; rintro ⟨⟩
   left_inv  := by rintro ⟨d,foo,⟨⟩⟩
   right_inv := by rintro ⟨d,foo,⟨⟩⟩
 
 def mul_comm {F G : Type → Type} [Species F] [Species G] {U} [Finite U]
-: Species.mul F G U ≃ Species.mul G F U where
+: Mul F G U ≃ Mul G F U where
   toFun := by
-    unfold mul; rintro ⟨d,Fstrut,Gstrut⟩
-    refine ⟨fun x => !(d x), ?_, ?_⟩ <;> simp
-    . exact Gstrut
-    . exact Fstrut
+    unfold Mul; rintro ⟨d, f, g⟩
+    refine ⟨fun x => !(d x), ?_, ?_⟩ <;> simp <;> assumption
   invFun := by
-    unfold mul; rintro ⟨d,Gstrut,Fstrut⟩
-    refine ⟨fun x => !(d x), ?_, ?_⟩ <;> simp
-    . exact Fstrut
-    . exact Gstrut
-  left_inv  := by rintro ⟨d, Fstrut, Gstrut⟩; simp; congr <;> simp
-  right_inv := by rintro ⟨d, Gstrut, Fstrut⟩; simp; congr <;> simp
+    unfold Mul; rintro ⟨d, g, f⟩
+    refine ⟨fun x => !(d x), ?_, ?_⟩ <;> simp <;> assumption
+  left_inv  := by rintro ⟨d, f, g⟩; simp; congr <;> simp
+  right_inv := by rintro ⟨d, g, f⟩; simp; congr <;> simp
 
-/- `(mul SOne S) U` is a partitioning of `U` by a boolean predicate `d`. The set of labels making
-   `d` false carries an `SOne`-structure, and its complement carries an `S`-structure. Since there
-   are no `SOne`-structures for nonempty label sets, `d` must return `true` for all inputs. The
+/- `(mul One S) U` is a partitioning of `U` by a boolean predicate `d`. The set of labels making
+   `d` false carries a `One`-structure, and its complement carries an `S`-structure. Since there are
+    no `One`-structures for nonempty label sets, `d` must return `true` for all inputs. The
    isomorphism is therefore mostly about transport of the `S`-structure along
    `{u : U // d u = true} ≃ U`. -/
-def one_mul {S: Type → Type} [Species S] {U} [Finite U] : (mul SOne S) U ≃ S U where
+def one_mul {F: Type → Type} [Species F] {U} [Finite U] : (Mul One F) U ≃ F U where
   toFun := by
     rintro ⟨d, one, s⟩
     have d_is_true : ∀u, d u = true := by -- we show that `d` must be `fun _ => true` (pointwise)
@@ -52,9 +48,9 @@ def one_mul {S: Type → Type} [Species S] {U} [Finite U] : (mul SOne S) U ≃ S
      simplifications would force us to use `HEq` in `left_inv`, which is doable but more painful
      than being careful here. -/
   invFun := by
-    intros s; unfold mul SOne
+    intros s; unfold Mul One
     refine ⟨fun _ => true, ?one, ?s⟩ -- we define `d` as `fun _ => false`
-    case one => intros x; nomatch x  -- nothing ends up in the set carrying an `SOne`-structure
+    case one => intros x; nomatch x  -- nothing ends up in the set carrying an `One`-structure
     case s   =>
       have equiv : {u // true = true} ≃ U := Equiv.subtypeUnivEquiv (by simp)
       exact transportEquiv equiv.symm s
@@ -71,7 +67,7 @@ def one_mul {S: Type → Type} [Species S] {U} [Finite U] : (mul SOne S) U ≃ S
 
 /- Same logic as `one_mul`, except for some flipped branches. See above for more substantial
    comments. -/
-def mul_one {S : Type → Type} [Species S] {U} [Finite U] : (mul S SOne) U ≃ S U where
+def mul_one {F : Type → Type} [Species F] {U} [Finite U] : (Mul F One) U ≃ F U where
   toFun := by
     rintro ⟨d, s, one⟩
     have d_is_false : ∀u, d u = false := by -- we show that `d` must be `fun _ => false` (pointwise)
@@ -80,12 +76,12 @@ def mul_one {S : Type → Type} [Species S] {U} [Finite U] : (mul S SOne) U ≃ 
     exact transportEquiv equiv s
 
   invFun := by
-    intros s; unfold mul SOne
+    intros s; unfold Mul One
     refine ⟨fun _ => false, ?s, ?one⟩ -- we define `d` as `fun _ => false`
     case s =>
       have equiv : {u // false = false} ≃ U := Equiv.subtypeUnivEquiv (by simp)
       exact transportEquiv equiv.symm s
-    case one => intros x; nomatch x -- nothing ends up in the set carrying an `SOne`-structure
+    case one => intros x; nomatch x -- nothing ends up in the set carrying an `One`-structure
 
   left_inv := by
     rintro ⟨d, s, one⟩
@@ -177,7 +173,7 @@ def d₁₂_to_d {U} (d₁ : U → Bool) (d₂ : {u // d₁ u = true} → Bool) 
 
 def Mul₃_equiv₁
   {S₁ S₂ S₃ : Type → Type} [Species S₁] [Species S₂] [Species S₃] {U} [Finite U]
-: (mul S₁ (mul S₂ S₃)) U ≃ Mul₃ S₁ S₂ S₃ U where
+: (Mul S₁ (Mul S₂ S₃)) U ≃ Mul₃ S₁ S₂ S₃ U where
   toFun := by
     rintro ⟨d₁, s₁, ⟨d₂, s₂, s₃⟩⟩
     refine ⟨?d, ⟨?s₁, ?s₂, ?s₃⟩⟩
@@ -244,7 +240,7 @@ def Mul₃_equiv₁
 
   left_inv := by
     simp; rintro ⟨d₁, s₁, ⟨d₂, s₂, s₃⟩⟩; simp
-    refine mul_ext (S := S₁) (T := mul S₂ S₃) (d₁_inv d₁ d₂) ?_ ?_
+    refine mul_ext (S := S₁) (T := Mul S₂ S₃) (d₁_inv d₁ d₂) ?_ ?_
     . simp [transport_transport]
       exact transport_eq_self_of_val _ (fun a => Subtype.ext rfl) s₁
     · simp [mul_transport_mk]
@@ -292,7 +288,7 @@ def c₁₂_to_d {U} (c₁ : U → Bool) (c₂ : {u // c₁ u = false} → Bool)
 
 def Mul₃_equiv₂
   {S₁ S₂ S₃ : Type → Type} [Species S₁] [Species S₂] [Species S₃] {U} [Finite U]
-: (mul (mul S₁ S₂) S₃) U ≃ Mul₃ S₁ S₂ S₃ U where
+: (Mul (Mul S₁ S₂) S₃) U ≃ Mul₃ S₁ S₂ S₃ U where
   toFun := by
     rintro ⟨c₁, ⟨c₂, s₁, s₂⟩, s₃⟩
     refine ⟨?d, ⟨?s₁, ?s₂, ?s₃⟩⟩
@@ -359,7 +355,7 @@ def Mul₃_equiv₂
 
   left_inv := by
     simp; rintro ⟨c₁, ⟨c₂, s₁, s₂⟩, s₃⟩; simp
-    refine mul_ext (S := mul S₁ S₂) (T := S₃) (c₁_inv c₁ c₂) ?_ ?_
+    refine mul_ext (S := Mul S₁ S₂) (T := S₃) (c₁_inv c₁ c₂) ?_ ?_
     · simp [mul_transport_mk]
       refine mul_ext (S := S₁) (T := S₂) ?_ ?_ ?_ <;> try simp [transport_transport]
       . apply c₂_inv
@@ -377,7 +373,7 @@ def Mul₃_equiv₂
 
 def mul_assoc
   {S₁ S₂ S₃ : Type → Type} [Species S₁] [Species S₂] [Species S₃] {U} [Finite U]
-: (mul (mul S₁ S₂) S₃) U ≃ (mul S₁ (mul S₂ S₃)) U :=
+: (Mul (Mul S₁ S₂) S₃) U ≃ (Mul S₁ (Mul S₂ S₃)) U :=
   Mul₃_equiv₂.trans (@Mul₃_equiv₁ S₁ S₂ S₃ _ _ _ U _).symm
 
 end Species

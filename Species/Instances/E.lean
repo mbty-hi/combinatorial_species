@@ -6,26 +6,26 @@ namespace Species
 
 /- Note that we do not store labels explicitly. Assuming that the type this is applied to is a
    `LabelType` (which it should be), we can easily recover them anyway. -/
-structure SE (U : Type) : Type -- empty, one inhabitant: ⟨⟩
+structure E (U : Type) : Type -- empty, one inhabitant: ⟨⟩
 
-instance {U} : Subsingleton (SE U) := ⟨fun _ _ => rfl⟩
-instance {U} : DecidableEq  (SE U) := fun _ _ => isTrue rfl
-instance {U} : Fintype      (SE U) := Fintype.ofSubsingleton ⟨⟩
+instance {U} : Subsingleton (E U) := ⟨fun _ _ => rfl⟩
+instance {U} : DecidableEq  (E U) := fun _ _ => isTrue rfl
+instance {U} : Fintype      (E U) := Fintype.ofSubsingleton ⟨⟩
 
 /- Display related instances -/
-instance instReprSE {U} [Repr U] [LabelType U] : Repr (SE U) where
+instance instReprE {U} [Repr U] [LabelType U] : Repr (E U) where
   reprPrec _ _ :=
     "{" ++ Std.Format.joinSep ((Finset.univ : Finset U).sort (· ≤ ·) |>.map repr) ", " ++ "}"
-instance instLinearOrderSE {U} : LinearOrder (SE U) := .ofSubsingleton
+instance instLinearOrderE {U} : LinearOrder (E U) := .ofSubsingleton
 
 /- Species instance -/
-instance instSpeciesSE : Species SE where
+instance instSpeciesE : Species E where
   finite         := inferInstance
   transport      := fun _ _   => ⟨⟩
   id_transport   := fun _     => Subsingleton.elim _ _
   comp_transport := fun _ _ _ => rfl
 
-instance instSpeciesCompSE : SpeciesComp SE where
+instance instSpeciesCompE : SpeciesComp E where
   fintype := inferInstance
   decEq   := inferInstance
 

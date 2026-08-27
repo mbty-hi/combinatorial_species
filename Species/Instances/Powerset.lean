@@ -5,16 +5,16 @@ import Mathlib.Data.Prod.Lex
 
 namespace Species
 
-def SPowerset : Type → Type := Finset
+def Powerset : Type → Type := Finset
 
-instance instFintypeSPowerset {U} [Fintype U] : Fintype (SPowerset U) :=
+instance instFintypePowerset {U} [Fintype U] : Fintype (Powerset U) :=
   inferInstanceAs (Fintype (Finset U))
 
 /- Display related instances -/
 namespace Display
-instance instReprSPowerset {U : Type} [LinearOrder U] [Repr U] : Repr (SPowerset U) where
+instance instReprPowerset {U : Type} [LinearOrder U] [Repr U] : Repr (Powerset U) where
   reprPrec s _ := "{" ++ Std.Format.joinSep ((s.sort (· ≤ ·)).map repr) ", " ++ "}"
-instance instLinearOrderSPowerset {U} [LinearOrder U] : LinearOrder (SPowerset U) :=
+instance instLinearOrderPowerset {U} [LinearOrder U] : LinearOrder (Powerset U) :=
   -- use lexicographic order
   LinearOrder.lift'
     (fun s => (toLex (s.card, s.sort (· ≤ ·)) : ℕ ×ₗ List U))
@@ -24,7 +24,7 @@ instance instLinearOrderSPowerset {U} [LinearOrder U] : LinearOrder (SPowerset U
 end Display
 
 /- Species instance -/
-instance instSpeciesSPowerset : Species SPowerset where
+instance instSpeciesPowerset : Species Powerset where
   finite := by
     intros U _
     haveI : Fintype U := Fintype.ofFinite U
@@ -33,7 +33,7 @@ instance instSpeciesSPowerset : Species SPowerset where
   id_transport   := by intro _ f; simp
   comp_transport := by intro _ _ _ σ τ f; simp [Finset.map_map]
 
-instance instSpeciesCompSPowerset : SpeciesComp SPowerset where
+instance instSpeciesCompPowerset : SpeciesComp Powerset where
   fintype := inferInstance
   decEq   := inferInstance
 

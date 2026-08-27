@@ -2,22 +2,22 @@ import Species.Basic
 
 namespace Species
 
-inductive SZero (α : Type) where
-open SZero
+inductive Zero (α : Type) where
+open Zero
 
 /- Display related instances -/
-instance instReprSZero         {U} [Repr U] : Repr (SZero U) where reprPrec z _ := nomatch z
-instance instSubsingletonSZero {U} : Subsingleton (SZero U) := ⟨fun a => nomatch a⟩
-instance instLinearOrderSZero  {U} : LinearOrder (SZero U) := .ofSubsingleton
+instance instReprZero         {U} [Repr U] : Repr (Zero U) where reprPrec z _ := nomatch z
+instance instSubsingletonZero {U} : Subsingleton (Zero U) := ⟨fun a => nomatch a⟩
+instance instLinearOrderZero  {U} : LinearOrder (Zero U) := .ofSubsingleton
 
 /- Species instance -/
-instance instSpeciesSZero : Species SZero where
+instance instSpeciesZero : Species Zero where
   finite         := inferInstance
   transport      := fun _   empty => nomatch empty
   id_transport   := fun     empty => nomatch empty
   comp_transport := fun _ _ empty => nomatch empty
 
-instance instSpeciesCompSZero : SpeciesComp SZero where
+instance instSpeciesCompZero : SpeciesComp Zero where
   fintype := ⟨∅, fun x => nomatch x⟩
   decEq   := inferInstance
 

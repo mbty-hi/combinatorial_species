@@ -7,8 +7,8 @@ namespace Species
 
 variable {U: Type} [Fintype U] {F G: Type → Type}
 
-theorem leibniz_add_eq : Deriv (add F G) = add (Deriv F) (Deriv G) := by rfl
-def leibniz_add : Deriv (add F G) U ≃ add (Deriv F) (Deriv G) U := Equiv.refl _
+theorem leibniz_add_eq : Deriv (Add F G) = Add (Deriv F) (Deriv G) := by rfl
+def leibniz_add : Deriv (Add F G) U ≃ Add (Deriv F) (Deriv G) U := Equiv.refl _
 
 variable [Species F] [Species G]
 
@@ -42,7 +42,7 @@ theorem transport_heq {F : Type → Type} [Species F] {α β : Type} [Finite α]
   have : σ = Equiv.refl α := Equiv.ext fun a => eq_of_heq (hσ a)
   rw [this, Species.id_transport]
 
-def leibniz_mul : Deriv (mul F G) U ≃ add (mul (Deriv F) G) (mul F (Deriv G)) U where
+def leibniz_mul : Deriv (Mul F G) U ≃ Add (Mul (Deriv F) G) (Mul F (Deriv G)) U where
   toFun :=
     fun ⟨d, f, g⟩ =>
       match h : d none with
