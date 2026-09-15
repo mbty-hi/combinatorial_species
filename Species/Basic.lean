@@ -77,8 +77,4 @@ def structures : Finset (F U) := Finset.univ
 theorem card_structures_eq (σ : U ≃ V) : Fintype.card (F U) = Fintype.card (F V) :=
   Fintype.card_congr (Species.transportEquiv σ)
 
--- TODO test notations
-scoped notation:max F "[" U "]" => Species.structures (F := F) (U := U)
-scoped notation:max f "⟦" σ "⟧" => σ • f
-
 end SpeciesComp
