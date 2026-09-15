@@ -3,7 +3,6 @@ import Species.Basic
 namespace Species
 
 inductive Zero (α : Type) where
-open Zero
 
 /- Display related instances -/
 instance instReprZero         {U} [Repr U] : Repr (Zero U) where reprPrec z _ := nomatch z

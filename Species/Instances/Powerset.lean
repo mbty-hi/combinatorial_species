@@ -27,11 +27,13 @@ end Display
 instance instSpeciesPowerset : Species Powerset where
   finite := by
     intros U _
-    haveI : Fintype U := Fintype.ofFinite U
+    have : Fintype U := Fintype.ofFinite U
     infer_instance
   transport      := fun σ s => s.map σ.toEmbedding
-  id_transport   := by intro _ f; simp
-  comp_transport := by intro _ _ _ σ τ f; simp [Finset.map_map]
+  id_transport   := by intro _ _ f; exact Finset.map_refl
+  comp_transport := by
+    intro _ _ _ _ _ _ σ τ f
+    unfold Powerset at *; simp [Function.comp_def, Finset.map_map]
 
 instance instSpeciesCompPowerset : SpeciesComp Powerset where
   fintype := inferInstance

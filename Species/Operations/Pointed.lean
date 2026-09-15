@@ -11,13 +11,13 @@ def Pointed (F : Type → Type) (U : Type) : Type := U × F U
 instance instSpeciesPointed : Species (Pointed F) where
   finite := by
     intros U _; unfold Pointed
-    haveI := Species.finite (F := F) (U := U)
+    have := Species.finite (F := F) (U := U)
     infer_instance
   transport      := fun {U V} _ _ σ x       => (σ x.1, Species.transport σ x.2)
-  id_transport   := fun {U} _ f             => by simp [Species.id_transport]
-  comp_transport := fun {U V W} _ _ _ σ τ f => by simp [Species.comp_transport]
+  id_transport   := fun {U} _ f             => by simp [Species.id_transport]; rfl
+  comp_transport := fun {U V W} _ _ _ σ τ f => by simp [Species.comp_transport]; rfl
 
-instance instSpeciesCompPointed [SpeciesComp F] : SpeciesComp (Pointed F) where
+instance instSpeciesCompPointed {F : Type → Type} [SpeciesComp F] : SpeciesComp (Pointed F) where
   fintype := fun {U} _  => show Fintype (U × F U) from inferInstance
   decEq := by
     intros U _; unfold Pointed

@@ -2,7 +2,11 @@ import Species.Basic
 import Species.Labels.LabelType
 import Mathlib.Data.Finite.Sigma
 import Mathlib.Data.Finset.Max
+import Mathlib.Data.Finset.Sort
+import Mathlib.Data.Prod.Lex
 import Mathlib.Data.Setoid.Basic
+import Mathlib.Data.Sigma.Order
+import Mathlib.Order.PiLex
 
 namespace Species
 
@@ -35,8 +39,8 @@ def map (s : DecSetoid α) (σ : α ≃ β) : DecSetoid β where
 -- Transporting the `DecSetoid` along `σ` transports the quotient along `σ`.
 def quotEquiv (s : DecSetoid α) (σ : α ≃ β)
 : Quotient s.toSetoid ≃ Quotient (s.map σ).toSetoid := by
-  apply Quotient.congr σ; intros x y
-  constructor <;> intros h <;> simp [toSetoid, map] at * <;> exact h
+  apply Quotient.congr σ; intro x y
+  unfold toSetoid map; simp
 
 /- `s.quotEquiv` at `Equiv.refl` is just the identity equiv (i.e., remapping along `Equiv.refl`
    leaves the `DecSetoid` unchanged). -/
@@ -90,7 +94,8 @@ def blockMin (s : DecSetoid α) (block : Quotient s.toSetoid) : α :=
 -- A block is fully determined by its minimum.
 theorem blockMin_mk (s : DecSetoid α) (block : Quotient s.toSetoid)
 : Quotient.mk s.toSetoid (s.blockMin block) = block := by
-  simpa [blockFinset] using Finset.min'_mem (s.blockFinset block) (s.blockFinset_nonempty block)
+  have h := Finset.min'_mem (s.blockFinset block) (s.blockFinset_nonempty block)
+  simp [blockFinset] at h; exact h
 
 theorem blockMin_injective (s : DecSetoid α) : Function.Injective s.blockMin := by
   intros block₁ block₂ h
@@ -99,6 +104,21 @@ theorem blockMin_injective (s : DecSetoid α) : Function.Injective s.blockMin :=
 -- This linear order ranks blocks based on their minimal item in `α`'s order.
 instance instLinearOrderQuot (s : DecSetoid α) : LinearOrder (Quotient s.toSetoid) :=
   LinearOrder.lift' s.blockMin s.blockMin_injective
+
+-- Since `α` is a `LabelType`, we can build a matrix summarizing the results of all possible
+-- applications of `s.d` following `α`'s linear order.
+def explicit_mapping (s : DecSetoid α) : List (List Bool) :=
+  let labels := (Finset.univ : Finset α).sort (· ≤ ·)
+  labels.map (fun x => labels.map (s.d x))
+
+-- That mapping is injective.
+theorem explicit_mapping_injective : Function.Injective (explicit_mapping (α := α)) := by
+  intro ⟨sd, seq⟩ ⟨td, teq⟩ h; simp [explicit_mapping] at *
+  funext a a'; exact h a a'
+
+-- We also need an order for comparing different `DecSetoid`s in addition to the one for blocks.
+instance instLinearOrderDecSetoid : LinearOrder (DecSetoid α) :=
+  LinearOrder.lift' explicit_mapping explicit_mapping_injective
 
 end DecSetoid
 
@@ -109,8 +129,8 @@ structure Composition (F G: Type → Type) (U: Type) where
   inner    : Π (eqv_class : Quotient partition.toSetoid), G { x // ⟦x⟧ = eqv_class }
 
 namespace Composition
-  variable {U V W : Type} [Finite U] [Finite V] [Finite W]
-  variable {F G : Type → Type} [Species F] [Species G]
+variable {U V W : Type} [Finite U] [Finite V] [Finite W]
+variable {F G : Type → Type} [Species F] [Species G]
 
 def transport (σ : U ≃ V) (c : Composition F G U) : Composition F G V where
   partition := c.partition.map σ
@@ -154,8 +174,14 @@ where
   right_inv _ := rfl
 
 -- Required for `Finite.of_equiv`.
-instance {α : Type} [Finite α] : Finite (DecSetoid α) :=
+instance instFiniteDecSetoid {α : Type} [Finite α] : Finite (DecSetoid α) :=
   Finite.of_injective (fun s => s.d) (fun s₁ s₂ h => by cases s₁; cases s₂; simpa using h)
+
+example {U : Type} [Finite U] (s : DecSetoid U) : True := by
+  have h1 : Finite (Quotient s.toSetoid) := by infer_instance
+  have h2 : Finite (F (Quotient s.toSetoid)) := by infer_instance
+  have h3 : Finite ((b : Quotient s.toSetoid) → G { x // ⟦x⟧ = b }) := by infer_instance
+  trivial
 
 instance instSpeciesComposition : Species (Composition F G) where
   finite         := Finite.of_equiv _ equivSigma.symm
@@ -203,10 +229,60 @@ instance instDecEqCompFiber
   (F (Quotient s.toSetoid) × ((b : Quotient s.toSetoid) → G {x // Quotient.mk s.toSetoid x = b})) :=
 instDecidableEqProd
 
-instance instSpeciesCompComposition [SpeciesComp F] [SpeciesComp G]
+instance instSpeciesCompComposition {F G : Type → Type} [SpeciesComp F] [SpeciesComp G]
 : SpeciesComp (Composition F G) where
   fintype := Fintype.ofEquiv _ equivSigma.symm
   decEq   := Equiv.decidableEq equivSigma
 end Composition
+
+/- Display related instances -/
+-- Display as `F`'s representation of a bunch of, e.g., `<{1, 3} ↦ "G block on {1, 3}">`
+instance instReprComposition
+  {F G : Type → Type} {U : Type} [LabelType U] [Repr U]
+  [∀ (X : Type) [Repr X], Repr (F X)]
+  [∀ (X : Type) [Repr X], Repr (G X)]
+: Repr (Composition F G U) where
+  reprPrec c _ :=
+    letI : Repr (Quotient c.partition.toSetoid) :=
+      ⟨fun eqv_class _ =>
+        "<"
+        ++ repr ((c.partition.blockFinset eqv_class).sort (· ≤ ·))
+        ++ " ↦ "
+        ++ repr (c.inner eqv_class)
+        ++ ">"⟩
+    repr c.outer
+
+variable {F G : Type → Type} {U : Type} [LabelType U]
+
+abbrev Key := Σₗ p : DecSetoid U,
+  F (Quotient p.toSetoid) ×ₗ List (Σₗ b : Quotient p.toSetoid, G {x // ⟦x⟧ = b})
+
+def toKey (c : Composition F G U) : @Key F G U :=
+  let blocks := (Finset.univ.image (Quotient.mk c.partition.toSetoid)).sort (· ≤ ·)
+  toLex ⟨c.partition, toLex (c.outer, blocks.map fun b => toLex ⟨b, c.inner b⟩)⟩
+
+lemma toKey_inj : Function.Injective (@toKey F G U _) := by
+  rintro ⟨p₁, o₁, i₁⟩ ⟨p₂, o₂, i₂⟩ h
+  simp [toKey] at h; obtain ⟨peq, oeq⟩ := h; subst peq
+  simp [heq_eq_eq] at oeq; obtain ⟨oeq, ieq⟩ := oeq; subst oeq; simp
+  ext ⟨x⟩; exact ieq x
+
+/- Lexicographic order: first on equivalence classes, then outer, finishing with inner:
+   The `outer` and `inner` species do have linear orders, but these assume fixed label types. We
+   can't rely on these alone to compare, e.g., `F {1, 2}` to `F {3}`.
+   Instead, we start by ordering by equivalence classes:
+   `[{3}, {1, 2}] < [{1}, {2, 3}] < [{1, 2, 3}]`
+   Using the order on the equivalence classes is of course not enough, as, e.g., `F {1, 2}` can
+   usually be built in several way. For instance, if `F` is `L`, then we have `1 < 2` and `2 < 1`.
+   This is where the species' preexisting linear order becomes useful.
+   Here, we have two nested species instead of the single `F` from the example. The same logic
+   applies for both levels of nesting. We consider the linear order on the outer species first as
+   this feels more natural. -/
+instance instLinearOrderComposition
+  [∀ (X : Type) [LinearOrder X], LinearOrder (F X)]
+  [∀ (X : Type) [LinearOrder X], LinearOrder (G X)]
+: LinearOrder ((Composition F G) U) :=
+  -- Extract equivalence classes, lifting from
+  LinearOrder.lift' toKey toKey_inj
 
 end Species

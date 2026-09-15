@@ -13,14 +13,13 @@ structure L (U : Type) where
   complete : ∀ (x : U), x ∈ order
 
 instance instDecEqL {U} [DecidableEq U] : DecidableEq (L U) :=
-  fun a b => decidable_of_iff (a.order = b.order)
-    ⟨L.ext, fun h => congrArg L.order h⟩
+  fun a b =>
+    decidable_of_iff (a.order = b.order) ⟨L.ext, fun h => congrArg L.order h⟩
 
-lemma permutations_preserves_nodup {U} {l : List U}:
-  l.Nodup → ∀l' ∈ l.permutations, l'.Nodup
-:= fun lnd l' l'_in_lp =>
-  let lpl' : l.Perm l' := (l'.mem_permutations.1 l'_in_lp).symm
-  lnd.perm lpl'
+lemma permutations_preserves_nodup {U} {l : List U} : l.Nodup → ∀l' ∈ l.permutations, l'.Nodup :=
+  fun lnd l' l'_in_lp =>
+    let lpl' : l.Perm l' := (l'.mem_permutations.1 l'_in_lp).symm
+    lnd.perm lpl'
 
 instance instFintypeL {U} [LabelType U] : Fintype (L U) where
   elems := (
@@ -37,7 +36,7 @@ instance instFintypeL {U} [LabelType U] : Fintype (L U) where
           order    := p
           nodup    := perms_elements_nd p hp
           complete := perms_elements_complete p hp
-        }: L U))
+        } : L U))
         (fun _ h => h)
     pperms.toFinset
   )
@@ -69,8 +68,8 @@ instance instSpeciesL : Species L where
   finite := by
     intros α _
     /- We generate these instances so as to satisfy the requirements of `instFintypeL` -/
-    haveI : Fintype α := Fintype.ofFinite α
-    haveI : LinearOrder α := IsWellOrder.linearOrder WellOrderingRel
+    have : Fintype α := Fintype.ofFinite α
+    have : LinearOrder α := IsWellOrder.linearOrder WellOrderingRel
     exact Finite.of_fintype (L α)
   transport      := fun σ s => transport_L s σ
   id_transport   := by simp [transport_L]

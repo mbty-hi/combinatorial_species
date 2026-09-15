@@ -53,7 +53,7 @@ instance instSpeciesC : Species C where
   comp_transport := fun σ τ s =>
     Subtype.ext (by
       show (σ.trans τ).permCongr s.1 = τ.permCongr (σ.permCongr s.1)
-      ext x; simp [Equiv.permCongr_apply, Equiv.trans_apply, Equiv.symm_trans_apply]
+      ext x; simp [Equiv.permCongr_apply, Equiv.trans_apply]
     )
 
 instance instSpeciesCompC : SpeciesComp C where

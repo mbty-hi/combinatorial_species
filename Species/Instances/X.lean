@@ -19,8 +19,8 @@ instance instLinearOrderX {U} : LinearOrder (X U) := .ofSubsingleton
 instance instSpeciesX : Species X where
   finite         := inferInstance
   transport      := fun σ e => e.trans σ
-  id_transport   := by intro _ e; simp
-  comp_transport := by intro _ _ _ σ τ e; simp [Equiv.trans_assoc]
+  id_transport   := by intro _ _ e; rfl
+  comp_transport := by intro _ _ _ _ _ _ σ τ e; unfold X at *; simp [Equiv.trans_assoc]
 
 instance instSpeciesCompX : SpeciesComp X where
   fintype := inferInstance

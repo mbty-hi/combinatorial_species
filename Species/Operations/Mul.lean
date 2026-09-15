@@ -26,9 +26,9 @@ instance instSpeciesMul : Species (Mul F G) where
   finite := by
     intros U _; unfold Mul
     /- Surface instances -/
-    haveI : ∀ d : U → Bool, Finite (F {u // d u = false}) :=
+    have : ∀ d : U → Bool, Finite (F {u // d u = false}) :=
       fun d => Species.finite (F := F) (U := {u // d u = false})
-    haveI : ∀ d : U → Bool, Finite (G {u // d u = true}) :=
+    have : ∀ d : U → Bool, Finite (G {u // d u = true}) :=
       fun d => Species.finite (F := G) (U := {u // d u = true})
     infer_instance
   transport := fun σ ⟨split, f_struct, g_struct⟩ => ⟨
@@ -46,7 +46,8 @@ instance instSpeciesMul : Species (Mul F G) where
     apply Prod.ext
       <;> apply Species.comp_transport (blockEquiv σ d _) (blockEquiv τ (d ∘ σ.symm) _)
 
-instance instSpeciesCompMul [SpeciesComp F] [SpeciesComp G] : SpeciesComp (Mul F G) where
+instance instSpeciesCompMul {F G : Type → Type} [SpeciesComp F] [SpeciesComp G]
+: SpeciesComp (Mul F G) where
   fintype := fun {U} _ => by unfold Mul; infer_instance
   decEq := by
     intros U _; unfold Mul
@@ -59,14 +60,14 @@ instance instSpeciesCompMul [SpeciesComp F] [SpeciesComp G] : SpeciesComp (Mul F
 
 /- Display related instances -/
 variable
+  {F G : Type → Type} [SpeciesComp F] [SpeciesComp G] {U V : Type}
   [LabelType U] [LabelType V]
   [∀ d : U → Bool, LinearOrder (F {u // d u = false})]
   [∀ d : U → Bool, LinearOrder (G {u // d u = true})]
-  [SpeciesComp F] [SpeciesComp G]
   /- Note that `[∀ d : U → Bool, ∀ b : Bool, LinearOrder (F {u // d u = b})]` would not work. -/
 
 instance instReprMul
-  {F G : Type → Type} {U : Type} [LabelType U] [Repr U]
+  [Repr U]
   [∀ d : U → Bool, Repr (F {u // d u = false})]
   [∀ d : U → Bool, Repr (G {u // d u = true })]
 : Repr ((Mul F G) U) where
@@ -79,7 +80,7 @@ instance instReprMul
 def rankOf {α : Type} [Fintype α] [LinearOrder α] (y : α) : ℕ :=
   ((Finset.univ : Finset α).sort (· ≤ ·)).idxOf y
 
-lemma rankOf_injective {α} [Fintype α] [LinearOrder α]
+lemma rankOf_inj {α} [Fintype α] [LinearOrder α]
 : Function.Injective (rankOf (α := α)) := by
   intro a b h
   have ha : a ∈ (Finset.univ : Finset α).sort (· ≤ ·) := by simp
@@ -104,27 +105,21 @@ lemma false_block_contents_determines_split {split₁ split₂ : U → Bool}
   simp only [Finset.mem_filter, Finset.mem_univ, true_and] at this
   cases hu1 : split₁ u <;> cases hu2 : split₂ u <;> simp_all
 
-omit [Species F] [Species G] in
-lemma mulKey_injective : Function.Injective (mulKey (F := F) (G := G) (U := U)) := by
+lemma mulKey_inj : Function.Injective (mulKey (F := F) (G := G) (U := U)) := by
   rintro ⟨d₁, f₁, g₁⟩ ⟨d₂, f₂, g₂⟩ h
-  rw [Prod.ext_iff, Prod.ext_iff] at h
+  simp only [mulKey, toLex_inj, Prod.ext_iff] at h
   obtain ⟨hL, hf, hg⟩ := h
   have hd : d₁ = d₂ := false_block_contents_determines_split hL
   subst hd
-  have roi_f := rankOf_injective hf
-  have roi_g := rankOf_injective hg
-  subst_vars; simp
+  have roi_f := rankOf_inj hf
+  have roi_g := rankOf_inj hg
+  subst_vars; rfl
 
-instance instLinearOrderMul
-  {F G : Type → Type} {α : Type}
-  [Species F] [Species G] [SpeciesComp F] [SpeciesComp G] [LabelType α]
-  [∀ d : α → Bool, LinearOrder (F {u // d u = false})]
-  [∀ d : α → Bool, LinearOrder (G {u // d u = true})]
-: LinearOrder ((Mul F G) α) :=
-  LinearOrder.lift' mulKey mulKey_injective
+instance instLinearOrderMul : LinearOrder ((Mul F G) U) :=
+  LinearOrder.lift' mulKey mulKey_inj
 
 -- Other results
-def deciderCast {U : Type} {d d' : U → Bool} (h : d = d') (b : Bool)
+@[simp] def deciderCast {U : Type} {d d' : U → Bool} (h : d = d') (b : Bool)
 : {u // d u = b} ≃ {u // d' u = b} :=
   Equiv.subtypeEquivRight fun u => by rw [h]
 

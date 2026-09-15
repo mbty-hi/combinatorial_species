@@ -19,11 +19,11 @@ namespace Species
 variable {F : Type → Type} [Species F] {U V : Type} [Finite U] [Finite V]
 
 /- For any `LabelType U`, there is a finite number of `F`-structures labelled with `U`. -/
-instance instFiniteOfSpecies : Finite (F U) := Species.finite
+instance instFiniteSpecies : Finite (F U) := Species.finite
 
 /- Relabelling is an action of `Equiv.Perm U` on `F U` (`σ • f := transport σ f`). Its orbits are
    the isomorphism types of `F`-structures. -/
-instance {U : Type} [LabelType U] (F : Type → Type) [Species F]
+instance instMulActionSpecies {U : Type} [LabelType U] (F : Type → Type) [Species F]
 : MulAction (Equiv.Perm U) (F U) where
   smul σ f       := transport σ f
   one_smul       := id_transport

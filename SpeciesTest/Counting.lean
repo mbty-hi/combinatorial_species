@@ -10,8 +10,6 @@ local notation "Zero" => Species.Zero
 local notation "Add"  => Species.Add
 local notation "Mul"  => Species.Mul
 
-#synth Repr (Mul E L (Canonical 3))
-#synth Repr (Σ d : Canonical 3 → Bool, E {u // d u = true} × L {u // d u = false})
 #guard card X 1        = 1
 #guard seq  X 5        = [0, 1, 0, 0, 0]
 #guard seq  E 5        = [1, 1, 1, 1, 1]
@@ -54,3 +52,4 @@ local notation "Mul"  => Species.Mul
 #eval structures_canonical (Deriv L) 3
 #eval structures_canonical (Restrict Powerset 3) 5
 #eval structures_canonical (Restrict Powerset 3) 3
+/- #eval structures_canonical (Composition L L) 3 -/

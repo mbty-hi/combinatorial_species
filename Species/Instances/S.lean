@@ -77,8 +77,8 @@ instance instLinearOrderS {U} [Fintype U] [LinearOrder U]
 instance instSpeciesS : Species S where
   finite         := by unfold S; infer_instance
   transport      := fun σ   p => σ.permCongr p
-  id_transport   := fun     p => by apply Equiv.ext; simp
-  comp_transport := fun σ τ p => by apply Equiv.ext; simp
+  id_transport   := fun     p => by rfl
+  comp_transport := fun σ τ p => by rfl
 
 instance instSpeciesCompS : SpeciesComp S where
   fintype := inferInstance

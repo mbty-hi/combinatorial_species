@@ -12,7 +12,7 @@ def add_zero : (Add F Zero) U ≃ F U where
     | .inl x => x
     | .inr x => nomatch x
   invFun    := .inl
-  left_inv  := by simp [Function.LeftInverse]; rintro (_ | x); simp; nomatch x
+  left_inv  := by rintro (_ | x); rfl; nomatch x
   right_inv := by simp [Function.RightInverse, Function.LeftInverse]
 
 def zero_add : (Add Zero F) U ≃ F U where
@@ -20,7 +20,7 @@ def zero_add : (Add Zero F) U ≃ F U where
     | .inl x => nomatch x
     | .inr x => x
   invFun    := .inr
-  left_inv  := by simp [Function.LeftInverse]; rintro (x | _); nomatch x; simp
+  left_inv  := by rintro (x | _); nomatch x; rfl
   right_inv := by simp [Function.RightInverse, Function.LeftInverse]
 
 def add_assoc : (Add (Add F G) H) U ≃ (Add F (Add G H)) U where
@@ -36,8 +36,8 @@ def add_assoc : (Add (Add F G) H) U ≃ (Add F (Add G H)) U where
     . exact (Sum.inl (Sum.inl foo))
     . exact (Sum.inl (Sum.inr bar))
     . exact (Sum.inr baz)
-  left_inv  := by rintro ((foo | bar) | baz) <;> simp
-  right_inv := by rintro ( foo | bar  | baz) <;> simp
+  left_inv  := by rintro ((foo | bar) | baz) <;> rfl
+  right_inv := by rintro ( foo | bar  | baz) <;> rfl
 
 def add_comm : Add F G U ≃ Add G F U where
   toFun := by
@@ -50,7 +50,7 @@ def add_comm : Add F G U ≃ Add G F U where
     rintro (foo | bar)
     . exact Sum.inr foo
     . exact Sum.inl bar
-  left_inv  := by rintro (foo | bar) <;> simp
-  right_inv := by rintro (foo | bar) <;> simp
+  left_inv  := by rintro (foo | bar) <;> rfl
+  right_inv := by rintro (foo | bar) <;> rfl
 
 end Species

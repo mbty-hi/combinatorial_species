@@ -24,17 +24,18 @@ instance instSpeciesAdd : Species (Add F G) where
   finite := by
     intros U _; unfold Add
     /- Surface some instances -/
-    haveI := Species.finite (F := F) (U := U)
-    haveI := Species.finite (F := G) (U := U)
+    have := Species.finite (F := F) (U := U)
+    have := Species.finite (F := G) (U := U)
     infer_instance
   transport      := fun {U V} _ _ σ         => Sum.map (transport σ) (transport σ)
-  id_transport   := fun {U} _ f             => by cases f <;> simp [Species.id_transport]
-  comp_transport := fun {U V W} _ _ _ σ τ f => by cases f <;> simp [Species.comp_transport]
+  id_transport   := fun {U} _ f             => by cases f <;> simp [Species.id_transport]   <;> rfl
+  comp_transport := fun {U V W} _ _ _ σ τ f => by cases f <;> simp [Species.comp_transport] <;> rfl
 
-instance instSpeciesCompAdd [SpeciesComp F] [SpeciesComp G] : SpeciesComp (Add F G) where
+instance instSpeciesCompAdd {F G : Type → Type} [SpeciesComp F] [SpeciesComp G]
+: SpeciesComp (Add F G) where
   fintype := fun {U} [LabelType U] => show Fintype (F U ⊕ G U) from inferInstance
   decEq   := by
-    intros U _ _ _; unfold Add
+    intros U _; unfold Add
     /- Surface some instances -/
     haveI := SpeciesComp.decEq (F := F) (U := U)
     haveI := SpeciesComp.decEq (F := G) (U := U)

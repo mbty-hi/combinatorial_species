@@ -1,5 +1,21 @@
+composition printer
+noncomputable def deriv_Cycle_is_LinearOrder: Deriv C U ≃ L U where
+===
+naturality -> series agree
+equipotence
+linear orders as C
 ballots as linear orders of non empty sets
 permutation is a set of cycles
+ballots
 trees
 cat theory
-composition printer
+subspecies
+series properties
+L-species
+transfer-matrix method
+Der + Montmort?
+Hadamard
+Set partitions
+Endofunctions
+Weighted
+Virtual

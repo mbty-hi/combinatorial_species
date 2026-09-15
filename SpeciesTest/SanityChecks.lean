@@ -12,9 +12,20 @@ def deriv_E: Deriv E U ≃ E U where
   right_inv x := rfl
   left_inv    := by unfold Species.Deriv; intro x; simp
 
--- TODO
-/- def deriv_Cycle_is_LinearOrder: Deriv C U ≃ L U where -/
-/-   toFun := sorry -/
-/-   invFun      := sorry -/
-/-   right_inv   := by sorry -/
-/-   left_inv    := by sorry -/
+
+-- `noncomputable`: we can't go
+noncomputable def deriv_Cycle_is_LinearOrder: Deriv C U ≃ L U where
+  toFun := by
+    unfold Deriv; rintro ⟨x, ⟨nonempty, same_cycle⟩⟩
+    -- Missing: cycle from deriv
+    obtain ⟨x, hx⟩ := x
+    /- Cut at `*`, remove useless arrows to and from it -/
+    refine ⟨
+      , -- list
+      ?_, -- nodup
+      ?_ -- complete
+    ⟩
+
+  invFun      := sorry
+  right_inv   := by sorry
+  left_inv    := by sorry
