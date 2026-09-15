@@ -210,11 +210,6 @@ instance decidableEquivalenceBool {α : Type} [Fintype α] [DecidableEq α] (f :
       fun h => ⟨h.refl, fun _ _ => h.symm, fun _ _ _ => h.trans⟩
     ⟩
 
-instance {α : Type} [LabelType α] : Fintype (DecSetoid α) :=
-  Fintype.ofSurjective
-    (fun p : {f : α → α → Bool // Equivalence (fun x y => f x y = true)} => ⟨p.1, p.2⟩)
-    (fun s => ⟨⟨s.d, s.iseqv⟩, rfl⟩)
-
 instance instDecEqOfSpecies {F : Type → Type} [SpeciesComp F] {U : Type} [LabelType U]
 : DecidableEq (F U) :=
   SpeciesComp.decEq
@@ -222,6 +217,11 @@ instance instDecEqOfSpecies {F : Type → Type} [SpeciesComp F] {U : Type} [Labe
 instance instFintypeQuot {α : Type} [LabelType α] (s : DecSetoid α)
 : Fintype (Quotient s.toSetoid) :=
   @Quotient.fintype α _ s.toSetoid (fun x y => inferInstanceAs (Decidable (s.d x y = true)))
+
+instance instFintypeDecSetoid {α : Type} [LabelType α] : Fintype (DecSetoid α) :=
+  Fintype.ofSurjective
+    (fun p : {f : α → α → Bool // Equivalence (fun x y => f x y = true)} => ⟨p.1, p.2⟩)
+    (fun s => ⟨⟨s.d, s.iseqv⟩, rfl⟩)
 
 instance instDecEqCompFiber
   {U : Type} [LabelType U] {F G : Type → Type} [SpeciesComp F] [SpeciesComp G] (s : DecSetoid U)
@@ -236,25 +236,31 @@ instance instSpeciesCompComposition {F G : Type → Type} [SpeciesComp F] [Speci
 end Composition
 
 /- Display related instances -/
--- Display as `F`'s representation of a bunch of, e.g., `<{1, 3} ↦ "G block on {1, 3}">`
-instance instReprComposition
-  {F G : Type → Type} {U : Type} [LabelType U] [Repr U]
-  [∀ (X : Type) [Repr X], Repr (F X)]
-  [∀ (X : Type) [Repr X], Repr (G X)]
-: Repr (Composition F G U) where
-  reprPrec c _ :=
-    letI : Repr (Quotient c.partition.toSetoid) :=
-      ⟨fun eqv_class _ =>
-        "<"
-        ++ repr ((c.partition.blockFinset eqv_class).sort (· ≤ ·))
-        ++ " ↦ "
-        ++ repr (c.inner eqv_class)
-        ++ ">"⟩
-    repr c.outer
-
+/- We display via `F`'s representation, with each block printed as, e.g.,
+  `<[1, 3] ↦ "G block on {1, 3}">`.
+   Just like for `Mul`, we must be careful about typeclass constraints.
+   For instance, the natural `[∀ (X : Type) [LinearOrder X], LinearOrder (F X)]` is too complex for
+   typeclass synthesis: we can generate a perfectly fine `LinearOrder` based on it, but typeclass
+   resolution would fail in practice. We have to be painfully explicit about _many_ things to
+   compensate. To be fair, Pi types with instance arguments are not the simplest usecase one could
+   think of. -/
 variable {F G : Type → Type} {U : Type} [LabelType U]
 
-abbrev Key := Σₗ p : DecSetoid U,
+section LinearOrder
+/- Lexicographic order: first on equivalence classes, then outer, finishing with inner:
+   The `outer` and `inner` species do have linear orders, but these assume fixed label types. We
+   can't rely on these alone to compare, e.g., `F {1, 2}` to `F {3}`.
+   Instead, we start by ordering by equivalence classes:
+   `[{3}, {1, 2}] < [{1}, {2, 3}] < [{1, 2, 3}]`
+   Using the order on the equivalence classes is of course not enough, as, e.g., `F {1, 2}` can
+   usually be built in several way. For instance, if `F` is `L`, then we have `1 < 2` and `2 < 1`.
+   This is where the species' preexisting linear order becomes useful.
+   Here, we have two nested species instead of the single `F` from the example. The same logic
+   applies for both levels of nesting. We consider the linear order on the outer species first as
+   this feels more natural. -/
+
+abbrev Key :=
+  Σₗ p : DecSetoid U,
   F (Quotient p.toSetoid) ×ₗ List (Σₗ b : Quotient p.toSetoid, G {x // ⟦x⟧ = b})
 
 def toKey (c : Composition F G U) : @Key F G U :=
@@ -267,22 +273,50 @@ lemma toKey_inj : Function.Injective (@toKey F G U _) := by
   simp [heq_eq_eq] at oeq; obtain ⟨oeq, ieq⟩ := oeq; subst oeq; simp
   ext ⟨x⟩; exact ieq x
 
-/- Lexicographic order: first on equivalence classes, then outer, finishing with inner:
-   The `outer` and `inner` species do have linear orders, but these assume fixed label types. We
-   can't rely on these alone to compare, e.g., `F {1, 2}` to `F {3}`.
-   Instead, we start by ordering by equivalence classes:
-   `[{3}, {1, 2}] < [{1}, {2, 3}] < [{1, 2, 3}]`
-   Using the order on the equivalence classes is of course not enough, as, e.g., `F {1, 2}` can
-   usually be built in several way. For instance, if `F` is `L`, then we have `1 < 2` and `2 < 1`.
-   This is where the species' preexisting linear order becomes useful.
-   Here, we have two nested species instead of the single `F` from the example. The same logic
-   applies for both levels of nesting. We consider the linear order on the outer species first as
-   this feels more natural. -/
 instance instLinearOrderComposition
-  [∀ (X : Type) [LinearOrder X], LinearOrder (F X)]
-  [∀ (X : Type) [LinearOrder X], LinearOrder (G X)]
+  [∀ s : DecSetoid U, LinearOrder (F (Quotient s.toSetoid))]
+  [∀ (s : DecSetoid U) (c : Quotient s.toSetoid), LinearOrder (G {x // ⟦x⟧ = c})]
 : LinearOrder ((Composition F G) U) :=
-  -- Extract equivalence classes, lifting from
   LinearOrder.lift' toKey toKey_inj
+end LinearOrder
 
+section Repr
+/- We label the outer structure (`F`) with a block dependently-paired with its inner structure
+   (`G`). This type contains exactly the data we need to represent a block. -/
+abbrev BlockLabel (s : DecSetoid U) (inner : ∀ q : Quotient s.toSetoid, F {x // ⟦x⟧ = q}) : Type :=
+  {p : Σ q : Quotient s.toSetoid, F {x // ⟦x⟧ = q} // p.2 = inner p.1}
+
+def Composition.quotientEquivBlockLabel (c : Composition F G U)
+: Quotient c.partition.toSetoid ≃ BlockLabel c.partition c.inner where
+  toFun q    := ⟨⟨q, c.inner q⟩, rfl⟩
+  invFun p   := p.1.1
+  left_inv _ := rfl
+  right_inv  := by rintro ⟨⟨q, g⟩, h⟩; simp at h; subst h; rfl
+
+instance instReprBlockLabel
+  [Repr U] (s : DecSetoid U) (inner : ∀ q : Quotient s.toSetoid, F {x // ⟦x⟧ = q})
+  [∀ q : Quotient s.toSetoid, Repr (F {x // ⟦x⟧ = q})]
+: Repr (BlockLabel s inner) :=
+  ⟨fun ⟨⟨q, g⟩, _⟩ _ => f!"<{repr ((s.blockFinset q).sort (· ≤ ·))} ↦ {repr g}>"⟩
+
+instance instLinearOrderBlockLabel
+  (s : DecSetoid U) (inner : ∀ q : Quotient s.toSetoid, F {x // ⟦x⟧ = q})
+  [LinearOrder (Quotient s.toSetoid)]
+: LinearOrder (BlockLabel s inner) :=
+  LinearOrder.lift'
+    (fun p => p.1.1)
+    (by rintro ⟨⟨q, g⟩, h⟩ ⟨⟨q', g'⟩, h'⟩ q_eq; dsimp at h h'; subst_vars; rfl)
+
+instance instReprComposition
+  [Repr U] [Species F] [Species G]
+  [∀ (s : DecSetoid U) (inner : ∀ q : Quotient s.toSetoid, G {x // ⟦x⟧ = q}),
+    Repr (F (BlockLabel s inner))
+  ]
+  [∀ (s : DecSetoid U) (q : Quotient s.toSetoid), Repr (G {x // ⟦x⟧ = q})]
+: Repr (Composition F G U) where
+  reprPrec c p :=
+    haveI : ∀ q : Quotient c.partition.toSetoid, Finite (G {x // ⟦x⟧ = q}) :=
+      fun _ => Species.finite
+    reprPrec (Species.transport c.quotientEquivBlockLabel c.outer) p
+end Repr
 end Species

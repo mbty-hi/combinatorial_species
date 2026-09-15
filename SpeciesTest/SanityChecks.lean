@@ -20,11 +20,12 @@ noncomputable def deriv_Cycle_is_LinearOrder: Deriv C U ≃ L U where
     -- Missing: cycle from deriv
     obtain ⟨x, hx⟩ := x
     /- Cut at `*`, remove useless arrows to and from it -/
-    refine ⟨
-      , -- list
-      ?_, -- nodup
-      ?_ -- complete
-    ⟩
+    /- refine ⟨ -/
+    /-   , -- list -/
+    /-   ?_, -- nodup -/
+    /-   ?_ -- complete -/
+    /- ⟩ -/
+    sorry
 
   invFun      := sorry
   right_inv   := by sorry

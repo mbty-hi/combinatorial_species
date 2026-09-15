@@ -52,4 +52,4 @@ local notation "Mul"  => Species.Mul
 #eval structures_canonical (Deriv L) 3
 #eval structures_canonical (Restrict Powerset 3) 5
 #eval structures_canonical (Restrict Powerset 3) 3
-/- #eval structures_canonical (Composition L L) 3 -/
+#eval structures_canonical (Composition L L) 3
