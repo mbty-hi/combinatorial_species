@@ -1,79 +1,66 @@
 import Species.Basic
-import Mathlib.Data.List.Permutation
-import Mathlib.Data.Finset.Sort
-import Mathlib.SetTheory.Cardinal.Order
+import Mathlib.Data.Fintype.Perm
+import Mathlib.SetTheory.Cardinal.Finite
 
 namespace Species
 
-/- L: concrete ordering of the elements of the type. -/
-@[ext] -- Automatically generate L.ext
+/- We define the linear order on `U` as a bijection with `Fin (Nat.card U)` (though we do not
+   actually use `Nat.card`, as we care about computability). -/
 structure L (U : Type) where
-  order    : List U
-  nodup    : order.Nodup
-  complete : ∀ (x : U), x ∈ order
+  card : ℕ
+  ord  : U ≃ Fin card
 
-instance instDecEqL {U} [DecidableEq U] : DecidableEq (L U) :=
-  fun a b =>
-    decidable_of_iff (a.order = b.order) ⟨L.ext, fun h => congrArg L.order h⟩
+/- TODO use namespaces in other instances -/
+namespace L
 
-lemma permutations_preserves_nodup {U} {l : List U} : l.Nodup → ∀l' ∈ l.permutations, l'.Nodup :=
-  fun lnd l' l'_in_lp =>
-    let lpl' : l.Perm l' := (l'.mem_permutations.1 l'_in_lp).symm
-    lnd.perm lpl'
+variable {U V : Type}
 
-instance instFintypeL {U} [LabelType U] : Fintype (L U) where
-  elems := (
-    let base := Finset.univ.sort (· ≤ ·)
-    have base_nd : base.Nodup := Finset.sort_nodup _ _
-    have base_complete : ∀u, u ∈ base := fun u => (Finset.mem_sort _).mpr (Finset.mem_univ u)
-    let perms := base.permutations
-    have perms_elements_nd : ∀p ∈ perms, p.Nodup := permutations_preserves_nodup base_nd
-    have perms_elements_complete : ∀p ∈ perms, ∀u, u ∈ p :=
-      fun p pip u => ((List.mem_permutations.1 pip).mem_iff).mpr (base_complete u)
-    let pperms : List (L U) :=
-      perms.pmap
-        (fun p hp => ({
-          order    := p
-          nodup    := perms_elements_nd p hp
-          complete := perms_elements_complete p hp
-        } : L U))
-        (fun _ h => h)
-    pperms.toFinset
-  )
-  complete := by
-    intro o
-    have hmem : o.order ∈ (Finset.univ.sort (· ≤ ·)).permutations :=
-      List.mem_permutations.mpr
-        ((List.perm_ext_iff_of_nodup o.nodup (Finset.sort_nodup _ _)).mpr
-          (fun a => by
-            rw [Finset.mem_sort]
-            exact ⟨fun _ => Finset.mem_univ a, fun _ => o.complete a⟩))
-    simp only [List.mem_toFinset]
-    exact List.mem_pmap.mpr ⟨o.order, hmem, L.ext rfl⟩
+def order (x : L U) : List U := (List.finRange x.card).map x.ord.symm
 
-def transport_L {U V : Type} (a : L U) (σ : U ≃ V) : L V := {
-  order    := a.order.map σ
-  nodup    := a.nodup.map σ.injective
-  complete := fun v => List.mem_map.mpr ⟨σ.symm v, a.complete _, σ.apply_symm_apply v⟩
-}
+lemma order_injective : Function.Injective (L.order (U := U)) := by
+  intro ⟨n₁, e₁⟩ ⟨n₂, e₂⟩ h
+  have hn : n₁ = n₂ := by simpa [order] using congrArg List.length h
+  subst hn; congr 1
+  have hs : e₁.symm = e₂.symm := Equiv.ext fun i => List.map_inj_left.mp h i (List.mem_finRange i)
+  simpa using congrArg Equiv.symm hs
 
 /- Display related instances -/
 instance instReprL {U} [Repr U] : Repr (L U) where
-  reprPrec a prec := reprPrec a.order prec
+  reprPrec x prec := reprPrec x.order prec
 instance instLinearOrderL {U} [LinearOrder U] : LinearOrder (L U) :=
-  LinearOrder.lift' L.order (fun _ _ h => L.ext h)
+  LinearOrder.lift' L.order L.order_injective
 
-/- Species instance -/
+def transport (σ : U ≃ V) (x : L U) : L V := ⟨x.card, σ.symm.trans x.ord⟩
+
+end L
+
+instance instFintypeL {U} [DecidableEq U] [Fintype U] : Fintype (L U) :=
+  Fintype.ofEquiv
+    (U ≃ Fin (Fintype.card U))
+    {
+      toFun     := fun e => ⟨_, e⟩
+      invFun    := fun x => x.ord.trans (finCongr (by simpa using (Fintype.card_congr x.ord).symm))
+      left_inv  := fun e => by ext i; simp
+      right_inv := fun ⟨n, e⟩ => by
+        have h : n = Fintype.card U := by simpa using (Fintype.card_congr e).symm
+        subst h; congr 1
+    }
+
 instance instSpeciesL : Species L where
   finite := by
-    intros α _
-    /- We generate these instances so as to satisfy the requirements of `instFintypeL` -/
-    have : Fintype α := Fintype.ofFinite α
-    have : LinearOrder α := IsWellOrder.linearOrder WellOrderingRel
-    exact Finite.of_fintype (L α)
-  transport      := fun σ s => transport_L s σ
-  id_transport   := by simp [transport_L]
-  comp_transport := by simp [transport_L]
+    intros U _
+    have : Fintype U := Fintype.ofFinite U
+    classical
+    infer_instance
+  transport      := fun σ => L.transport σ
+  id_transport   := fun x => by congr
+  comp_transport := fun σ τ ⟨card, ord⟩ => by rw [Function.comp_apply, L.transport]; congr 1
+
+instance instDecEqL {U} [DecidableEq U] [Fintype U] : DecidableEq (L U) :=
+  fun ⟨n₁, e₁⟩ ⟨n₂, e₂⟩ =>
+    if h : n₁ = n₂ then by
+      subst h; exact decidable_of_iff (e₁ = e₂) ⟨by intro rfl; simp, fun h => by cases h; rfl⟩
+    else isFalse fun heq => h (congrArg L.card heq)
 
 instance instSpeciesCompL : SpeciesComp L where
   fintype := inferInstance

@@ -53,6 +53,13 @@ def transport (σ : U ≃ V) : WithHole U ≃ WithHole V where
 : transport (σ.trans τ) = (transport σ).trans (transport τ) :=
   Equiv.ext fun x => by cases x with | mk val => cases val <;> rfl
 
+lemma coe_val_eq {x : WithHole U} {u : U} (h : x.val = some u) : WithHole.coe u = x := by
+  cases x with
+  | mk ou => cases h; rfl
+
+lemma coe_injective : Function.Injective (WithHole.coe (U := U)) := by
+  intro a b h; cases h; rfl
+
 end WithHole
 
 /- Display related instances -/

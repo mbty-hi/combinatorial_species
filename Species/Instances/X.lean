@@ -11,8 +11,7 @@ instance instSubsingletonX {U} : Subsingleton (X U) :=
   inferInstanceAs (Subsingleton (Fin 1 ≃ U))
 
 /- Display related instances -/
-instance instReprX {U} [Repr U] : Repr (X U) where
-  reprPrec x _ := reprPrec (x.1 0) 0
+instance instReprX {U} [Repr U] : Repr (X U) where reprPrec x _ := reprPrec (x.1 0) 0
 instance instLinearOrderX {U} : LinearOrder (X U) := .ofSubsingleton
 
 /- Species instance -/

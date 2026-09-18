@@ -1,5 +1,4 @@
-composition printer
-noncomputable def deriv_Cycle_is_LinearOrder: Deriv C U ≃ L U where
+_computable_ def deriv_Cycle_is_LinearOrder: Deriv C U ≃ L U where
 ===
 naturality -> series agree
 equipotence
