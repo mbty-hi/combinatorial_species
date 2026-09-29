@@ -1,17 +1,19 @@
-_computable_ def deriv_Cycle_is_LinearOrder: Deriv C U ≃ L U where
-===
+cis computable
+cis computable equiv
+cis specialization
+egs/tgs derivations
+classical egs/tgs/cis
+combinations of egs/tgs/cis
 naturality -> series agree
+===
+S = E(C)
 equipotence
-linear orders as C
-ballots as linear orders of non empty sets
-permutation is a set of cycles
 ballots
 trees
+ballots as linear orders of non empty sets
 cat theory
 subspecies
-series properties
 L-species
-transfer-matrix method
 Der + Montmort?
 Hadamard
 Set partitions

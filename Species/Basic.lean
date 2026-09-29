@@ -10,10 +10,6 @@ class Species (F : Type → Type) where
     ∀ {U V W} [Finite U] [Finite V] [Finite W] (σ : U ≃ V) (τ : V ≃ W) (f : F U),
     transport (σ.trans τ) f = (transport τ ∘ transport σ) f
 
-class SpeciesComp (F : Type → Type) extends Species F where
-  fintype : {U : Type} → [LabelType U] → Fintype (F U)
-  decEq   : {U : Type} → [LabelType U] → DecidableEq (F U)
-
 namespace Species
 
 variable {F : Type → Type} [Species F] {U V : Type} [Finite U] [Finite V]
@@ -63,6 +59,10 @@ theorem transport_eq_self_of_val
 
 end Species
 
+class SpeciesComp (F : Type → Type) extends Species F where
+  fintype : {U : Type} → [LabelType U] → Fintype (F U)
+  decEq   : {U : Type} → [LabelType U] → DecidableEq (F U)
+
 namespace SpeciesComp
 
 variable {F : Type → Type} [SpeciesComp F] {U V : Type} [LabelType U] [LabelType V]
@@ -76,5 +76,9 @@ def structures : Finset (F U) := Finset.univ
 /- Sanity check: structure count depends only on the cardinality of labels. -/
 theorem card_structures_eq (σ : U ≃ V) : Fintype.card (F U) = Fintype.card (F V) :=
   Fintype.card_congr (Species.transportEquiv σ)
+
+instance instDecEqOfSpecies {F : Type → Type} [SpeciesComp F] {U : Type} [LabelType U]
+: DecidableEq (F U) :=
+  decEq
 
 end SpeciesComp
