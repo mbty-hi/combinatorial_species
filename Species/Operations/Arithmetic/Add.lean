@@ -7,7 +7,7 @@ namespace Species
 
 variable {U: Type} [Fintype U] {F G H: Type → Type} [Species F] [Species G] [Species H]
 
-def add_zero : (Add F Zero) U ≃ F U where
+def addZero : (Add F Zero) U ≃ F U where
   toFun
     | .inl x => x
     | .inr x => nomatch x
@@ -15,7 +15,7 @@ def add_zero : (Add F Zero) U ≃ F U where
   left_inv  := by rintro (_ | x); rfl; nomatch x
   right_inv := by simp [Function.RightInverse, Function.LeftInverse]
 
-def zero_add : (Add Zero F) U ≃ F U where
+def zeroAdd : (Add Zero F) U ≃ F U where
   toFun
     | .inl x => nomatch x
     | .inr x => x
@@ -23,7 +23,7 @@ def zero_add : (Add Zero F) U ≃ F U where
   left_inv  := by rintro (x | _); nomatch x; rfl
   right_inv := by simp [Function.RightInverse, Function.LeftInverse]
 
-def add_assoc : (Add (Add F G) H) U ≃ (Add F (Add G H)) U where
+def addAssoc : (Add (Add F G) H) U ≃ (Add F (Add G H)) U where
   toFun := by
     unfold Add
     rintro ((foo | bar) | baz)
@@ -39,7 +39,7 @@ def add_assoc : (Add (Add F G) H) U ≃ (Add F (Add G H)) U where
   left_inv  := by rintro ((foo | bar) | baz) <;> rfl
   right_inv := by rintro ( foo | bar  | baz) <;> rfl
 
-def add_comm : Add F G U ≃ Add G F U where
+def addComm : Add F G U ≃ Add G F U where
   toFun := by
     unfold Add
     rintro (foo | bar)

@@ -6,19 +6,19 @@ import Mathlib.Tactic.FinCases
 
 namespace Species
 
-def zero_mul {F: Type → Type} [Species F] {U} [Finite U] : Mul Zero F U ≃ Zero U where
+def zeroMul {F: Type → Type} [Species F] {U} [Finite U] : Mul Zero F U ≃ Zero U where
   toFun     := by unfold Mul; rintro ⟨d,⟨⟩,bar⟩
   invFun    := by unfold Mul; rintro ⟨⟩
   left_inv  := by rintro ⟨d,⟨⟩, bar⟩
   right_inv := by rintro ⟨d,⟨⟩, bar⟩
 
-def mul_zero {F: Type → Type} [Species F] {U} [Finite U] : Mul F Zero U ≃ Zero U where
+def mulZero {F: Type → Type} [Species F] {U} [Finite U] : Mul F Zero U ≃ Zero U where
   toFun     := by unfold Mul; rintro ⟨d,foo,⟨⟩⟩
   invFun    := by unfold Mul; rintro ⟨⟩
   left_inv  := by rintro ⟨d,foo,⟨⟩⟩
   right_inv := by rintro ⟨d,foo,⟨⟩⟩
 
-def mul_comm {F G : Type → Type} [Species F] [Species G] {U} [Finite U]
+def mulComm {F G : Type → Type} [Species F] [Species G] {U} [Finite U]
 : Mul F G U ≃ Mul G F U where
   toFun := by
     unfold Mul; rintro ⟨d, f, g⟩
@@ -34,7 +34,7 @@ def mul_comm {F G : Type → Type} [Species F] [Species G] {U} [Finite U]
     no `One`-structures for nonempty label sets, `d` must return `true` for all inputs. The
    isomorphism is therefore mostly about transport of the `S`-structure along
    `{u : U // d u = true} ≃ U`. -/
-def one_mul {F: Type → Type} [Species F] {U} [Finite U] : (Mul One F) U ≃ F U where
+def oneMul {F: Type → Type} [Species F] {U} [Finite U] : (Mul One F) U ≃ F U where
   toFun := by
     rintro ⟨d, one, s⟩
     have d_is_true : ∀u, d u = true := by -- we show that `d` must be `fun _ => true` (pointwise)
@@ -67,7 +67,7 @@ def one_mul {F: Type → Type} [Species F] {U} [Finite U] : (Mul One F) U ≃ F 
 
 /- Same logic as `one_mul`, except for some flipped branches. See above for more substantial
    comments. -/
-def mul_one {F : Type → Type} [Species F] {U} [Finite U] : (Mul F One) U ≃ F U where
+def mulOne {F : Type → Type} [Species F] {U} [Finite U] : (Mul F One) U ≃ F U where
   toFun := by
     rintro ⟨d, s, one⟩
     have d_is_false : ∀u, d u = false := by -- we show that `d` must be `fun _ => false` (pointwise)
@@ -171,7 +171,7 @@ theorem d₂_inv {U} (d₁ : U → Bool) (d₂ : {u // d₁ u = true} → Bool)
   funext ⟨u, h₁⟩
   by_cases h₂ : d₂ ⟨u, h₁⟩ = true <;> simp! [h₁, h₂, d_to_d₂, d₁₂_to_d, deciderCast]
 
-def Mul₃_equiv₁
+def Mul₃Equiv₁
   {S₁ S₂ S₃ : Type → Type} [Species S₁] [Species S₂] [Species S₃] {U} [Finite U]
 : (Mul S₁ (Mul S₂ S₃)) U ≃ Mul₃ S₁ S₂ S₃ U where
   toFun := by
@@ -288,7 +288,7 @@ theorem c₂_inv {U} (c₁ : U → Bool) (c₂ : {u // c₁ u = false} → Bool)
   funext ⟨u, h₁⟩
   by_cases h₂ : c₂ ⟨u, h₁⟩ = true <;> simp! [h₁, h₂, d_to_c₂, c₁₂_to_d, deciderCast]
 
-def Mul₃_equiv₂
+def Mul₃Equiv₂
   {S₁ S₂ S₃ : Type → Type} [Species S₁] [Species S₂] [Species S₃] {U} [Finite U]
 : (Mul (Mul S₁ S₂) S₃) U ≃ Mul₃ S₁ S₂ S₃ U where
   toFun := by
@@ -375,9 +375,9 @@ def Mul₃_equiv₂
     . exact transport_eq_self_of_val _ (fun a => Subtype.ext rfl) s₂
     . exact transport_eq_self_of_val _ (fun a => Subtype.ext rfl) s₃
 
-def mul_assoc
+def mulAssoc
   {S₁ S₂ S₃ : Type → Type} [Species S₁] [Species S₂] [Species S₃] {U} [Finite U]
 : (Mul (Mul S₁ S₂) S₃) U ≃ (Mul S₁ (Mul S₂ S₃)) U :=
-  Mul₃_equiv₂.trans (@Mul₃_equiv₁ S₁ S₂ S₃ _ _ _ U _).symm
+  Mul₃Equiv₂.trans (@Mul₃Equiv₁ S₁ S₂ S₃ _ _ _ U _).symm
 
 end Species

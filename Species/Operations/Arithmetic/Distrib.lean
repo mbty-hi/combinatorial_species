@@ -6,24 +6,22 @@ import Species.Instances.Zero
 
 namespace Species
 
-def left_distrib {F G H: Type → Type} [Species F] [Species G] [Species H] {U} [Finite U]
+def leftDistrib {F G H: Type → Type} [Species F] [Species G] [Species H] {U} [Finite U]
 : Mul F (Add G H) U ≃ Add (Mul F G) (Mul F H) U where
   toFun := by
-    unfold Add Mul
-    simp
+    unfold Add Mul; simp
     rintro ⟨d,⟨f, (g | h)⟩⟩
     case inl => constructor; exact ⟨d, f, g⟩
     case inr => apply Sum.inr; exact ⟨d, f, h⟩
   invFun := by
-    unfold Add Mul
-    simp
+    unfold Add Mul; simp
     rintro (⟨d, f, g⟩ | ⟨d, f, h⟩)
     case inl => exact ⟨d, f, Sum.inl g⟩
     case inr => exact ⟨d, f, Sum.inr h⟩
   left_inv  := by unfold Add Mul; rintro ⟨d, f, (g | h)⟩ <;> simp
   right_inv := by unfold Add Mul; rintro ⟨d, f, g⟩ <;> simp
 
-def right_distrib {F G H: Type → Type} [Species F] [Species G] [Species H] {U} [Finite U]
+def rightDistrib {F G H: Type → Type} [Species F] [Species G] [Species H] {U} [Finite U]
 : Mul (Add F G) H U ≃ Add (Mul F H) (Mul G H) U where
   toFun := by
     unfold Add Mul; rintro ⟨d, (f | g), h⟩

@@ -56,7 +56,7 @@ lemma finRotate_pow_val (card n : ℕ) (i : Fin card)
 : ((finRotate card ^ n) i).val = (i.val + n) % card := by
   induction n with
   | zero      => simp [Nat.mod_eq_of_lt i.2]
-  | succ _ ih => simp [pow_succ', finRotate_apply, Fin.val_add, ih, ← Nat.add_assoc, Nat.add_mod]
+  | succ _ ih => simp [pow_succ', finRotate_apply, Fin.val_add, ih, ← add_assoc, Nat.add_mod]
 
 -- rotations of `Fin` have a single orbit
 lemma finRotate_sameCycle (card : ℕ) (x y : Fin card) : (finRotate card).SameCycle x y := by

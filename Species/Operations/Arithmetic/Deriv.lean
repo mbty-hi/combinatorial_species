@@ -12,7 +12,7 @@ def leibniz_add : Deriv (Add F G) U ≃ Add (Deriv F) (Deriv G) U := Equiv.refl 
 
 variable [Species F] [Species G]
 
-def InnerOptionEquiv {U : Type} {d : WithHole U → Bool} {b: Bool} (h : d ⟨none⟩ = b)
+def innerOptionEquiv {U : Type} {d : WithHole U → Bool} {b: Bool} (h : d ⟨none⟩ = b)
 : { u // d u = !b } ≃ { u : U // d (⟨some u⟩) = !b } where
   toFun
     | ⟨⟨none⟩, hu⟩   => by rw [h] at hu; simp at *
@@ -21,7 +21,7 @@ def InnerOptionEquiv {U : Type} {d : WithHole U → Bool} {b: Bool} (h : d ⟨no
   left_inv    := by rintro ⟨(_ | u), hu⟩ <;> simp; rw [h] at hu; simp at *
   right_inv _ := by rfl
 
-def OuterOptionEquiv {U : Type} {d : WithHole U → Bool} {b: Bool} (h : d ⟨none⟩ = b)
+def outerOptionEquiv {U : Type} {d : WithHole U → Bool} {b: Bool} (h : d ⟨none⟩ = b)
 : { u // d u = b } ≃ WithHole { u : U // d (⟨some u⟩) = b } where
   toFun
     | ⟨⟨none⟩, _⟩    => ⟨none⟩
@@ -42,21 +42,21 @@ theorem transport_heq {F : Type → Type} [Species F] {α β : Type} [Finite α]
   have : σ = Equiv.refl α := Equiv.ext fun a => eq_of_heq (hσ a)
   rw [this, id_transport]
 
-def leibniz_mul : Deriv (Mul F G) U ≃ Add (Mul (Deriv F) G) (Mul F (Deriv G)) U where
+def leibnizMul : Deriv (Mul F G) U ≃ Add (Mul (Deriv F) G) (Mul F (Deriv G)) U where
   toFun :=
     fun ⟨d, f, g⟩ =>
       match h : d ⟨none⟩ with
       | true  =>
         .inr ⟨
           fun u => d (⟨some u⟩),
-          transportEquiv (InnerOptionEquiv h) f,
-          transportEquiv (OuterOptionEquiv h) g
+          transportEquiv (innerOptionEquiv h) f,
+          transportEquiv (outerOptionEquiv h) g
         ⟩
       | false =>
         .inl ⟨
           fun u => d (⟨some u⟩),
-          transportEquiv (OuterOptionEquiv h) f,
-          transportEquiv (InnerOptionEquiv h) g
+          transportEquiv (outerOptionEquiv h) f,
+          transportEquiv (innerOptionEquiv h) g
         ⟩
 
   invFun
@@ -65,16 +65,16 @@ def leibniz_mul : Deriv (Mul F G) U ≃ Add (Mul (Deriv F) G) (Mul F (Deriv G)) 
           match u with
           | ⟨none⟩ => false
           | ⟨some u⟩ => d u,
-        transportEquiv (OuterOptionEquiv (b := false) (by rfl)).symm f,
-        transportEquiv (InnerOptionEquiv (b := false) (by rfl)).symm g
+        transportEquiv (outerOptionEquiv (b := false) (by rfl)).symm f,
+        transportEquiv (innerOptionEquiv (b := false) (by rfl)).symm g
       ⟩
     | .inr ⟨d, f, g⟩ => ⟨
         fun u =>
           match u with
           | ⟨none⟩ => true
           | ⟨some u⟩ => d u,
-        transportEquiv (InnerOptionEquiv (b := true) (by rfl)).symm f,
-        transportEquiv (OuterOptionEquiv (b := true) (by rfl)).symm g
+        transportEquiv (innerOptionEquiv (b := true) (by rfl)).symm f,
+        transportEquiv (outerOptionEquiv (b := true) (by rfl)).symm g
       ⟩
 
   -- TODO terrubly ugly, much duplication, cleanup
@@ -98,7 +98,7 @@ def leibniz_mul : Deriv (Mul F G) U ≃ Add (Mul (Deriv F) G) (Mul F (Deriv G)) 
           refine transport_heq ?_ _ ?_ f
           · exact congrArg (fun e => { u // e u = false }) h.symm
           . rintro ⟨⟨u⟩ , hu⟩
-            cases u <;> simp [OuterOptionEquiv]
+            cases u <;> simp [outerOptionEquiv]
             . congr
               . funext u; simp; rw [← h]
               . exact proof_irrel_heq _ _
@@ -110,7 +110,7 @@ def leibniz_mul : Deriv (Mul F G) U ≃ Add (Mul (Deriv F) G) (Mul F (Deriv G)) 
           refine transport_heq ?_ _ ?_ g
           · exact congrArg (fun e => { u // e u = true }) h.symm
           . rintro ⟨⟨u⟩, hu⟩
-            cases u <;> simp [InnerOptionEquiv]
+            cases u <;> simp [innerOptionEquiv]
             . simp [val] at hu
             . congr; simp; funext u; simp
               have x := congrFun h u
@@ -131,7 +131,7 @@ def leibniz_mul : Deriv (Mul F G) U ≃ Add (Mul (Deriv F) G) (Mul F (Deriv G)) 
           rw [transport_transport]
           refine transport_heq ?_ _ ?_ f
           · exact congrArg (fun e => { u // e u = false }) h.symm
-          . rintro ⟨⟨u⟩, hu⟩; cases u <;> simp [InnerOptionEquiv]
+          . rintro ⟨⟨u⟩, hu⟩; cases u <;> simp [innerOptionEquiv]
             . simp [val] at hu
             . congr; funext u; simp; rw [← h]
         . next val =>
@@ -141,7 +141,7 @@ def leibniz_mul : Deriv (Mul F G) U ≃ Add (Mul (Deriv F) G) (Mul F (Deriv G)) 
           refine transport_heq ?_ _ ?_ g
           · exact congrArg (fun e => { u // e u = true }) h.symm
           . rintro ⟨⟨u⟩, hu⟩
-            cases u <;> simp [OuterOptionEquiv]
+            cases u <;> simp [outerOptionEquiv]
             . congr
               . funext u; simp; rw [← h]
               . exact proof_irrel_heq _ _
