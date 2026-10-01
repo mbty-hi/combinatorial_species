@@ -2,7 +2,7 @@
 (univalence would be helpful here). We just provide them as an unbound assorted collection of
 lemmas. -/
 
-import Species.Arithmetic.Add
-import Species.Arithmetic.Deriv
-import Species.Arithmetic.Distrib
-import Species.Arithmetic.Mul
+import Species.Operations.Arithmetic.Add
+import Species.Operations.Arithmetic.Deriv
+import Species.Operations.Arithmetic.Distrib
+import Species.Operations.Arithmetic.Mul

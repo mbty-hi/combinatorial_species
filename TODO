@@ -1,22 +1,23 @@
-cis computable
-cis computable equiv
-cis specialization
 egs/tgs derivations
 classical egs/tgs/cis
 combinations of egs/tgs/cis
 naturality -> series agree
 ===
-S = E(C)
 equipotence
+
 ballots
 trees
-ballots as linear orders of non empty sets
-cat theory
+Endofunctions
 subspecies
-L-species
+
+S \equiv E(C)
+ballots as linear orders of non empty sets
+
+cat theory
 Der + Montmort?
 Hadamard
 Set partitions
-Endofunctions
+
 Weighted
+L-species
 Virtual

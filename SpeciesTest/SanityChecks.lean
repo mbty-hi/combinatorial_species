@@ -173,7 +173,7 @@ lemma distanceFromHole_of_pow
   have pow_ne : ∀ {i j : ℕ}, i < j → j < cycleLength c → (c.1 ^ i) ⊥ ≠ (c.1 ^ j) ⊥ := by
     intro i j hij hj
     obtain ⟨d, rfl⟩ := Nat.exists_eq_add_of_lt hij -- j = i + d + 1
-    rw [add_assoc, pow_add, Equiv.Perm.mul_apply, Ne, (c.1 ^ i).injective.eq_iff]
+    rw [Nat.add_assoc, pow_add, Equiv.Perm.mul_apply, Ne, (c.1 ^ i).injective.eq_iff]
     exact (loopsBackInLength c).2 (d + 1) (by omega) (by omega)
   have hlt := distanceFromHole_lt c u
   have heq := (distanceFromHole_spec c _).2.1.symm.trans hu -- σ^dist ⊥ = σ^k ⊥
