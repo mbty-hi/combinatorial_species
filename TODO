@@ -1,6 +1,6 @@
-egs/tgs derivations
-classical egs/tgs/cis
-combinations of egs/tgs/cis
+> classical egs/tgs/cis
+> combinations of egs/tgs/cis
+> closed forms
 naturality -> series agree
 ===
 equipotence

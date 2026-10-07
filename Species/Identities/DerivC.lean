@@ -3,17 +3,9 @@ import Species.Operations.Operations
 import Species.Instances.Instances
 import Species.Basic
 
-open Species
+namespace Species
 
 variable {F G : Type -> Type} [Species F] [Species G] {U: Type} [Finite U]
-
-def deriv_E: Deriv E U ≃ E U where
-  toFun     x := ⟨⟩
-  invFun    x := ⟨⟩
-  right_inv x := rfl
-  left_inv    := by unfold Species.Deriv; intro x; simp
-
-section LIsDerivC
 
 /- To a first approximation (don't take this too literally):
    `L ≝ (U ≃ Fin |U|)`
@@ -28,7 +20,8 @@ section LIsDerivC
    the hole, what's left must be a linear order" contains all the actual insight there is to this
    proof. The formalization gets dragged down by the fact that we are dealing with a very concrete
    (and computable) construction. The proof could be much simpler if MathLib's cycle-to-list API
-   came with fewer requirements (our `U` has neither `DecidableEq` nor `Fintype`).
+   came with fewer requirements (our `U` has neither `DecidableEq` nor `Fintype`). My intuitive
+   proof would use the fact that both of these can be embedded within (directed) graphs.
 
    We need to build both directions of the bijection before showing that the result is indeed a
    bijection (`f ∘ f' = id`, `f' ∘ f = id`).
@@ -329,4 +322,4 @@ def derivCycleIsLinearOrder : Deriv C U ≃ L U where
       Equiv.Perm.mul_apply
     ]
 
-end LIsDerivC
+end Species

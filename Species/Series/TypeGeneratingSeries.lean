@@ -10,7 +10,7 @@ namespace Species
 noncomputable def tgsCoeff (F : Type → Type) [Species F] (n : ℕ) : ℕ :=
   Nat.card (MulAction.orbitRel.Quotient (Equiv.Perm (Fin n)) (F (Fin n)))
 
-/-- `F̃(x) = Σ ((fₙ)∼ * xⁿ)` -/
+/-- `F~(x) = Σ ((fₙ)∼ * xⁿ)` -/
 noncomputable def tgs (F : Type → Type) [Species F] : PowerSeries ℚ :=
   PowerSeries.mk fun n => (tgsCoeff F n)
 
@@ -22,7 +22,7 @@ namespace SpeciesComp
 def tgsCoeff (F : Type → Type) [SpeciesComp F] (n : ℕ) : ℕ :=
   (∑ σ : Equiv.Perm (Fin n), (Finset.univ.filter fun f : F (Fin n) => σ • f = f).card) / n.factorial
 
-/-- The computable `fₙ` matches its noncomputable counterpart -/
+/-- The computable `(fₙ)~` matches its noncomputable counterpart -/
 lemma tgsCoeff_eq (F : Type → Type) [SpeciesComp F] (n : ℕ)
 : tgsCoeff F n = Species.tgsCoeff F n := by
   classical

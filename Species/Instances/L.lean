@@ -1,6 +1,6 @@
 import Species.Basic
+import Species.Series.Utils
 import Mathlib.Data.Fintype.Perm
-import Mathlib.SetTheory.Cardinal.Finite
 
 namespace Species
 

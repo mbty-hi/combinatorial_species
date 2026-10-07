@@ -2,11 +2,11 @@ import Species.Basic
 
 namespace Species
 
-inductive Zero (α : Type) where
+inductive Zero (U : Type) where
 
 /- Display related instances -/
+instance instIsEmptyZero      {U} : IsEmpty (Zero U) := ⟨fun x => nomatch x⟩
 instance instReprZero         {U} [Repr U] : Repr (Zero U) where reprPrec z _ := nomatch z
-instance instSubsingletonZero {U} : Subsingleton (Zero U) := ⟨fun a => nomatch a⟩
 instance instLinearOrderZero  {U} : LinearOrder (Zero U) := .ofSubsingleton
 
 /- Species instance -/

@@ -48,6 +48,16 @@ noncomputable def cis : MvPowerSeries ℕ ℚ := fun m =>
 noncomputable def cisCoeff (n : ℕ) (μ : Multiset ℕ) : ℕ :=
   MvPolynomial.coeff (Multiset.toFinsupp μ) (cisNumerator F n)
 
+/-- `Z_F(c₁ x, c₂ x², c₃ x³, …)`: turns the CIS into a one-variable formal power series by replacing
+    each `xₖ` with `cₖ xᵏ`.
+    Note that permutations of `n` labels contribute to the coefficient `xⁿ` only. Therefore, the
+    the coefficient of `xⁿ` is `cisNumerator F n` evaluated with `xₖ = cₖ`, divided by `n!`. -/
+noncomputable def cisSpecialize (cₖ : ℕ → ℚ) : PowerSeries ℚ :=
+  PowerSeries.mk
+    (fun n =>
+      MvPolynomial.eval₂ (Nat.castRingHom ℚ) (fun x => cₖ x) (cisNumerator F n) / n.factorial
+    )
+
 end Species
 
 namespace SpeciesComp
@@ -268,14 +278,3 @@ lemma cisCoeff_eq (n : ℕ) (μ : Multiset ℕ) : cisCoeff F n μ = Species.cisC
 end Correctness
 
 end SpeciesComp
-
-/-/1-- egs from cis: conceptually, setting `x_k` to `0` for all `k > 1` means killing every term -/
-/-    that contains anything that is not a one-cycle, effectively leaving us with the identity -/
-/-    permutation only. -1/ -/
-/-lemma egs_from_cis : sorry := sorry -/
-
-/-/1-- tgs from cis: conceptually, setting `x_k` to `x^k` means that all monomials end up looking like -/
-/-    `x^n` (we are just counting labels). Then, for each `n`, we get `((1/n!) Σ_σ fix F[σ])xⁿ`. -/
-/-    By Burnside, this is the number of orbits, which corresponds to the number of unlabeled -/
-/-    structures. -1/ -/
-/-lemma tgs_from_cis : sorry := sorry -/
