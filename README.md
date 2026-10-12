@@ -2,8 +2,8 @@
 A Lean formalization of combinatorial species following the combinatorial approach originally given
 by Bergeron, Labelle and Leroux (shortened to BLL below).
 
-Developed at the University of Iceland (Iceproof project) by Matthieu Baty, under the supervision of
-Anders Claesson. Contributions from Matthías Andri Hrafnkelsson.
+Developed at the University of Iceland (Iceproof project) by Matthieu Baty, with contributions from
+Matthías Andri Hrafnkelsson, under the supervision of Anders Claesson.
 
 ## A brief overview of combinatorial species
 A species is a rule (`F` of type `Type -> Type`) that associates to each finite set (`U`) a finite
