@@ -166,10 +166,10 @@ Building concrete F-structures and some sanity checks.
 
 ## Remaining work
 ### More results about series
-#### Classical egs/tgs/cis for all instances
-#### Classical egs/tgs/cis for all operations
-#### Closed forms
-#### Naturality -> series agree
+* Classical egs/tgs/cis for all instances
+* Classical egs/tgs/cis for all operations
+* Closed forms
+* Naturality -> series agree
 
 ### More species
 * Ballots (linearly ordered partitions)
@@ -182,18 +182,18 @@ Building concrete F-structures and some sanity checks.
 The current one is a bit barebones.
 
 ### More identities
-#### S \equiv E(C)
-#### Ballots as linear orders of non empty sets
+* S \equiv E(C)
+* Ballots as linear orders of non empty sets
 
 ### Fun problems/illustrations
-#### Montmort's hat-check problem
-#### Set partitions
+* Montmort's hat-check problem
+* Set partitions
 
 ### Additional concepts
-#### L-species
-#### Subspecies
-#### Virtual species
-#### Weighted species
+* L-species
+* Subspecies
+* Virtual species
+* Weighted species
 
 ### Computability
-#### Printing unlabelled species
+* Printing unlabelled species
