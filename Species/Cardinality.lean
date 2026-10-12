@@ -1,6 +1,6 @@
+import Mathlib.Data.Finset.Sort
 import Species.Computable
 import Species.Labels.Canonical
-import Mathlib.Data.Finset.Sort
 
 namespace Species
 

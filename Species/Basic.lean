@@ -4,11 +4,10 @@ import Mathlib.GroupTheory.Perm.Basic
 /-!
 # Combinatorial species
 
-This file defines combinatorial species and their computable extension.
+This file defines combinatorial species and some of their properties.
 
 ## Important definitions
 * `Species` : the class of species, following the combinatorial definition of [BLL]
-* `SpeciesComp` : the class of *computable* species
 
 ## Implementation notes
 We use finite types instead of [BLL]'s finite sets for labels. This has no bearing on the

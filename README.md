@@ -57,8 +57,7 @@ The framework also gives tools for computing these series for species built by c
 according to classical operations (such as sum, product, or composition).
 
 ## What is supported
-### Basic definitions (`Basic.lean`)
-#### Species
+### Basic definition (`Basic.lean`)
 The core definition is faithful to BLL. We introduce a `Species` class that applies to a family of
 structures `F`:
 * `finite`: a proof of the fact that for any finite set of labels `U`, the number of `F`-structures
@@ -75,7 +74,7 @@ apart, but it cannot use any of their other properties.
 In practice, we use label *types* (with `Finite`) and not label *sets* as in the book. This has no
 bearing on the expressivity of the resulting theory, but it makes the proofs nicer.
 
-#### Computable species
+### Computable species (`Computable.lean`)
 A secondary objective of this work is to provide computable functions for generating structures. For
 instance, an user should be able to produce all linear orders on sets of non-empty cycles such that
 all labelled with `{1, 2, 3, 4}` (with each label appearing only once across all cycles).
