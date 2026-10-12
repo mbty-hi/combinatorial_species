@@ -1,5 +1,5 @@
+import Mathlib.Data.Finite.Defs
 import Mathlib.GroupTheory.Perm.Basic
-import Species.Labels.LabelType
 
 /-!
 # Combinatorial species
@@ -72,23 +72,3 @@ theorem transport_eq_self_of_id (σ : U ≃ U) (h : ∀ a, σ a = a) (f : F U)
 end transport
 
 end Species
-
-/-- A *computable* combinatorial species providing an enumeration and a decidable equality for the
-`F`-structures on label types `U` that are enumerable and linearly ordered (`LabelType`). -/
-class SpeciesComp (F : Type → Type) extends Species F where
-  /-- Enumeration of the `F`-structures on `U`.  -/
-  fintype : {U : Type} → [LabelType U] → Fintype (F U)
-  /-- The equality of the `F`-structures on `U` must be decidable. -/
-  decEq : {U : Type} → [LabelType U] → DecidableEq (F U)
-
-namespace SpeciesComp
-
-variable {F : Type → Type} [SpeciesComp F] {U : Type} [LabelType U]
-
-instance instFintype : Fintype     (F U) := fintype
-instance instDecEq   : DecidableEq (F U) := decEq
-
-/-- The finite set of `F`-structures on label type `U`. -/
-def structures : Finset (F U) := Finset.univ
-
-end SpeciesComp

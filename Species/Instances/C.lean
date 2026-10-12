@@ -1,4 +1,5 @@
 import Species.Basic
+import Species.Computable
 import Mathlib.GroupTheory.Perm.Cycle.Basic
 import Mathlib.GroupTheory.Perm.Cycle.Concrete
 import Mathlib.Data.Fintype.Perm
@@ -11,9 +12,11 @@ namespace Species
    * `SameCycle` ensures that the cycle covers all elements. -/
 def C (U : Type) := {σ : Equiv.Perm U // Nonempty U ∧ ∀ x y, σ.SameCycle x y}
 
+namespace C
+
 /- Display related instances -/
 -- Representation in cycle form (e.g., (1, 3, 2))
-instance instReprC {U} [Fintype U] [LinearOrder U] [Repr U] : Repr (C U) where
+instance instRepr {U} [Fintype U] [LinearOrder U] [Repr U] : Repr (C U) where
   reprPrec s _ :=
     let anchor := Finset.univ.min' (Finset.univ_nonempty_iff.mpr s.2.1)
     let cyc := s.1.toList anchor
@@ -21,7 +24,7 @@ instance instReprC {U} [Fintype U] [LinearOrder U] [Repr U] : Repr (C U) where
     "(" ++ Std.Format.joinSep (cyc.map repr) ", " ++ ")"
 
 -- LinearOrder: lift along the (injective) image list into the lex order on List α.
-instance instLinearOrderC {U} [Fintype U] [LinearOrder U] : LinearOrder (C U) :=
+instance instLinearOrder {U} [Fintype U] [LinearOrder U] : LinearOrder (C U) :=
   LinearOrder.lift'
     (fun s => (Finset.univ.sort (· ≤ ·)).map s.1)
     (fun s t h => by
@@ -44,7 +47,7 @@ private lemma permCongr_sameCycle
   obtain ⟨i, hi⟩ := h
   exact ⟨i, by rw [permCongr_zpow, Equiv.permCongr_apply, hi, Equiv.apply_symm_apply]⟩
 
-instance instSpeciesC : Species C where
+instance instSpecies : Species C where
   finite := by unfold C; infer_instance
   transport := fun σ s =>
     ⟨σ.permCongr s.1, s.2.1.map σ,
@@ -56,11 +59,13 @@ instance instSpeciesC : Species C where
       ext x; simp [Equiv.permCongr_apply, Equiv.trans_apply]
     )
 
-instance instSpeciesCompC : SpeciesComp C where
+instance instComputableSpecies : ComputableSpecies C where
   fintype := by
     intros α _
     haveI : Decidable (Nonempty α) := decidable_of_iff (0 < Fintype.card α) Fintype.card_pos_iff
     exact inferInstanceAs (Fintype {σ : Equiv.Perm α // Nonempty α ∧ ∀ x y, σ.SameCycle x y})
   decEq := inferInstance
+
+end C
 
 end Species

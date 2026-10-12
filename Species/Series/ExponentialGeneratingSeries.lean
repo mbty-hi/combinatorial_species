@@ -1,6 +1,7 @@
-import Species.Basic
 import Mathlib.SetTheory.Cardinal.Finite
 import Mathlib.RingTheory.PowerSeries.Basic
+import Species.Basic
+import Species.Computable
 
 namespace Species
 
@@ -13,14 +14,14 @@ noncomputable def egs (F : Type → Type) [Species F] : PowerSeries ℚ :=
 
 end Species
 
-namespace SpeciesComp
+namespace ComputableSpecies
 
 /-- Computable `fₙ` -/
-def egsCoeff (F : Type → Type) [SpeciesComp F] (n : ℕ) : ℕ := Fintype.card (F (Fin n))
+def egsCoeff (F : Type → Type) [ComputableSpecies F] (n : ℕ) : ℕ := Fintype.card (F (Fin n))
 
 /-- The computable `fₙ` matches its noncomputable counterpart -/
-lemma egsCoeff_eq (F : Type → Type) [SpeciesComp F] (n : ℕ)
+lemma egsCoeff_eq (F : Type → Type) [ComputableSpecies F] (n : ℕ)
 : egsCoeff F n = Species.egsCoeff F n :=
   Nat.card_eq_fintype_card.symm
 
-end SpeciesComp
+end ComputableSpecies

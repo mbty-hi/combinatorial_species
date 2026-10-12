@@ -1,4 +1,5 @@
 import Species.Basic
+import Species.Computable
 import Species.Series.Utils
 import Mathlib.Data.Fintype.Perm
 
@@ -10,7 +11,6 @@ structure L (U : Type) where
   card : ℕ
   ord  : U ≃ Fin card
 
-/- TODO use namespaces in other instances -/
 namespace L
 
 variable {U V : Type}
@@ -25,16 +25,14 @@ lemma order_injective : Function.Injective (L.order (U := U)) := by
   simpa using congrArg Equiv.symm hs
 
 /- Display related instances -/
-instance instReprL {U} [Repr U] : Repr (L U) where
+instance instRepr {U} [Repr U] : Repr (L U) where
   reprPrec x prec := reprPrec x.order prec
-instance instLinearOrderL {U} [LinearOrder U] : LinearOrder (L U) :=
+instance instLinearOrder {U} [LinearOrder U] : LinearOrder (L U) :=
   LinearOrder.lift' L.order L.order_injective
 
 def transport (σ : U ≃ V) (x : L U) : L V := ⟨x.card, σ.symm.trans x.ord⟩
 
-end L
-
-instance instFintypeL {U} [DecidableEq U] [Fintype U] : Fintype (L U) :=
+instance instFintype {U} [DecidableEq U] [Fintype U] : Fintype (L U) :=
   Fintype.ofEquiv
     (U ≃ Fin (Fintype.card U))
     {
@@ -46,7 +44,7 @@ instance instFintypeL {U} [DecidableEq U] [Fintype U] : Fintype (L U) :=
         subst h; congr 1
     }
 
-instance instSpeciesL : Species L where
+instance instSpecies : Species L where
   finite := by
     intros U _
     have : Fintype U := Fintype.ofFinite U
@@ -56,14 +54,16 @@ instance instSpeciesL : Species L where
   id_transport   := fun x => by congr
   comp_transport := fun σ τ ⟨card, ord⟩ => by rw [L.transport]; congr 1
 
-instance instDecEqL {U} [DecidableEq U] [Fintype U] : DecidableEq (L U) :=
+instance instDecEq {U} [DecidableEq U] [Fintype U] : DecidableEq (L U) :=
   fun ⟨n₁, e₁⟩ ⟨n₂, e₂⟩ =>
     if h : n₁ = n₂ then by
       subst h; exact decidable_of_iff (e₁ = e₂) ⟨by intro rfl; simp, fun h => by cases h; rfl⟩
     else isFalse fun heq => h (congrArg L.card heq)
 
-instance instSpeciesCompL : SpeciesComp L where
+instance instComputableSpecies : ComputableSpecies L where
   fintype := inferInstance
   decEq   := inferInstance
+
+end L
 
 end Species

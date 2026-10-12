@@ -1,28 +1,31 @@
 import Species.Basic
+import Species.Computable
 import Mathlib.Data.Prod.Lex
 
 namespace Species
 
+def CartProd (F G : Type → Type) (U : Type) : Type := F U × G U
+
+namespace CartProd
+
 variable {F G : Type → Type} [Species F] [Species G] {U : Type}
 
-def cartProd (F G : Type → Type) (U : Type) : Type := F U × G U
-
---notation:65 F " × " G => Species.cartProd F G
+--notation:65 F " × " G => Species.CartProd F G
 
 /- Display related instances -/
-instance instReprCartProd {F G : Type → Type} {U : Type} [Repr (F U)] [Repr (G U)]
-: Repr ((cartProd F G) U) :=
+instance instRepr {F G : Type → Type} {U : Type} [Repr (F U)] [Repr (G U)]
+: Repr ((CartProd F G) U) :=
   inferInstanceAs (Repr (F U × G U))
 
-instance instLinearOrderCartProd
+instance instLinearOrder
   {F G : Type → Type} {U : Type} [LinearOrder (F U)] [LinearOrder (G U)]
-: LinearOrder ((cartProd F G) U) :=
+: LinearOrder ((CartProd F G) U) :=
   inferInstanceAs (LinearOrder (F U ×ₗ G U))
 
 /- Species instance -/
-instance instSpeciesCartProd : Species (cartProd F G) where
+instance instSpecies : Species (CartProd F G) where
   finite := by
-    intros U _; unfold cartProd
+    intros U _; unfold CartProd
     /- Surface instances -/
     have := Species.finite (F := F) (U := U)
     have := Species.finite (F := G) (U := U)
@@ -31,15 +34,17 @@ instance instSpeciesCartProd : Species (cartProd F G) where
   id_transport   := fun {U} _ ⟨f, g⟩             => by simp [id_transport]; rfl
   comp_transport := fun {U V W} _ _ _ σ τ ⟨f, g⟩ => by simp [comp_transport]; rfl
 
-variable {F G : Type → Type} [SpeciesComp F] [SpeciesComp G] {U : Type}
+variable {F G : Type → Type} [ComputableSpecies F] [ComputableSpecies G] {U : Type}
 
-instance instSpeciesCompCartProd : SpeciesComp (cartProd F G) where
+instance instComputableSpecies : ComputableSpecies (CartProd F G) where
   fintype := fun {U} _ => show Fintype (F U × G U) from inferInstance
   decEq   := by
-    intros U _; unfold cartProd
+    intros U _; unfold CartProd
     /- Surface some instances -/
-    haveI := SpeciesComp.decEq (F := F) (U := U)
-    haveI := SpeciesComp.decEq (F := G) (U := U)
+    haveI := ComputableSpecies.decEq (F := F) (U := U)
+    haveI := ComputableSpecies.decEq (F := G) (U := U)
     infer_instance
+
+end CartProd
 
 end Species

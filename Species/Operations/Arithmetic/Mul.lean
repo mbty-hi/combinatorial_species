@@ -1,10 +1,10 @@
+import Mathlib.Tactic.FinCases
 import Species.Basic
 import Species.Operations.Mul
 import Species.Instances.One
 import Species.Instances.Zero
-import Mathlib.Tactic.FinCases
 
-namespace Species
+namespace Species.Mul
 
 def zeroMul {F: Type → Type} [Species F] {U} [Finite U] : Mul Zero F U ≃ Zero U where
   toFun     := by unfold Mul; rintro ⟨d,⟨⟩,bar⟩
@@ -380,4 +380,4 @@ def mulAssoc
 : (Mul (Mul S₁ S₂) S₃) U ≃ (Mul S₁ (Mul S₂ S₃)) U :=
   Mul₃Equiv₂.trans (@Mul₃Equiv₁ S₁ S₂ S₃ _ _ _ U _).symm
 
-end Species
+end Species.Mul

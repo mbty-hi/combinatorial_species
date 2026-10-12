@@ -1,26 +1,29 @@
 import Species.Basic
+import Species.Computable
 import Mathlib.Data.Finite.Sum
 import Mathlib.Data.Fintype.Sum
 import Mathlib.Data.Sum.Order
 
 namespace Species
 
-variable {F G : Type → Type} [Species F] [Species G]
-
 def Add (F G : Type → Type) (U : Type) : Type := F U ⊕ G U
 
+namespace Add
+
+variable {F G : Type → Type} [Species F] [Species G]
+
 /- Display related instances -/
-instance instReprAdd {F G : Type → Type} {U : Type} [Repr (F U)] [Repr (G U)]
+instance instRepr {F G : Type → Type} {U : Type} [Repr (F U)] [Repr (G U)]
 : Repr ((Add F G) U) where
   reprPrec x _ := match x with
     | .inl a => "L" ++ repr a
     | .inr b => "R" ++ repr b
-instance instLinearOrderAdd {F G : Type → Type} {U : Type} [LinearOrder (F U)] [LinearOrder (G U)]
+instance instLinearOrder {F G : Type → Type} {U : Type} [LinearOrder (F U)] [LinearOrder (G U)]
 : LinearOrder ((Add F G) U) :=
   inferInstanceAs (LinearOrder (F U ⊕ₗ G U))
 
 /- Species instance -/
-instance instSpeciesAdd : Species (Add F G) where
+instance instSpecies : Species (Add F G) where
   finite := by
     intros U _; unfold Add
     /- Surface some instances -/
@@ -31,14 +34,16 @@ instance instSpeciesAdd : Species (Add F G) where
   id_transport   := fun {U} _ f             => by cases f <;> simp [Species.id_transport]   <;> rfl
   comp_transport := fun {U V W} _ _ _ σ τ f => by cases f <;> simp [Species.comp_transport] <;> rfl
 
-instance instSpeciesCompAdd {F G : Type → Type} [SpeciesComp F] [SpeciesComp G]
-: SpeciesComp (Add F G) where
+instance instComputableSpecies {F G : Type → Type} [ComputableSpecies F] [ComputableSpecies G]
+: ComputableSpecies (Add F G) where
   fintype := fun {U} [LabelType U] => show Fintype (F U ⊕ G U) from inferInstance
   decEq   := by
     intros U _; unfold Add
     /- Surface some instances -/
-    haveI := SpeciesComp.decEq (F := F) (U := U)
-    haveI := SpeciesComp.decEq (F := G) (U := U)
+    haveI _ := ComputableSpecies.decEq (F := F) (U := U)
+    haveI _ := ComputableSpecies.decEq (F := G) (U := U)
     infer_instance
+
+end Add
 
 end Species

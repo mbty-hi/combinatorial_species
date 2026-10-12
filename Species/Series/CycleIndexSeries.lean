@@ -2,6 +2,7 @@ import Mathlib.GroupTheory.Perm.Cycle.Basic
 import Mathlib.GroupTheory.Perm.Cycle.Type
 import Mathlib.RingTheory.PowerSeries.Basic
 import Species.Basic
+import Species.Computable
 
 namespace Species
 
@@ -60,9 +61,9 @@ noncomputable def cisSpecialize (cₖ : ℕ → ℚ) : PowerSeries ℚ :=
 
 end Species
 
-namespace SpeciesComp
+namespace ComputableSpecies
 
-variable (F : Type → Type) [SpeciesComp F] {U : Type} [DecidableEq U] [Fintype U]
+variable (F : Type → Type) [ComputableSpecies F] {U : Type} [DecidableEq U] [Fintype U]
 
 /-- Computable `fix σ` -/
 def fixCount (σ : Equiv.Perm U) : ℕ := (Finset.univ.filter fun u => σ u = u).card
@@ -150,7 +151,8 @@ lemma eq_of_sameCycle_fixed {U} {σ : Equiv.Perm U} {x y : U} (hx : σ x = x) (h
 lemma classOf_bijective (σ : Equiv.Perm U) : Function.Bijective (classOf σ) := by
   refine ⟨?injective, ?surjective⟩
   case injective =>
-    rintro (fixₗ | facₗ) (fixᵣ | facᵣ) h <;> simp only [classOf] at h <;> have h' := Quotient.exact h
+    rintro (fixₗ | facₗ) (fixᵣ | facᵣ) h <;> simp only [classOf] at h
+      <;> have h' := Quotient.exact h
     . -- two fixed points in the same class must be equal
       exact congrArg Sum.inl (Subtype.ext (eq_of_sameCycle_fixed fixᵣ.2 h'.symm))
     . exact
@@ -277,4 +279,4 @@ lemma cisCoeff_eq (n : ℕ) (μ : Multiset ℕ) : cisCoeff F n μ = Species.cisC
 
 end Correctness
 
-end SpeciesComp
+end ComputableSpecies

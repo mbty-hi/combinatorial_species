@@ -1,6 +1,7 @@
 import Species.Basic
 import Mathlib.CategoryTheory.Groupoid
 import Mathlib.CategoryTheory.Types.Basic
+import Mathlib.Data.Finset.Functor
 
 namespace Species
 

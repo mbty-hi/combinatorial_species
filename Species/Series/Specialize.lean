@@ -22,7 +22,7 @@ lemma toFinsupp_prod_pow (s : Multiset ℕ) (g : ℕ → ℚ)
 lemma prod_indicator_one {n : ℕ} (σ : Equiv.Perm (Fin n))
 : ((cycleLengths σ).map fun k => if k = 1 then (1 : ℚ) else 0).prod = if σ = 1 then 1 else 0 := by
   rw [
-    ← SpeciesComp.cycleLengths_eq, SpeciesComp.cycleLengths, Equiv.Perm.parts_partition,
+    ← ComputableSpecies.cycleLengths_eq, ComputableSpecies.cycleLengths, Equiv.Perm.parts_partition,
     Multiset.map_add, Multiset.prod_add, Multiset.map_replicate, if_pos rfl,
     Multiset.prod_replicate, one_pow, mul_one
   ]

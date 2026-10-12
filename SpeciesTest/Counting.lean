@@ -1,7 +1,7 @@
+import Mathlib.Data.Finset.Sort
 import Species.Instances.Instances
 import Species.Cardinality
 import Species.Operations.Operations
-import Mathlib.Data.Finset.Sort
 
 open Species
 
@@ -21,7 +21,7 @@ local notation "Mul"  => Species.Mul
 #guard seq  S 5        = [1, 1, 2, 6, 24]
 
 #guard seq (Add E E)             5 = [2, 2, 2, 2, 2]
-#guard seq (cartProd E Powerset) 5 = [1, 2, 4, 8, 16]
+#guard seq (CartProd E Powerset) 5 = [1, 2, 4, 8, 16]
 #guard seq (Restrict Powerset 3) 5 = [0, 0, 0, 8, 0]
 
 /- Simple structures -/
@@ -47,7 +47,7 @@ local notation "Mul"  => Species.Mul
 #eval structures_canonical (Mul E E) 5
 #eval structures_canonical (Mul (Add C L) S) 3
 #eval structures_canonical (Mul (Mul C L) S) 3
-#eval structures_canonical (cartProd E L) 3
+#eval structures_canonical (CartProd E L) 3
 #eval structures_canonical (Deriv E) 3
 #eval structures_canonical (Deriv L) 3
 #eval structures_canonical (Restrict Powerset 3) 5

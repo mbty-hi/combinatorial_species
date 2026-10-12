@@ -1,6 +1,7 @@
 -- Root of the `Species` library.
 import Species.Basic
 import Species.Cardinality
+import Species.Computable
 import Species.Categorical
 import Species.Isomorphism
 import Species.Identities.Identities

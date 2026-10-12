@@ -1,4 +1,5 @@
 import Species.Basic
+import Species.Computable
 import Mathlib.Data.Finite.Sigma
 import Mathlib.Data.Finset.Sort
 import Mathlib.Data.Fintype.Sigma
@@ -7,10 +8,12 @@ import Mathlib.Data.Prod.Lex
 
 namespace Species
 
-variable {F G : Type → Type} [Species F] [Species G] {U V : Type}
-
 def Mul (F G : Type → Type) (U : Type) : Type :=
   Σ d : U → Bool, F {u // d u = false} × G {u // d u = true}
+
+namespace Mul
+
+variable {F G : Type → Type} [Species F] [Species G] {U V : Type}
 
 /- Relabelling a split: `v` falls in the same block as its `σ`-preimage. -/
 abbrev transportSplit {U V : Type} (σ : U ≃ V) (split : U → Bool) : V → Bool :=
@@ -22,7 +25,7 @@ def blockEquiv {U V} (σ : U ≃ V) (split : U → Bool) (b : Bool)
   σ.subtypeEquiv (fun u => by simp [Equiv.symm_apply_apply])
 
 /- Species instance -/
-instance instSpeciesMul : Species (Mul F G) where
+instance instSpecies : Species (Mul F G) where
   finite := by
     intros U _; unfold Mul
     /- Surface instances -/
@@ -46,27 +49,27 @@ instance instSpeciesMul : Species (Mul F G) where
     apply Prod.ext
       <;> apply Species.comp_transport (blockEquiv σ d _) (blockEquiv τ (d ∘ σ.symm) _)
 
-instance instSpeciesCompMul {F G : Type → Type} [SpeciesComp F] [SpeciesComp G]
-: SpeciesComp (Mul F G) where
+instance instComputable {F G : Type → Type} [ComputableSpecies F] [ComputableSpecies G]
+: ComputableSpecies (Mul F G) where
   fintype := fun {U} _ => by unfold Mul; infer_instance
   decEq := by
     intros U _; unfold Mul
     /- Surface instances -/
     haveI : ∀ d : U → Bool, DecidableEq (F {u // d u = false}) :=
-      fun d => SpeciesComp.decEq (F := F) (U := {u // d u = false})
+      fun d => ComputableSpecies.decEq (F := F) (U := {u // d u = false})
     haveI : ∀ d : U → Bool, DecidableEq (G {u // d u = true}) :=
-      fun d => SpeciesComp.decEq (F := G) (U := {u // d u = true})
+      fun d => ComputableSpecies.decEq (F := G) (U := {u // d u = true})
     infer_instance
 
 /- Display related instances -/
 variable
-  {F G : Type → Type} [SpeciesComp F] [SpeciesComp G] {U V : Type}
+  {F G : Type → Type} [ComputableSpecies F] [ComputableSpecies G] {U V : Type}
   [LabelType U] [LabelType V]
   [∀ d : U → Bool, LinearOrder (F {u // d u = false})]
   [∀ d : U → Bool, LinearOrder (G {u // d u = true})]
   /- Note that `[∀ d : U → Bool, ∀ b : Bool, LinearOrder (F {u // d u = b})]` would not work. -/
 
-instance instReprMul
+instance instRepr
   [Repr U]
   [∀ d : U → Bool, Repr (F {u // d u = false})]
   [∀ d : U → Bool, Repr (G {u // d u = true })]
@@ -115,7 +118,7 @@ lemma mulKey_inj : Function.Injective (mulKey (F := F) (G := G) (U := U)) := by
   have roi_g := rankOf_inj hg
   subst_vars; rfl
 
-instance instLinearOrderMul : LinearOrder ((Mul F G) U) :=
+instance instLinearOrder : LinearOrder ((Mul F G) U) :=
   LinearOrder.lift' mulKey mulKey_inj
 
 -- Other results
@@ -149,5 +152,7 @@ theorem mul_transport_mk
     Species.transport (blockEquiv σ d true) t)
   ⟩
 := rfl
+
+end Mul
 
 end Species

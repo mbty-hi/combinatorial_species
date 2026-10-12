@@ -153,6 +153,7 @@ classical ones.
 #### Instances (`Series/Instances` folder)
 Results about instances:
 * C: EGS/TGS
+* E: EGS/TGS
 * L: EGS/TGS
 * One: EGS/TGS
 * Zero: EGS/TGS
