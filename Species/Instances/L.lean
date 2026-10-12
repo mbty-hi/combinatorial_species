@@ -54,7 +54,7 @@ instance instSpeciesL : Species L where
     infer_instance
   transport      := fun σ => L.transport σ
   id_transport   := fun x => by congr
-  comp_transport := fun σ τ ⟨card, ord⟩ => by rw [Function.comp_apply, L.transport]; congr 1
+  comp_transport := fun σ τ ⟨card, ord⟩ => by rw [L.transport]; congr 1
 
 instance instDecEqL {U} [DecidableEq U] [Fintype U] : DecidableEq (L U) :=
   fun ⟨n₁, e₁⟩ ⟨n₂, e₂⟩ =>

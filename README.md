@@ -6,12 +6,12 @@ Developed at the University of Iceland (Iceproof project) by Matthieu Baty, with
 Matthías Andri Hrafnkelsson, under the supervision of Anders Claesson.
 
 ## A brief overview of combinatorial species
-A species is a rule (`F` of type `Type -> Type`) that associates to each finite set (`U`) a finite
+A species is a rule (`F` of type `Type → Type`) that associates to each finite set (`U`) a finite
 set `F[U]`, independently of the nature of the elements of `U`. The elements of `F[U]` are called
-`F-structures`.
+`F`-structures.
 
 For instance, `F` could be the species `L` of linear orders. If `U` is `{a, b, c}`, then the
-`L-structures` are `a > b > c`, `a > c > b`, `b > a > c`, `b > c > a`, `c > a > b` and `c > b > a`.
+`L`-structures are `a > b > c`, `a > c > b`, `b > a > c`, `b > c > a`, `c > a > b` and `c > b > a`.
 This means six possibilities in total, and there would be six possibilities for all other sets with
 three elements (remember that the rule is independent of the nature of the elements of `U`).
 

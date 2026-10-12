@@ -153,9 +153,8 @@ theorem comp_transport (σ : U ≃ V) (τ : V ≃ W) (c : Composition F G U)
   simp only [transport, Function.comp_apply, Composition.mk.injEq]
   refine ⟨rfl, ?_, ?_⟩
   . apply heq_of_eq
-    have foo := Species.comp_transport (p.quotEquiv σ) ((p.map σ).quotEquiv τ) o
-    simp at foo; simp [← foo]; congr
-    ext ⟨q⟩; rfl
+    have foo := Species.comp_transport (p.quotEquiv σ) ((p.map σ).quotEquiv τ) o; simp [← foo]
+    congr; ext ⟨q⟩; rfl
   . apply heq_of_eq
     apply (funext fun b => ?_)
     refine Quotient.inductionOn b fun z => ?_

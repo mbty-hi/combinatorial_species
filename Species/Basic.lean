@@ -1,84 +1,94 @@
 import Mathlib.GroupTheory.Perm.Basic
 import Species.Labels.LabelType
 
--- `Finite`-based species class, faithful to the book
+/-!
+# Combinatorial species
+
+This file defines combinatorial species and their computable extension.
+
+## Important definitions
+* `Species` : the class of species, following the combinatorial definition of [BLL]
+* `SpeciesComp` : the class of *computable* species
+
+## Implementation notes
+We use finite types instead of [BLL]'s finite sets for labels. This has no bearing on the
+expressivity of the theory, but it makes the proofs nicer.
+
+## References
+* [F. Bergeron, G. Labelle, P. Leroux, *Combinatorial Species and Tree-like Structures*][BLL]
+TODO no .bib yet
+-/
+
+/-- A combinatorial species is a rule (`F` of type `Type → Type`) that associates to each finite
+type of labels (`U`) a finite type `F[U]`, independently of the nature of the elements of `U`. -/
 class Species (F : Type → Type) where
+  /-- For any finite type of labels `U`, the number of `F`-structures on `U` is finite. -/
   finite : {U : Type} → [Finite U] → Finite (F U)
+  /-- Updating the labels of an `F`-structure according to a bijection between label types. -/
   transport : {U V : Type} → [Finite U] → [Finite V] → (U ≃ V) → F U → F V
+  /-- Functoriality law. -/
   id_transport : ∀ {U} [Finite U] (f : F U), transport (Equiv.refl U) f = f
+  /-- Functoriality law. -/
   comp_transport :
     ∀ {U V W} [Finite U] [Finite V] [Finite W] (σ : U ≃ V) (τ : V ≃ W) (f : F U),
-    transport (σ.trans τ) f = (transport τ ∘ transport σ) f
+    transport (σ.trans τ) f = transport τ (transport σ f)
 
 namespace Species
 
-variable {F : Type → Type} [Species F] {U V : Type} [Finite U] [Finite V]
+variable {F : Type → Type} [Species F] {U V W : Type} [Finite U] [Finite V] [Finite W]
 
-/- For any `LabelType U`, there is a finite number of `F`-structures labelled with `U`. -/
-instance instFiniteSpecies : Finite (F U) := Species.finite
+/-- For any `Finite U`, there is a finite number of `F`-structures labelled with `U`. -/
+instance instFinite : Finite (F U) := finite
 
-/- Relabelling is an action of `Equiv.Perm U` on `F U` (`σ • f := transport σ f`). Its orbits are
-   the isomorphism types of `F`-structures. -/
-instance instMulActionSpecies {U : Type} [LabelType U] (F : Type → Type) [Species F]
-: MulAction (Equiv.Perm U) (F U) where
+/-- Relabelling is an action of `Equiv.Perm U` on `F U` (with `σ • f` defined as `transport σ f`).
+Its orbits are the isomorphism types (unlabelled structures) of `F`-structures on `U`. -/
+instance instMulAction : MulAction (Equiv.Perm U) (F U) where
   smul σ f       := transport σ f
   one_smul       := id_transport
   mul_smul σ τ f := comp_transport τ σ f
 
-/- Transport bundled as an equivalence: every bijection between label types induces a bijection of
-   labelled structures. -/
+section transport
+
+/-- Transport bundled as an equivalence. Useful for interacting with Mathlib machinery. -/
 def transportEquiv (σ : U ≃ V) : F U ≃ F V where
-  toFun    := Species.transport σ
-  invFun   := Species.transport σ.symm
-  left_inv := fun f => by
-    have h := Species.comp_transport σ σ.symm f
-    rw [Equiv.self_trans_symm, Species.id_transport] at h
-    exact h.symm
-  right_inv := fun f => by
-    have h := Species.comp_transport σ.symm σ f
-    rw [Equiv.symm_trans_self, Species.id_transport] at h
-    exact h.symm
+  toFun       := transport σ
+  invFun      := transport σ.symm
+  left_inv  f := by rw [← comp_transport, Equiv.self_trans_symm, id_transport]
+  right_inv f := by rw [← comp_transport, Equiv.symm_trans_self, id_transport]
 
-theorem transportEquiv_symm {U V} {F: Type → Type} [Finite U] [Finite V] [Species F] (σ : U ≃ V)
-: (Species.transportEquiv (F := F) σ.symm) = (Species.transportEquiv (F := F) σ).symm :=
-  Equiv.ext fun _ => rfl
+theorem transportEquiv_symm (σ : U ≃ V)
+: (transportEquiv (F := F) σ.symm) = (transportEquiv (F := F) σ).symm
+:= Equiv.ext (fun _ => rfl)
 
-theorem transport_transport
-  {F : Type → Type} [Species F] {α β γ : Type}
-  [Finite α] [Finite β] [Finite γ] (σ : α ≃ β) (τ : β ≃ γ) (f : F α)
-: Species.transport τ (Species.transport σ f) = Species.transport (σ.trans τ) f := by
-  have h := Species.comp_transport (F := F) σ τ f
-  rw [Function.comp_apply] at h
-  exact h.symm
+theorem transport_transport (σ : U ≃ V) (τ : V ≃ W) (f : F U)
+: transport τ (transport σ f) = transport (σ.trans τ) f :=
+  (comp_transport (F := F) σ τ f).symm
 
-theorem transport_eq_self_of_val
-  {F : Type → Type} [Species F] {α : Type} [Finite α] (e : α ≃ α) (h : ∀ a, e a = a) (f : F α)
-: Species.transport e f = f := by
-  have he : e = Equiv.refl α := Equiv.ext h
-  rw [he, Species.id_transport]
+theorem transport_eq_self_of_id (σ : U ≃ U) (h : ∀ a, σ a = a) (f : F U)
+: transport σ f = f := by
+  have hσ : σ = Equiv.refl U := Equiv.ext h
+  rw [hσ, id_transport]
+
+end transport
 
 end Species
 
+/-- A *computable* combinatorial species providing an enumeration and a decidable equality for the
+`F`-structures on label types `U` that are enumerable and linearly ordered (`LabelType`). -/
 class SpeciesComp (F : Type → Type) extends Species F where
+  /-- Enumeration of the `F`-structures on `U`.  -/
   fintype : {U : Type} → [LabelType U] → Fintype (F U)
-  decEq   : {U : Type} → [LabelType U] → DecidableEq (F U)
+  /-- The equality of the `F`-structures on `U` must be decidable. -/
+  decEq : {U : Type} → [LabelType U] → DecidableEq (F U)
 
 namespace SpeciesComp
 
-variable {F : Type → Type} [SpeciesComp F] {U V : Type} [LabelType U] [LabelType V]
+variable {F : Type → Type} [SpeciesComp F] {U : Type} [LabelType U]
 
-/- For any `LabelType U`, there is a finite number of `F`-structures labelled with `U`. -/
-instance instFintypeOfSpecies : Fintype (F U) := fintype
+instance instFintype : Fintype     (F U) := fintype
+instance instDecEq   : DecidableEq (F U) := decEq
 
-/- The finite set of `F`-structures on label type `U`. -/
+/-- The finite set of `F`-structures on label type `U`. -/
 def structures : Finset (F U) := Finset.univ
-
-/- Sanity check: structure count depends only on the cardinality of labels. -/
-theorem card_structures_eq (σ : U ≃ V) : Fintype.card (F U) = Fintype.card (F V) :=
-  Fintype.card_congr (Species.transportEquiv σ)
-
-instance instDecEqOfSpecies {F : Type → Type} [SpeciesComp F] {U : Type} [LabelType U]
-: DecidableEq (F U) :=
-  decEq
 
 end SpeciesComp

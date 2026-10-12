@@ -1,7 +1,7 @@
--- This module serves as the root of the `Species` library.
--- Import modules here that should be built as part of the library.
+-- Root of the `Species` library.
 import Species.Basic
 import Species.Cardinality
+import Species.Categorical
 import Species.Isomorphism
 import Species.Identities.Identities
 import Species.Instances.Instances

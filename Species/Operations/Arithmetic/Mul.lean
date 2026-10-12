@@ -242,21 +242,21 @@ def Mul₃Equiv₁
     rintro ⟨d₁, s₁, ⟨d₂, s₂, s₃⟩⟩
     refine mul_ext (S := S₁) (T := Mul S₂ S₃) (d₁_inv d₁ d₂) ?_ ?_
     . rw [transport_transport, transport_transport]; simp
-      exact transport_eq_self_of_val _ (fun a => Subtype.ext rfl) s₁
+      exact transport_eq_self_of_id _ (fun a => Subtype.ext rfl) s₁
     · rw [mul_transport_mk, transport_transport]
       refine mul_ext (S := S₂) (T := S₃) ?_ ?_ ?_
       . apply d₂_inv
       . rw [transport_transport, transport_transport]
-        exact transport_eq_self_of_val _ (fun a => Subtype.ext (Subtype.ext rfl)) s₂
+        exact transport_eq_self_of_id _ (fun a => Subtype.ext (Subtype.ext rfl)) s₂
       . rw [transport_transport, transport_transport, transport_transport]
-        exact transport_eq_self_of_val _ (fun a => Subtype.ext (Subtype.ext rfl)) s₃
+        exact transport_eq_self_of_id _ (fun a => Subtype.ext (Subtype.ext rfl)) s₃
 
   right_inv := by
     rintro ⟨d, s₁, s₂, s₃⟩
     refine Mul₃_ext (d_inv d) ?_ ?_ ?_ <;> rw [transport_transport, transport_transport]
-    . exact transport_eq_self_of_val _ (fun a => Subtype.ext rfl) s₁
-    . exact transport_eq_self_of_val _ (fun a => Subtype.ext rfl) s₂
-    . exact transport_eq_self_of_val _ (fun a => Subtype.ext rfl) s₃
+    . exact transport_eq_self_of_id _ (fun a => Subtype.ext rfl) s₁
+    . exact transport_eq_self_of_id _ (fun a => Subtype.ext rfl) s₂
+    . exact transport_eq_self_of_id _ (fun a => Subtype.ext rfl) s₃
 
 -- Functions to switch between (d₁, d₂) and d
 @[simp] def d_to_c₁ {U} (d: U → Fin 3) : U → Bool := fun u => d u == 2
@@ -362,18 +362,18 @@ def Mul₃Equiv₂
       refine mul_ext (S := S₁) (T := S₂) ?_ ?_ ?_
       . apply c₂_inv
       . rw [transport_transport, transport_transport, transport_transport]
-        exact transport_eq_self_of_val _ (fun a => Subtype.ext (Subtype.ext rfl)) s₁
+        exact transport_eq_self_of_id _ (fun a => Subtype.ext (Subtype.ext rfl)) s₁
       . rw [transport_transport, transport_transport, transport_transport]
-        exact transport_eq_self_of_val _ (fun a => Subtype.ext (Subtype.ext rfl)) s₂
+        exact transport_eq_self_of_id _ (fun a => Subtype.ext (Subtype.ext rfl)) s₂
     . rw [transport_transport, transport_transport]
-      exact transport_eq_self_of_val _ (fun a => Subtype.ext rfl) s₃
+      exact transport_eq_self_of_id _ (fun a => Subtype.ext rfl) s₃
 
   right_inv := by
     rintro ⟨d, s₁, s₂, s₃⟩
     refine Mul₃_ext (d_inv' d) ?_ ?_ ?_ <;> rw [transport_transport, transport_transport]
-    . exact transport_eq_self_of_val _ (fun a => Subtype.ext rfl) s₁
-    . exact transport_eq_self_of_val _ (fun a => Subtype.ext rfl) s₂
-    . exact transport_eq_self_of_val _ (fun a => Subtype.ext rfl) s₃
+    . exact transport_eq_self_of_id _ (fun a => Subtype.ext rfl) s₁
+    . exact transport_eq_self_of_id _ (fun a => Subtype.ext rfl) s₂
+    . exact transport_eq_self_of_id _ (fun a => Subtype.ext rfl) s₃
 
 def mulAssoc
   {S₁ S₂ S₃ : Type → Type} [Species S₁] [Species S₂] [Species S₃] {U} [Finite U]
