@@ -4,8 +4,6 @@ import Mathlib.Data.Finset.Sort
 
 namespace Species
 
-/- TODO find a better name for this file -/
-
 /- Finset of all `F`-structures on `n` labels. -/
 def structures_fset (F : Type → Type) [SpeciesComp F] (LabelT : Type) [LabelType LabelT]
 : Finset (F LabelT) :=
@@ -23,7 +21,7 @@ def structures_canonical (F : Type → Type) (n : ℕ) [SpeciesComp F] [LinearOr
   structures F (Canonical n)
 
 /- Number of `F`-structures on `n` labels. -/
-def card (F : Type → Type) [SpeciesComp F] (n : ℕ) : ℕ := Fintype.card (F (FinNat n))
+def card (F : Type → Type) [SpeciesComp F] (n : ℕ) : ℕ := Fintype.card (F (Fin n))
 
 /- The first `n` terms of `F`'s counting sequence. -/
 def seq (F : Type → Type) [SpeciesComp F] (n : ℕ) : List ℕ := (List.range n).map (card F)

@@ -1,7 +1,7 @@
 import Mathlib.GroupTheory.Perm.Basic
 import Species.Labels.LabelType
 
--- Finite-based species class, faithful to the book
+-- `Finite`-based species class, faithful to the book
 class Species (F : Type → Type) where
   finite : {U : Type} → [Finite U] → Finite (F U)
   transport : {U V : Type} → [Finite U] → [Finite V] → (U ≃ V) → F U → F V

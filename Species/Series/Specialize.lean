@@ -69,7 +69,7 @@ section tgs_from_cis
 /-- TGS from CIS: `Z_F(x, x², x³, …) = F~(x)`.
     Conceptually, setting `x_k` to `x^k` means that all monomials end up looking like
     `x^n` (we are just counting labels). Then, for each `n`, we get `((1/n!) Σ_σ fix F[σ])xⁿ`.
-    By Burnside, this is the number of orbits, which corresponds to the number of unlabeled
+    By Burnside, this is the number of orbits, which corresponds to the number of unlabelled
     structures. -/
 
 -- Burnside: summing fixed-point counts over `Sₙ` gives `n!` times the number of orbits

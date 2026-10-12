@@ -3,6 +3,8 @@ import Species.Operations.Operations
 import Species.Instances.Instances
 import Species.Basic
 
+/- TODO isomorphism, not just bijection -/
+
 namespace Species
 
 variable {F G : Type -> Type} [Species F] [Species G] {U: Type} [Finite U]

@@ -3,6 +3,8 @@ import Species.Operations.Add
 import Species.Instances.One
 import Species.Instances.Zero
 
+/- TODO in this folder: isomorphism instead of mere equiv -/
+
 namespace Species
 
 variable {U: Type} [Fintype U] {F G H: Type → Type} [Species F] [Species G] [Species H]

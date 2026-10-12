@@ -3,6 +3,7 @@ import Mathlib.Data.Fintype.Perm
 
 namespace Species
 
+/-- Singletons -/
 def X (U : Type) := Fin 1 ≃ U
 
 instance instFintypeX {U} [Fintype U] [DecidableEq U] : Fintype (X U) :=

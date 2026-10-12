@@ -1,6 +1,6 @@
 import Mathlib.Data.Finset.Functor
 
-/- A label type: finite, linearly ordered. The order is required for computationality (`Finset`
+/- A label type: finite, linearly ordered. The order is required for computability (`Finset`
    exposes a `sort` function that gives a list of its members, and it requires `LinearOrder`). -/
 class LabelType (α : Type) extends Fintype α, LinearOrder α
 
