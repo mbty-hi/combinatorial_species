@@ -15,7 +15,7 @@ expressivity of the theory, but it makes the proofs nicer.
 
 ## References
 * [F. Bergeron, G. Labelle, P. Leroux, *Combinatorial Species and Tree-like Structures*][BLL]
-TODO no .bib yet
+TODO add .bib
 -/
 
 /-- A combinatorial species is a rule (`F` of type `Type → Type`) that associates to each finite

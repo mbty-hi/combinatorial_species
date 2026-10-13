@@ -86,8 +86,8 @@ labels `U`:
   possible `F`-structures on `U`) instead of being a mere proof of such a set's finiteness
 * `decEq`: the equality on the `F`-structures on `U` is decidable
 
-### Cardinality (`Cardinality.lean`)
-Auxiliary functions for generating `F`-structures in computable settings.
+### Enumeration (`Enumeration.lean`)
+Auxiliary functions for enumerating `F`-structures in computable settings.
 
 ### Categorical bridge (`Categorical.lean`)
 A bridge to Joyal's categorical definition of species.
@@ -126,8 +126,8 @@ All of these preserve computability:
 * Pointed
 * Restrict
 
-#### Arithmetic (`Operations/Arithmetic` folder)
-Properties of operations: we cannot define an actual `Semiring` using our operations, as our lemmas
+#### Algebra (`Operations/Algebra` folder)
+Properties of operations: we cannot define an actual `Semirig` using our operations, as our lemmas
 are only defined up to isomorphism. We just provide them as an unbound assorted collection of
 lemmas.
 
@@ -137,17 +137,11 @@ lemmas.
 * `DerivE`: the derivative of sets is sets
 
 ### Series (`Series` folder)
-#### Series
-##### Exponential Generating Series (EGS)
-For labelled counting.
-
-##### Type Generating Series (TGS)
-For unlabelled counting.
-
-##### Cycle Index Series (CIS)
-For recording how many structures are fixed by relabelling operations of different cycle types. We
-give alternative definitions of the EGS and the TGS based on it, and show them equivalent to the
-classical ones.
+* Exponential generating series (EGS): for labelled counting
+* Type generating series (TGS): for unlabelled counting
+* Cycle index series (CIS): for recording how many structures are fixed by relabelling operations of
+  different cycle types. We give alternative definitions of the EGS and the TGS based on it, and
+  show them equivalent to the classical ones.
 
 #### Instances (`Series/Instances` folder)
 Results about instances:
@@ -166,10 +160,10 @@ Building concrete F-structures and some sanity checks.
 
 ## Remaining work
 ### More results about series
-* Classical egs/tgs/cis for all instances
-* Classical egs/tgs/cis for all operations
+* Classical EGS/TGS/CIS for all instances
+* Classical EGS/TGS/CIS for all operations
 * Closed forms
-* Naturality -> series agree
+* Isomorphic → series agree
 
 ### More species
 * Ballots (linearly ordered partitions)

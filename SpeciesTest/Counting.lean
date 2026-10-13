@@ -1,6 +1,6 @@
 import Mathlib.Data.Finset.Sort
 import Species.Instances.Instances
-import Species.Cardinality
+import Species.Enumeration
 import Species.Operations.Operations
 
 open Species
@@ -25,31 +25,31 @@ local notation "Mul"  => Species.Mul
 #guard seq (Restrict Powerset 3) 5 = [0, 0, 0, 8, 0]
 
 /- Simple structures -/
-#eval structures_canonical L 3
-#eval structures_canonical C 4
-#eval structures_canonical C 0
-#eval structures_canonical L 0
-#eval structures_canonical E 3
-#eval structures_canonical One 0
-#eval structures_canonical One 3
-#eval structures_canonical S 3
-#eval structures_canonical Powerset 3
-#eval structures_canonical X 0
-#eval structures_canonical X 1
-#eval structures_canonical X 2
-#eval structures_canonical Zero 0
-#eval structures_canonical Zero 3
+#eval structuresCanonical L 3
+#eval structuresCanonical C 4
+#eval structuresCanonical C 0
+#eval structuresCanonical L 0
+#eval structuresCanonical E 3
+#eval structuresCanonical One 0
+#eval structuresCanonical One 3
+#eval structuresCanonical S 3
+#eval structuresCanonical Powerset 3
+#eval structuresCanonical X 0
+#eval structuresCanonical X 1
+#eval structuresCanonical X 2
+#eval structuresCanonical Zero 0
+#eval structuresCanonical Zero 3
 
 /- Combined structures -/
-#eval structures_canonical (Add E L) 3
-#eval structures_canonical (Add E (Add E E)) 3
-#eval structures_canonical (Mul E L) 3
-#eval structures_canonical (Mul E E) 5
-#eval structures_canonical (Mul (Add C L) S) 3
-#eval structures_canonical (Mul (Mul C L) S) 3
-#eval structures_canonical (CartProd E L) 3
-#eval structures_canonical (Deriv E) 3
-#eval structures_canonical (Deriv L) 3
-#eval structures_canonical (Restrict Powerset 3) 5
-#eval structures_canonical (Restrict Powerset 3) 3
-#eval structures_canonical (Composition L L) 3
+#eval structuresCanonical (Add E L) 3
+#eval structuresCanonical (Add E (Add E E)) 3
+#eval structuresCanonical (Mul E L) 3
+#eval structuresCanonical (Mul E E) 5
+#eval structuresCanonical (Mul (Add C L) S) 3
+#eval structuresCanonical (Mul (Mul C L) S) 3
+#eval structuresCanonical (CartProd E L) 3
+#eval structuresCanonical (Deriv E) 3
+#eval structuresCanonical (Deriv L) 3
+#eval structuresCanonical (Restrict Powerset 3) 5
+#eval structuresCanonical (Restrict Powerset 3) 3
+#eval structuresCanonical (Composition L L) 3

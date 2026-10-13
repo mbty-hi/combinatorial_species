@@ -99,10 +99,9 @@ section cycleTypeToCyclesCorrespondence
 section factorPoint
 
 /-- The support of a permutation is the set of points that are not fixed by it.
-    A fixpoint is not viewed as a cycle factor; therefore cycle factors move at least one point.
-    For instance, `U` could be `{1, …, 6}`, `σ` could be `(1 2)(3 4 5)` (note that `6` is a fixpoint
-    here) and `cycleFactor` could be `(3 4 5)`.
-    In other words, their support is not empty. -/
+A fixpoint is not viewed as a cycle factor; therefore cycle factors move at least one point. For
+instance, `U` could be `{1, …, 6}`, `σ` could be `(1 2)(3 4 5)` (note that `6` is a fixpoint here)
+and `cycleFactor` could be `(3 4 5)`. In other words, their support is not empty. -/
 lemma cycleFactor_support_nonempty (σ : Equiv.Perm U) (cycleFactor : σ.cycleFactorsFinset)
 : cycleFactor.1.support.Nonempty :=
   (Equiv.Perm.mem_cycleFactorsFinset_iff.1 cycleFactor.2).1.nonempty_support
@@ -133,8 +132,8 @@ end factorPoint
 section classOf
 
 /-- A label is either a fixed point or it belongs to a cycle factor. Our definition of
-    `Species.Cycles` subsumes both cases. This returns the one such cycle given either a fixpoint
-    or a cycle factor. This is actually a bijection (see `classOf_bojective` below) -/
+`Species.Cycles` subsumes both cases. This returns the one such cycle given either a fixpoint or a
+cycle factor. This is actually a bijection (see `classOf_bojective` below) -/
 noncomputable def classOf (σ : Equiv.Perm U) (v: {x // σ x = x} ⊕ σ.cycleFactorsFinset)
 : Species.Cycles σ :=
   match v with
@@ -245,7 +244,7 @@ lemma cycleCount_eq (σ : Equiv.Perm U) (k : ℕ) : cycleCount σ k = Species.cy
   unfold cycleCount Species.cycleCount
   rw [cycleLengths_eq]
 
--- summing the computed terms as monomials gives the noncomputable numerator
+/-- Summing the computed terms as monomials gives the noncomputable numerator. -/
 lemma cisNumerator_eq (n : ℕ)
 : ((cisNumerator F n).map fun t => MvPolynomial.monomial (Multiset.toFinsupp t.2) t.1).sum
   = Species.cisNumerator F n
