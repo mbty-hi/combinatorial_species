@@ -15,7 +15,7 @@ section egs_from_cis
 lemma toFinsupp_prod_pow (s : Multiset ℕ) (g : ℕ → ℚ)
 : (Multiset.toFinsupp s).prod (fun k e => g k ^ e) = (s.map g).prod := by
   rw [Finsupp.prod, Multiset.toFinsupp_support, Finset.prod_multiset_map_count]
-  simp [Multiset.toFinsupp_apply]
+  simp only [Multiset.toFinsupp_apply]
 
 /-- With `x_1 = 1` and `x_k = 0` otherwise, only permutations without cycles of length ≥ 2
     survive. -/
@@ -27,7 +27,7 @@ lemma prod_indicator_one {n : ℕ} (σ : Equiv.Perm (Fin n))
     Multiset.prod_replicate, one_pow, mul_one
   ]
   split_ifs with h
-  · subst h; simp
+  · subst h; simp only [Equiv.Perm.cycleType_one, Multiset.map_zero, Multiset.prod_zero]
   · -- some cycle of length `≥ 2` contributes a factor `0`
     obtain ⟨k, hk⟩ := Multiset.exists_mem_of_ne_zero (mt Equiv.Perm.cycleType_eq_zero.1 h)
     refine Multiset.prod_eq_zero (Multiset.mem_map.2 ⟨k, hk, ?_⟩)
@@ -59,7 +59,7 @@ theorem egs_from_cis : cisSpecialize F (fun k => if k = 1 then 1 else 0) = egs F
         ]
     -- we are left with the identity only
     _ = (fixCount (U := F (Fin n)) (transportEquiv (F := F) (1 : Equiv.Perm (Fin n))) : ℚ) := by
-      simp [Finset.sum_ite_eq']
+      simp only [mul_ite, mul_one, mul_zero, Finset.sum_ite_eq', Finset.mem_univ, ↓reduceIte]
     -- the identity fixes every structure
     _ = (egsCoeff F n : ℚ) := by rw [fixCount_transportEquiv_one, egsCoeff]
 
@@ -95,8 +95,10 @@ theorem tgs_from_cis : cisSpecialize F (fun _ => 1) = tgs F := by
     -- every monomial evaluates to `1`, leaving the sum of fixed-point counts…
     _ = ((∑ σ : Equiv.Perm (Fin n), fixCount (U := F (Fin n)) (transportEquiv σ) : ℕ) : ℚ)
           / n.factorial := by
-      simp [cisNumerator, cisMonomial, MvPolynomial.eval₂_sum, MvPolynomial.eval₂_monomial,
-            Finsupp.prod]
+      simp only [
+        cisNumerator, cisMonomial, MvPolynomial.eval₂_sum, MvPolynomial.eval₂_monomial,
+        eq_natCast, Finsupp.prod, one_pow, Finset.prod_const_one, mul_one, Nat.cast_sum
+      ]
     -- …which is `n!` times the number of orbits (Burnside)
     _ = (tgsCoeff F n : ℚ) := by
       rw [← tgsCoeff_mul_factorial, Nat.cast_mul]

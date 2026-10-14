@@ -23,7 +23,7 @@ instance instSpecies : Species X where
   finite         := inferInstance
   transport      := fun σ e => e.trans σ
   id_transport   := by intro _ _ e; rfl
-  comp_transport := by intro _ _ _ _ _ _ σ τ e; unfold X at *; simp [Equiv.trans_assoc]
+  comp_transport := by intro _ _ _ _ _ _ σ τ e; unfold X at *; simp only [Equiv.trans_assoc]
 
 instance instComputableSpecies : ComputableSpecies X where
   fintype := inferInstance

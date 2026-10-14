@@ -22,12 +22,18 @@ def mulComm {F G : Type → Type} [Species F] [Species G] {U} [Finite U]
 : Mul F G U ≃ Mul G F U where
   toFun := by
     unfold Mul; rintro ⟨d, f, g⟩
-    refine ⟨fun x => !(d x), ?_, ?_⟩ <;> simp <;> assumption
+    refine ⟨fun x => !(d x), ?_, ?_⟩
+      <;> simp only [Bool.not_eq_eq_eq_not, Bool.not_false, Bool.not_true] <;> assumption
   invFun := by
     unfold Mul; rintro ⟨d, g, f⟩
-    refine ⟨fun x => !(d x), ?_, ?_⟩ <;> simp <;> assumption
-  left_inv  := by rintro ⟨d, f, g⟩; simp [id]; congr <;> simp
-  right_inv := by rintro ⟨d, g, f⟩; simp [id]; congr <;> simp
+    refine ⟨fun x => !(d x), ?_, ?_⟩
+      <;> simp only [Bool.not_eq_eq_eq_not, Bool.not_false, Bool.not_true] <;> assumption
+  left_inv  := by
+    rintro ⟨d, f, g⟩; simp only [id, eq_mpr_eq_cast, cast_cast]; congr
+      <;> simp only [Bool.not_not, cast_heq]
+  right_inv := by
+    rintro ⟨d, g, f⟩; simp only [id, eq_mpr_eq_cast, cast_cast]; congr
+      <;> simp only [Bool.not_not, cast_heq]
 
 /- `(mul One S) U` is a partitioning of `U` by a boolean predicate `d`. The set of labels making
    `d` false carries a `One`-structure, and its complement carries an `S`-structure. Since there are
@@ -52,18 +58,18 @@ def oneMul {F: Type → Type} [Species F] {U} [Finite U] : (Mul One F) U ≃ F U
     refine ⟨fun _ => true, ?one, ?s⟩ -- we define `d` as `fun _ => false`
     case one => intros x; nomatch x  -- nothing ends up in the set carrying an `One`-structure
     case s   =>
-      have equiv : {u // true = true} ≃ U := Equiv.subtypeUnivEquiv (by simp)
+      have equiv : {u // true = true} ≃ U := Equiv.subtypeUnivEquiv (by simp only [implies_true])
       exact transportEquiv equiv.symm s
 
   left_inv := by
     rintro ⟨d, one, s⟩
     have d_is_true : d = fun _ => true := by
       funext u; rcases h : d u; nomatch one ⟨u, h⟩; rfl
-    subst d_is_true; simp; congr
+    subst d_is_true; simp only; congr
     · funext x; nomatch x
     · rw [transportEquiv_symm, Equiv.symm_apply_apply]
 
-  right_inv := by intros _; simp [id, transportEquiv_symm, Equiv.apply_symm_apply]
+  right_inv := by intros _; simp only [id, transportEquiv_symm, Equiv.apply_symm_apply]
 
 /- Same logic as `one_mul`, except for some flipped branches. See above for more substantial
    comments. -/
@@ -79,7 +85,7 @@ def mulOne {F : Type → Type} [Species F] {U} [Finite U] : (Mul F One) U ≃ F 
     intros s; unfold Mul One
     refine ⟨fun _ => false, ?s, ?one⟩ -- we define `d` as `fun _ => false`
     case s =>
-      have equiv : {u // false = false} ≃ U := Equiv.subtypeUnivEquiv (by simp)
+      have equiv : {u // false = false} ≃ U := Equiv.subtypeUnivEquiv (by simp only [implies_true])
       exact transportEquiv equiv.symm s
     case one => intros x; nomatch x -- nothing ends up in the set carrying an `One`-structure
 
@@ -87,11 +93,11 @@ def mulOne {F : Type → Type} [Species F] {U} [Finite U] : (Mul F One) U ≃ F 
     rintro ⟨d, s, one⟩
     have d_is_false : d = fun _ => false := by
       funext u; rcases h : d u; rfl; nomatch one ⟨u, h⟩
-    subst d_is_false; simp; congr
+    subst d_is_false; simp only; congr
     · rw [transportEquiv_symm, Equiv.symm_apply_apply]
     · funext x; nomatch x
 
-  right_inv := by intros _; simp [id, transportEquiv_symm, Equiv.apply_symm_apply]
+  right_inv := by intros _; simp only [id, transportEquiv_symm, Equiv.apply_symm_apply]
 
 --        C            D
 --        c₁           d₁          The left branch is taken when the function returns false
@@ -156,15 +162,31 @@ def d₁₂_to_d {U} (d₁ : U → Bool) (d₂ : {u // d₁ u = true} → Bool) 
 -- Results about the composition of the above functions
 theorem d_inv {U} (d : U → Fin 3) : d₁₂_to_d (d_to_d₁ d) (d_to_d₂ d) = d := by
   funext u; match hu : d u with
-  | 0 => simp [d₁₂_to_d, d_to_d₁, hu]
-  | 1 => simp [d₁₂_to_d, d_to_d₁, d_to_d₂, hu]
-  | 2 => simp [d₁₂_to_d, d_to_d₁, d_to_d₂, hu]
+  | 0 =>
+    simp only [
+      d₁₂_to_d, d_to_d₁, hu, Fin.isValue, bne_self_eq_false, Bool.false_eq_true, ↓reduceDIte
+    ]
+  | 1 =>
+    simp only [
+      d₁₂_to_d, d_to_d₁, hu, Fin.isValue, Fin.reduceBNe, ↓reduceDIte, d_to_d₂, Fin.reduceBEq,
+      Bool.false_eq_true, ↓reduceIte
+    ]
+  | 2 =>
+    simp only [
+      d₁₂_to_d, d_to_d₁, hu, Fin.isValue, Fin.reduceBNe, ↓reduceDIte, d_to_d₂, BEq.rfl, ↓reduceIte
+    ]
 
 theorem d₁_inv {U} (d₁ : U → Bool) (d₂ : {u // d₁ u = true} → Bool)
 : d_to_d₁ (d₁₂_to_d d₁ d₂) = d₁ := by
   funext u; by_cases h₁ : d₁ u = true
-  . by_cases h₂ : d₂ ⟨u, h₁⟩ = true <;> simp [h₁, h₂, d_to_d₁, d₁₂_to_d]
-  . simp [h₁, d_to_d₁, d₁₂_to_d]
+  . by_cases h₂ : d₂ ⟨u, h₁⟩ = true
+      <;> simp only [
+            d_to_d₁, d₁₂_to_d, h₁, ↓reduceDIte, h₂, Bool.false_eq_true, ↓reduceIte, Fin.isValue,
+            Fin.reduceBNe
+          ]
+  . simp only [
+      d_to_d₁, d₁₂_to_d, h₁, Bool.false_eq_true, ↓reduceDIte, Fin.isValue, bne_self_eq_false
+    ]
 
 theorem d₂_inv {U} (d₁ : U → Bool) (d₂ : {u // d₁ u = true} → Bool)
 : (fun y => d_to_d₂ (d₁₂_to_d d₁ d₂) ((deciderCast (d₁_inv d₁ d₂) true).symm y)) = d₂ := by
@@ -182,7 +204,15 @@ def Mul₃Equiv₁
       have equiv : {u // d₁ u = false} ≃ {u // d₁₂_to_d d₁ d₂ u = 0} :=
         Equiv.subtypeEquivRight
           (fun u => by
-            by_cases h₁ : d₁ u = true <;> simp [h₁]; by_cases h₂ : d₂ ⟨u, h₁⟩ <;> simp [h₂]
+            by_cases h₁ : d₁ u = true
+              <;> simp only [
+                    h₁, Bool.true_eq_false, Bool.false_eq_true, d₁₂_to_d, ↓reduceDIte,
+                    Fin.isValue, false_iff
+                  ]; by_cases h₂ : d₂ ⟨u, h₁⟩
+                      <;> simp only [
+                            h₂, Bool.false_eq_true, ↓reduceIte, Fin.isValue, Fin.one_eq_zero_iff,
+                            Nat.reduceEqDiff, not_false_eq_true, Fin.reduceEq
+                          ]
           )
       exact Species.transport equiv s₁
     case s₂ =>
@@ -190,20 +220,37 @@ def Mul₃Equiv₁
         (Equiv.subtypeSubtypeEquivSubtypeExists _ _).trans
           (Equiv.subtypeEquivRight fun u => by
             constructor
-            . rintro ⟨h₁, h₂⟩; simp [h₁, h₂]
+            . rintro ⟨h₁, h₂⟩
+              simp only [d₁₂_to_d, h₁, ↓reduceDIte, h₂, Bool.false_eq_true, ↓reduceIte, Fin.isValue]
             . intro h; by_cases h₁ : d₁ u = true
-              . refine ⟨h₁, ?_⟩; by_cases h₂ : d₂ ⟨u, h₁⟩ <;> simp_all
-              . simp [h₁] at h)
+              . refine ⟨h₁, ?_⟩
+                by_cases h₂ : d₂ ⟨u, h₁⟩
+                  <;> simp_all only [
+                        d₁₂_to_d, ↓reduceDIte, Bool.false_eq_true, ↓reduceIte, Fin.isValue,
+                        Bool.not_eq_true, Fin.reduceEq
+                      ]
+              . simp only [
+                  d₁₂_to_d, h₁, Bool.false_eq_true, ↓reduceDIte, Fin.isValue, Fin.zero_eq_one_iff,
+                  Nat.reduceEqDiff
+                ] at h
+          )
       exact Species.transport equiv s₂
     case s₃ =>
       have equiv : {u // d₂ u = true} ≃ {u // d₁₂_to_d d₁ d₂ u = 2} :=
         (Equiv.subtypeSubtypeEquivSubtypeExists _ _).trans
           (Equiv.subtypeEquivRight fun u => by
             constructor
-            . rintro ⟨h₁, h₂⟩; simp [h₁, h₂]
+            . rintro ⟨h₁, h₂⟩; simp only [d₁₂_to_d, h₁, ↓reduceDIte, h₂, ↓reduceIte, Fin.isValue]
             . intro h; by_cases h₁ : d₁ u = true
-              . refine ⟨h₁, ?_⟩; by_cases h₂ : d₂ ⟨u, h₁⟩ <;> simp_all
-              . simp [h₁] at h)
+              . refine ⟨h₁, ?_⟩; by_cases h₂ : d₂ ⟨u, h₁⟩
+                  <;> simp_all only [
+                        d₁₂_to_d, ↓reduceDIte, Bool.false_eq_true, ↓reduceIte, Fin.isValue,
+                        Fin.reduceEq
+                      ]
+              . simp only [
+                  d₁₂_to_d, h₁, Bool.false_eq_true, ↓reduceDIte, Fin.isValue, Fin.reduceEq
+                ] at h
+          )
       exact Species.transport equiv s₃
 
   invFun := by
@@ -213,15 +260,25 @@ def Mul₃Equiv₁
     case d₂' => exact d_to_d₂ d
     case s₁' =>
       have equiv : {u // d u = 0} ≃ {u // d_to_d₁ d u = false} :=
-        Equiv.subtypeEquivRight (fun u => by simp)
+        Equiv.subtypeEquivRight (fun u => by simp only [Fin.isValue, d_to_d₁, bne_eq_false_iff_eq])
       exact Species.transport equiv s₁
     case s₂' =>
       have equiv : {u // d u = 1} ≃ {u // d_to_d₂ d u = false} :=
         (Equiv.subtypeEquivRight
           (fun u => by
             constructor
-            · intro h; constructor <;> simp [h]
-            · rintro ⟨h₁, h₂⟩; simp at *; generalize hu : d u = x; fin_cases x <;> simp [hu] at *
+            · intro h; constructor
+                <;> simp only [d_to_d₁, d_to_d₂, h, Fin.isValue, Fin.reduceBNe, Fin.reduceBEq]
+            · rintro ⟨h₁, h₂⟩
+              simp only [d_to_d₂, Fin.isValue, beq_eq_false_iff_ne, ne_eq] at *
+              generalize hu : d u = x; fin_cases x
+              . simp only [
+                  d_to_d₁, hu, Fin.zero_eta, Fin.isValue, bne_self_eq_false, Bool.false_eq_true
+                ] at *
+              . simp only [Fin.mk_one, Fin.isValue]
+              . simp only [
+                  d_to_d₁, hu, Fin.reduceFinMk, Fin.isValue, Fin.reduceBNe, not_true_eq_false
+                ] at *
           )
         ).trans
         (Equiv.subtypeSubtypeEquivSubtypeExists _ _).symm
@@ -231,8 +288,16 @@ def Mul₃Equiv₁
         (Equiv.subtypeEquivRight
           (fun u => by
             constructor
-            . intro h; constructor <;> simp [h]
-            . rintro ⟨h₁, h₂⟩; simp at *; generalize hu : d u = x; fin_cases x <;> simp [hu] at *
+            . intro h; constructor
+              . simp only [d_to_d₂, h, Fin.isValue, BEq.rfl]
+              . simp only [d_to_d₁, h, Fin.isValue, Fin.reduceBNe]
+            . rintro ⟨h₁, h₂⟩; simp only [d_to_d₂, Fin.isValue, beq_iff_eq] at *
+              generalize hu : d u = x; fin_cases x
+              . simp only [
+                  d_to_d₁, hu, Fin.zero_eta, Fin.isValue, bne_self_eq_false, Bool.false_eq_true
+                ] at *
+              . simp only [d_to_d₁, hu, Fin.mk_one, Fin.isValue, Fin.reduceBNe, Fin.reduceEq] at *
+              . simp only [Fin.reduceFinMk, Fin.isValue]
           )
         ).trans
         (Equiv.subtypeSubtypeEquivSubtypeExists _ _).symm
@@ -273,15 +338,26 @@ def c₁₂_to_d {U} (c₁ : U → Bool) (c₂ : {u // c₁ u = false} → Bool)
 -- Results about the composition of the above functions
 theorem d_inv' {U} (d : U → Fin 3) : c₁₂_to_d (d_to_c₁ d) (d_to_c₂ d) = d := by
   funext u; match hu : d u with
-  | 0 => simp [c₁₂_to_d, d_to_c₁, d_to_c₂, hu]
-  | 1 => simp [c₁₂_to_d, d_to_c₁, d_to_c₂, hu]
-  | 2 => simp [c₁₂_to_d, d_to_c₁, hu]
+  | 0 =>
+    simp only [
+      c₁₂_to_d, d_to_c₁, hu, Fin.isValue, Fin.reduceBEq, ↓reduceDIte, d_to_c₂, Bool.false_eq_true,
+      ↓reduceIte
+    ]
+  | 1 =>
+    simp only [
+      c₁₂_to_d, d_to_c₁, hu, Fin.isValue, Fin.reduceBEq, ↓reduceDIte, d_to_c₂, BEq.rfl, ↓reduceIte
+    ]
+  | 2 => simp only [c₁₂_to_d, d_to_c₁, hu, Fin.isValue, BEq.rfl, Bool.true_eq_false, ↓reduceDIte]
 
 theorem c₁_inv {U} (c₁ : U → Bool) (c₂ : {u // c₁ u = false} → Bool)
 : d_to_c₁ (c₁₂_to_d c₁ c₂) = c₁ := by
   funext u; by_cases h₁ : c₁ u = false
-  . by_cases h₂ : c₂ ⟨u, h₁⟩ = true <;> simp [h₁, h₂, d_to_c₁, c₁₂_to_d]
-  . simp [h₁, d_to_c₁, c₁₂_to_d]
+  . by_cases h₂ : c₂ ⟨u, h₁⟩ = true
+      <;> simp only [
+            d_to_c₁, c₁₂_to_d, h₁, ↓reduceDIte, h₂, Bool.false_eq_true, ↓reduceIte, Fin.isValue,
+            Fin.reduceBEq
+          ]
+  . simp only [d_to_c₁, c₁₂_to_d, h₁, Bool.true_eq_false, ↓reduceDIte, Fin.isValue, BEq.rfl]
 
 theorem c₂_inv {U} (c₁ : U → Bool) (c₂ : {u // c₁ u = false} → Bool)
 : (fun y => d_to_c₂ (c₁₂_to_d c₁ c₂) ((deciderCast (c₁_inv c₁ c₂) false).symm y)) = c₂ := by
@@ -300,26 +376,53 @@ def Mul₃Equiv₂
         (Equiv.subtypeSubtypeEquivSubtypeExists _ _).trans
           (Equiv.subtypeEquivRight fun u => by
             constructor
-            . rintro ⟨h₁, h₂⟩; simp [h₁, h₂]
+            . rintro ⟨h₁, h₂⟩
+              simp only [c₁₂_to_d, h₁, ↓reduceDIte, h₂, Bool.false_eq_true, ↓reduceIte, Fin.isValue]
             . intro h; by_cases h₁ : c₁ u = false
-              . refine ⟨h₁, ?_⟩; by_cases h₂ : c₂ ⟨u, h₁⟩ <;> simp_all
-              . simp [h₁] at h)
+              . refine ⟨h₁, ?_⟩; by_cases h₂ : c₂ ⟨u, h₁⟩
+                . simp_all only [
+                    c₁₂_to_d, ↓reduceDIte, ↓reduceIte, Fin.isValue, Fin.one_eq_zero_iff,
+                    Nat.reduceEqDiff
+                  ]
+                . simp_all only [
+                    c₁₂_to_d, ↓reduceDIte, Bool.false_eq_true, ↓reduceIte, Fin.isValue,
+                    Bool.not_eq_true
+                  ]
+              . simp only [
+                  c₁₂_to_d, h₁, Bool.true_eq_false, ↓reduceDIte, Fin.isValue, Fin.reduceEq
+                ] at h
+          )
       exact Species.transport equiv s₁
     case s₂ =>
       have equiv : {u // c₂ u = true} ≃ {u // c₁₂_to_d c₁ c₂ u = 1} :=
         (Equiv.subtypeSubtypeEquivSubtypeExists _ _).trans
           (Equiv.subtypeEquivRight fun u => by
             constructor
-            . rintro ⟨h₁, h₂⟩; simp [h₁, h₂]
+            . rintro ⟨h₁, h₂⟩; simp only [c₁₂_to_d, h₁, ↓reduceDIte, h₂, ↓reduceIte, Fin.isValue]
             . intro h; by_cases h₁ : c₁ u = false
-              . refine ⟨h₁, ?_⟩; by_cases h₂ : c₂ ⟨u, h₁⟩ <;> simp_all
-              . simp [h₁] at h)
+              . refine ⟨h₁, ?_⟩; by_cases h₂ : c₂ ⟨u, h₁⟩
+                  <;> simp_all only [
+                        c₁₂_to_d, ↓reduceDIte, Bool.false_eq_true, ↓reduceIte, Fin.isValue,
+                        Fin.zero_eq_one_iff, Nat.reduceEqDiff
+                      ]
+              . simp only [
+                  c₁₂_to_d, h₁, Bool.true_eq_false, ↓reduceDIte, Fin.isValue, Fin.reduceEq
+                ] at h
+          )
       exact Species.transport equiv s₂
     case s₃ =>
       have equiv : {u // c₁ u = true} ≃ {u // c₁₂_to_d c₁ c₂ u = 2} :=
         Equiv.subtypeEquivRight
           (fun u => by
-            by_cases h₁ : c₁ u = false <;> simp [h₁]; by_cases h₂ : c₂ ⟨u, h₁⟩ <;> simp [h₂]
+            by_cases h₁ : c₁ u = false
+              <;> simp only [
+                    h₁, Bool.false_eq_true, Bool.true_eq_false, c₁₂_to_d, ↓reduceDIte, Fin.isValue,
+                    false_iff
+                  ]; by_cases h₂ : c₂ ⟨u, h₁⟩
+                    <;> simp only [
+                          h₂, Bool.false_eq_true, ↓reduceIte, Fin.isValue, Fin.reduceEq,
+                          not_false_eq_true
+                        ]
           )
       exact Species.transport equiv s₃
 
@@ -333,8 +436,17 @@ def Mul₃Equiv₂
         (Equiv.subtypeEquivRight
           (fun u => by
             constructor
-            · intro h; constructor <;> simp [h]
-            · rintro ⟨h₁, h₂⟩; simp at *; generalize hu : d u = x; fin_cases x <;> simp [hu] at *
+            · intro h; constructor <;> simp only [d_to_c₁, d_to_c₂, h, Fin.isValue, Fin.reduceBEq]
+            · rintro ⟨h₁, h₂⟩
+              simp only [d_to_c₂, Fin.isValue, beq_eq_false_iff_ne, ne_eq] at *
+              generalize hu : d u = x; fin_cases x
+              . simp only [Fin.zero_eta, Fin.isValue]
+              . simp only [
+                  d_to_c₁, hu, Fin.mk_one, Fin.isValue, Fin.reduceBEq, not_true_eq_false
+                ] at *
+              . simp only [
+                  d_to_c₁, hu, Fin.reduceFinMk, Fin.isValue, BEq.rfl, Bool.true_eq_false
+                ] at *
           )
         ).trans
         (Equiv.subtypeSubtypeEquivSubtypeExists _ _).symm
@@ -344,15 +456,25 @@ def Mul₃Equiv₂
         (Equiv.subtypeEquivRight
           (fun u => by
             constructor
-            . intro h; constructor <;> simp [h]
-            . rintro ⟨h₁, h₂⟩; simp at *; generalize hu : d u = x; fin_cases x <;> simp [hu] at *
+            . intro h
+              constructor <;> simp only [d_to_c₁, d_to_c₂, h, Fin.isValue, Fin.reduceBEq, BEq.refl]
+            . rintro ⟨h₁, h₂⟩; simp only [d_to_c₂, Fin.isValue, beq_iff_eq] at *
+              generalize hu : d u = x; fin_cases x
+              . simp only [
+                  d_to_c₁, hu, Fin.zero_eta, Fin.isValue, Fin.reduceBEq, Fin.zero_eq_one_iff,
+                  Nat.reduceAdd, Nat.reduceEqDiff
+                ] at *
+              . simp only [Fin.mk_one, Fin.isValue]
+              . simp only [
+                  d_to_c₁, hu, Fin.reduceFinMk, Fin.isValue, BEq.rfl, Bool.true_eq_false
+                ] at *
           )
         ).trans
         (Equiv.subtypeSubtypeEquivSubtypeExists _ _).symm
       exact Species.transport equiv s₂
     case s₃' =>
       have equiv : {u // d u = 2} ≃ {u // d_to_c₁ d u = true} :=
-        Equiv.subtypeEquivRight (fun u => by simp)
+        Equiv.subtypeEquivRight (fun u => by simp only [Fin.isValue, d_to_c₁, beq_iff_eq])
       exact Species.transport equiv s₃
 
   left_inv := by

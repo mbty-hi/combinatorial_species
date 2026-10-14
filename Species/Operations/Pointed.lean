@@ -17,8 +17,8 @@ instance instSpecies : Species (Pointed F) where
     have := Species.finite (F := F) (U := U)
     infer_instance
   transport      := fun {U V} _ _ σ x       => (σ x.1, Species.transport σ x.2)
-  id_transport   := fun {U} _ f             => by simp [Species.id_transport]; rfl
-  comp_transport := fun {U V W} _ _ _ σ τ f => by simp [Species.comp_transport]; rfl
+  id_transport   := fun {U} _ f             => by simp only [Equiv.refl_apply , id_transport  ]; rfl
+  comp_transport := fun {U V W} _ _ _ σ τ f => by simp only [Equiv.trans_apply, comp_transport]; rfl
 
 instance instComputableSpecies {F : Type → Type} [ComputableSpecies F]
 : ComputableSpecies (Pointed F) where

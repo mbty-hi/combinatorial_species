@@ -11,7 +11,7 @@ lemma egsCoeff_add (F G : Type → Type) [Species F] [Species G] (n : ℕ)
   Nat.card_sum
 
 theorem egs_add (F G : Type → Type) [Species F] [Species G] : egs (Add F G) = egs F + egs G := by
-  ext n; simp [egs, egsCoeff_add, add_div]
+  ext n; simp only [egs, egsCoeff_add, Nat.cast_add, add_div, PowerSeries.coeff_mk, map_add]
 
 end EGS
 

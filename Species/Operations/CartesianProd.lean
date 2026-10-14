@@ -31,8 +31,8 @@ instance instSpecies : Species (CartProd F G) where
     have := Species.finite (F := G) (U := U)
     infer_instance
   transport      := fun {U V} _ _ σ ⟨f, g⟩       => (transport σ f, transport σ g)
-  id_transport   := fun {U} _ ⟨f, g⟩             => by simp [id_transport]; rfl
-  comp_transport := fun {U V W} _ _ _ σ τ ⟨f, g⟩ => by simp [comp_transport]; rfl
+  id_transport   := fun {U} _ ⟨f, g⟩             => by simp only [id_transport  ]; rfl
+  comp_transport := fun {U V W} _ _ _ σ τ ⟨f, g⟩ => by simp only [comp_transport]; rfl
 
 variable {F G : Type → Type} [ComputableSpecies F] [ComputableSpecies G] {U : Type}
 

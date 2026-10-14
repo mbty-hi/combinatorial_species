@@ -50,8 +50,12 @@ abbrev holeEquiv (l : L U) : L (WithHole U) :=
 lemma finRotate_pow_val (card n : ℕ) (i : Fin card)
 : ((finRotate card ^ n) i).val = (i.val + n) % card := by
   induction n with
-  | zero      => simp [Nat.mod_eq_of_lt i.2]
-  | succ _ ih => simp [pow_succ', finRotate_apply, Fin.val_add, ih, ← add_assoc, Nat.add_mod]
+  | zero      => simp only [pow_zero, Equiv.Perm.coe_one, id_eq, add_zero, Nat.mod_eq_of_lt i.2]
+  | succ _ ih =>
+    simp only [
+      pow_succ', Equiv.Perm.coe_mul, Function.comp_apply, finRotate_apply, Fin.val_add, ih,
+      Nat.add_mod, dvd_refl, Nat.mod_mod_of_dvd, Fin.coe_ofNat_eq_mod, ← add_assoc
+    ]
 
 -- rotations of `Fin` have a single orbit
 lemma finRotate_sameCycle (card : ℕ) (x y : Fin card) : (finRotate card).SameCycle x y := by
@@ -88,7 +92,10 @@ section CWithHoleToL
 variable (c : C (WithHole U))
 
 lemma WithHole.isNone_iff_eq_bot {U} (x : WithHole U) : x.val.isNone = true ↔ x = ⊥ := by
-  obtain ⟨_ | u⟩ := x <;> simp [Bot.bot]
+  obtain ⟨_ | u⟩ := x
+  <;> simp only [
+        Option.isNone_none, Option.isNone_some, Bool.false_eq_true, Bot.bot, mk.injEq, reduceCtorEq
+      ]
 
 -- going from `x` to `⊥` via `σ` is as long as going from `⊥` to `x` via `σ⁻¹`
 lemma symm_pow_apply_eq_bot_iff {U} (σ : Equiv.Perm (WithHole U)) (m : ℕ) (x : WithHole U)
@@ -151,7 +158,14 @@ lemma exists_pow_bot (x : WithHole U) : ∃ k < cycleLength c, x = (c.1 ^ k) ⊥
 lemma distanceFromHole_lt (u : U) : distanceFromHole c (WithHole.coe u) < cycleLength c := by
   obtain ⟨k, hk, hx⟩ := exists_pow_bot c (WithHole.coe u)
   have hpos : 0 < k :=
-    Nat.pos_of_ne_zero (fun h0 => by subst h0; simp [WithHole.coe, Bot.bot] at hx)
+    Nat.pos_of_ne_zero
+      (fun h0 => by
+        subst h0
+        simp only [
+          WithHole.coe, pow_zero, Bot.bot, Equiv.Perm.coe_one, id_eq, WithHole.mk.injEq,
+          reduceCtorEq
+        ] at hx
+      )
   exact
     lt_of_le_of_lt
       (Nat.find_min'
@@ -267,7 +281,7 @@ lemma L.ext_of_symm {U} {l₁ l₂ : L U} (h : l₁.card = l₂.card)
   dsimp only at h h'; subst h
   congr 1
   have hs : e₁.symm = e₂.symm := Equiv.ext fun k => h' k k.2 k.2
-  simpa using congrArg Equiv.symm hs
+  simpa only [Equiv.symm_symm] using congrArg Equiv.symm hs
 
 lemma cycleLength_eq
   (c : C (WithHole U)) {n : ℕ}
@@ -284,14 +298,14 @@ lemma LToCWithHole_spec (l : L U) :
   (LToCWithHole_pow_period l).symm, fun k hk1 hk2 heq => by
     obtain ⟨j, rfl⟩ : ∃ j, k = j + 1 := ⟨k - 1, by omega⟩
     rw [LToCWithHole_pow_succ_bot l j (by omega)] at heq
-    simp [WithHole.coe, Bot.bot] at heq
+    simp only [Bot.bot, WithHole.coe, WithHole.mk.injEq, reduceCtorEq] at heq
 ⟩
 
 lemma LToC_CToL_pow_bot (c : C (WithHole U)) (j : ℕ) (hj : j ≤ cycleLength c)
 : ((LToCWithHole (CWithHoleToL c)).1 ^ j) ⊥ = (c.1 ^ j) ⊥ := by
   have hpos : 0 < cycleLength c := (distanceFromHole_spec c ⊥).1
   rcases j with _ | k
-  . simp
+  . simp only [pow_zero, Equiv.Perm.coe_one, id_eq]
   . rcases Nat.lt_or_ge k (cycleLength c - 1) with hk | hk
     . rw [LToCWithHole_pow_succ_bot _ k hk]
       show WithHole.coe (unwrap _ _) = _

@@ -36,7 +36,10 @@ instance instSpecies : Species Powerset where
   id_transport   := by intro _ _ f; exact Finset.map_refl
   comp_transport := by
     intro _ _ _ _ _ _ σ τ f
-    unfold Powerset at *; simp [Function.comp_def, Finset.map_map]
+    unfold Powerset at *
+    simp only [
+      Equiv.trans_toEmbedding, Function.Embedding.mk_trans_mk, Function.comp_def, Finset.map_map
+    ]
 
 instance instComputableSpecies : ComputableSpecies Powerset where
   fintype := inferInstance

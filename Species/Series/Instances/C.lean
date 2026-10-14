@@ -10,10 +10,11 @@ namespace Species
 section EGS
 
 lemma card_C_zero : Nat.card (C (Fin 0)) = 0 := by
-  simp [C]; exact Nat.card_eq_zero.2 (Or.inl ⟨fun ⟨_, ⟨x⟩⟩ => x.elim0⟩)
+  simp only [C, IsEmpty.forall_iff, and_true]
+  exact Nat.card_eq_zero.2 (Or.inl ⟨fun ⟨_, ⟨x⟩⟩ => x.elim0⟩)
 
 /-- A cycle on `n + 1` labels is functionally the same as a cycle on `n` labels plus a hole, i.e., a
-    linear order on `n` (we can view the hole as the starting point) -/
+linear order on `n` (we can view the hole as the starting point) -/
 lemma card_C_succ (n : ℕ) : Nat.card (C (Fin (n + 1))) = n.factorial := by
   have e : Fin (n + 1) ≃ WithHole (Fin n) := (finSuccEquiv n).trans WithHole.equivOption.symm
   rw [Nat.card_congr ((transportEquiv (F := C) e).trans derivCycleIsLinearOrder), card_L]
@@ -23,10 +24,14 @@ theorem egs_C : egs C = PowerSeries.mk fun n => if n = 0 then 0 else (1 : ℚ) /
   ext n
   simp only [egs, PowerSeries.coeff_mk, egsCoeff]
   rcases n with _ | n
-  · simp; rw [Fintype.card_eq_nat_card, card_C_zero]
+  · simp only [
+      Nat.card_eq_fintype_card, Nat.factorial_zero, Nat.cast_one, div_one, ↓reduceIte,
+      Nat.cast_eq_zero
+    ]
+    rw [Fintype.card_eq_nat_card, card_C_zero]
   · -- `n! / (n+1)! = 1/(n+1)`
     rw [card_C_succ, if_neg n.succ_ne_zero, Nat.factorial_succ]
-    have : (n.factorial : ℚ) ≠ 0 := Nat.cast_ne_zero.2 n.factorial_ne_zero
+    have _ : (n.factorial : ℚ) ≠ 0 := Nat.cast_ne_zero.2 n.factorial_ne_zero
     push_cast
     field_simp
 
@@ -104,7 +109,15 @@ lemma tgsCoeff_C (n : ℕ) : tgsCoeff C n = if n = 0 then 0 else 1 := by
 /-- `C̃(x) = Σ_{n ≥ 1} xⁿ = x (1 − x)⁻¹` -/
 theorem tgs_C : tgs C = PowerSeries.X * (1 - PowerSeries.X)⁻¹ := by
   rw [← mk_one_eq_inv]; ext n
-  cases n <;> simp [tgs, tgsCoeff_C, PowerSeries.coeff_succ_X_mul, PowerSeries.coeff_zero_X_mul]
+  cases n
+  . simp only [
+      tgs, tgsCoeff_C, Nat.cast_ite, CharP.cast_eq_zero, Nat.cast_one, PowerSeries.coeff_mk,
+      ↓reduceIte, PowerSeries.coeff_zero_X_mul
+    ]
+  . simp only [
+      tgs, tgsCoeff_C, Nat.cast_ite, CharP.cast_eq_zero, Nat.cast_one, PowerSeries.coeff_mk,
+      Nat.add_eq_zero_iff, one_ne_zero, and_false, ↓reduceIte, PowerSeries.coeff_succ_X_mul
+    ]
 
 end TGS
 

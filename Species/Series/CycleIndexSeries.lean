@@ -92,7 +92,8 @@ def cisCoeff (n : ℕ) (μ : Multiset ℕ) : ℕ :=
 section Correctness
 
 lemma fixCount_eq (σ : Equiv.Perm U) : fixCount σ = Species.fixCount σ := by
-  unfold fixCount Species.fixCount Species.fixSet; simp; rfl
+  unfold fixCount Species.fixCount Species.fixSet
+  simp only [Nat.card_eq_fintype_card, Fintype.card_ofFinset, Function.mem_fixedPoints]; rfl
 
 section cycleTypeToCyclesCorrespondence
 
@@ -193,7 +194,9 @@ lemma card_class (σ : Equiv.Perm U) (x : U) :
   . -- moved point: its class is the support of `cycleOf x`
     have hsupp : {u | σ.SameCycle x u} = ↑(σ.cycleOf x).support := by
       ext u; rw [Finset.mem_coe, Equiv.Perm.mem_support_cycleOf_iff];
-      simp [Equiv.Perm.mem_support, hfix]
+      simp only [
+        Set.mem_ofPred_eq, Equiv.Perm.mem_support, ne_eq, hfix, not_false_eq_true, and_true
+      ]
     rw [hsupp, Nat.card_coe_set_eq, Set.ncard_coe_finset]
 
 /-- The class of a fixpoint has length 1 -/
@@ -264,13 +267,18 @@ lemma coeff_sum_monomials (s : Multiset (ℕ × Multiset ℕ)) (μ : Multiset �
   = ((s.filter (fun x => x.2 = μ)).map (fun x => x.1)).sum
 := by
   induction s using Multiset.induction_on with
-  | empty => simp
+  | empty =>
+    simp only [
+      Multiset.map_zero, Multiset.sum_zero, MvPolynomial.coeff_zero, Multiset.filter_zero
+    ]
   | cons t s ih =>
     rw [
       Multiset.map_cons, Multiset.sum_cons, MvPolynomial.coeff_add, ih, MvPolynomial.coeff_monomial,
       Multiset.filter_cons
     ]
-    by_cases h : t.2 = μ <;> simp [h, EmbeddingLike.apply_eq_iff_eq]
+    by_cases h : t.2 = μ
+    . simp only [h, ↓reduceIte, Multiset.singleton_add, Multiset.map_cons, Multiset.sum_cons]
+    . simp only [EmbeddingLike.apply_eq_iff_eq, h, ↓reduceIte, zero_add]
 
 lemma cisCoeff_eq (n : ℕ) (μ : Multiset ℕ) : cisCoeff F n μ = Species.cisCoeff F n μ := by
   unfold cisCoeff Species.cisCoeff

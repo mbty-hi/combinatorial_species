@@ -15,7 +15,7 @@ def addZero : (Add F Zero) U ≃ F U where
     | .inr x => nomatch x
   invFun    := .inl
   left_inv  := by rintro (_ | x); rfl; nomatch x
-  right_inv := by simp [Function.RightInverse, Function.LeftInverse]
+  right_inv := by simp only [Function.RightInverse, Function.LeftInverse, implies_true]
 
 def zeroAdd : (Add Zero F) U ≃ F U where
   toFun
@@ -23,7 +23,7 @@ def zeroAdd : (Add Zero F) U ≃ F U where
     | .inr x => x
   invFun    := .inr
   left_inv  := by rintro (x | _); nomatch x; rfl
-  right_inv := by simp [Function.RightInverse, Function.LeftInverse]
+  right_inv := by simp only [Function.RightInverse, Function.LeftInverse, implies_true]
 
 def addAssoc : (Add (Add F G) H) U ≃ (Add F (Add G H)) U where
   toFun := by

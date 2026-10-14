@@ -30,10 +30,11 @@ def coe (u : U) : WithHole U := ⟨some u⟩
 instance instLinearOrder [LinearOrder U] : LinearOrder (WithHole U) :=
   LinearOrder.lift' (β := WithBot U)
     (fun x => (x.val : WithBot U))
-    (fun ⟨val_a⟩ ⟨val_b⟩ h => by simp at *; assumption)
+    (fun ⟨val_a⟩ ⟨val_b⟩ h => by simp only [mk.injEq] at *; assumption)
 
 instance instFinite [Finite U] : Finite (WithHole U) :=
-  Finite.of_injective WithHole.val (fun ⟨val_a⟩ ⟨val_b⟩ h => by simp at *; assumption)
+  Finite.of_injective
+    WithHole.val (fun ⟨val_a⟩ ⟨val_b⟩ h => by simp only [mk.injEq] at *; assumption)
 
 instance instFintype [Fintype U] : Fintype (WithHole U) :=
   Fintype.ofEquiv (Option U) equivOption.symm
@@ -41,8 +42,10 @@ instance instFintype [Fintype U] : Fintype (WithHole U) :=
 def transport (σ : U ≃ V) : WithHole U ≃ WithHole V where
   toFun  x  := ⟨x.val.map σ⟩
   invFun x  := ⟨x.val.map σ.symm⟩
-  left_inv  := by rintro ⟨_ | u⟩ <;> simp
-  right_inv := by rintro ⟨_ | u⟩ <;> simp
+  left_inv  := by
+    rintro ⟨_ | u⟩ <;> simp only [Option.map_none, Option.map_some, Equiv.symm_apply_apply]
+  right_inv := by
+    rintro ⟨_ | u⟩ <;> simp only [Option.map_none, Option.map_some, Equiv.apply_symm_apply]
 
 @[simp] theorem transport_refl : transport (Equiv.refl U) = Equiv.refl (WithHole U) :=
   Equiv.ext fun x => by cases x with | mk val => cases val <;> rfl
@@ -86,9 +89,11 @@ instance instSpecies : Species (Deriv F) where
     intros U _; unfold Deriv
     have := Species.finite (F := F) (U := WithHole U)
     infer_instance
-  transport      := fun {U V} _ _ σ         => Species.transport (F := F) (WithHole.transport σ)
-  id_transport   := fun {U} _ f             => by unfold Deriv at *; simp [Species.id_transport]
-  comp_transport := fun {U V W} _ _ _ σ τ f => by unfold Deriv at *; simp [Species.comp_transport]
+  transport      := fun {U V} _ _ σ => Species.transport (F := F) (WithHole.transport σ)
+  id_transport   := fun {U} _ f => by
+    unfold Deriv at *; simp only [WithHole.transport_refl, id_transport]
+  comp_transport := fun {U V W} _ _ _ σ τ f => by
+    unfold Deriv at *; simp only [WithHole.transport_trans, comp_transport]
 
 instance instComputableSpecies {F : Type → Type} [ComputableSpecies F]
 : ComputableSpecies (Deriv F) where

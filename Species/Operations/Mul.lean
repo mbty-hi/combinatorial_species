@@ -22,7 +22,7 @@ abbrev transportSplit {U V : Type} (σ : U ≃ V) (split : U → Bool) : V → B
 /- There is a bijection between blocks before and after transport. -/
 def blockEquiv {U V} (σ : U ≃ V) (split : U → Bool) (b : Bool)
 : {u // split u = b} ≃ {v // transportSplit σ split v = b} :=
-  σ.subtypeEquiv (fun u => by simp [Equiv.symm_apply_apply])
+  σ.subtypeEquiv (fun u => by simp only [Function.comp_apply, Equiv.symm_apply_apply])
 
 /- Species instance -/
 instance instSpecies : Species (Mul F G) where
@@ -40,9 +40,15 @@ instance instSpecies : Species (Mul F G) where
     Species.transport (blockEquiv σ split true) g_struct
   ⟩
   id_transport := by
-    rintro U _ ⟨d, f, g⟩; simp [Equiv.refl_symm]
+    rintro U _ ⟨d, f, g⟩; simp only [Function.comp_apply, Equiv.refl_symm, Equiv.refl_apply]
     refine Sigma.ext rfl (heq_of_eq ?_)
-    ext <;> simp [blockEquiv, Equiv.subtypeEquiv] <;> apply Species.id_transport
+    ext
+    . simp only [
+        blockEquiv, Equiv.subtypeEquiv, Function.comp_apply, Equiv.refl_symm, Equiv.refl_apply,
+        Subtype.coe_eta
+      ]; apply Species.id_transport
+    . simp only [blockEquiv, Equiv.subtypeEquiv, Function.comp_apply, Equiv.refl_symm,
+      Equiv.refl_apply, Subtype.coe_eta]; apply Species.id_transport
   comp_transport := by
     rintro U V W _ _ _ σ τ ⟨d, f, g⟩
     refine Sigma.ext rfl (heq_of_eq ?_)
@@ -86,7 +92,8 @@ def rankOf {α : Type} [Fintype α] [LinearOrder α] (y : α) : ℕ :=
 lemma rankOf_inj {α} [Fintype α] [LinearOrder α]
 : Function.Injective (rankOf (α := α)) := by
   intro a b h
-  have ha : a ∈ (Finset.univ : Finset α).sort (· ≤ ·) := by simp
+  have ha : a ∈ (Finset.univ : Finset α).sort (· ≤ ·) := by
+    simp only [Finset.mem_sort, Finset.mem_univ]
   exact (List.idxOf_inj ha).mp h
 
 -- We order the components our species according to the labels assigned to the false block and the
@@ -102,11 +109,13 @@ lemma false_block_contents_determines_split {split₁ split₂ : U → Bool}
 : split₁ = split₂ := by
   have hset : Finset.univ.filter (split₁ · = false) = Finset.univ.filter (split₂ · = false) := by
     have := congrArg List.toFinset h
-    simpa [Finset.sort_toFinset] using this
+    simpa only [Finset.sort_toFinset] using this
   funext u
   have := Finset.ext_iff.mp hset u
   simp only [Finset.mem_filter, Finset.mem_univ, true_and] at this
-  cases hu1 : split₁ u <;> cases hu2 : split₂ u <;> simp_all
+  cases hu1 :
+    split₁ u <;> cases hu2 : split₂ u <;>
+    simp_all only [Bool.true_eq_false, iff_false, not_true_eq_false]
 
 lemma mulKey_inj : Function.Injective (mulKey (F := F) (G := G) (U := U)) := by
   rintro ⟨d₁, f₁, g₁⟩ ⟨d₂, f₂, g₂⟩ h

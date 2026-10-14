@@ -41,7 +41,7 @@ def map (s : DecSetoid U) (σ : U ≃ V) : DecSetoid V where
 def quotEquiv (s : DecSetoid U) (σ : U ≃ V)
 : Quotient s.toSetoid ≃ Quotient (s.map σ).toSetoid := by
   apply Quotient.congr σ; intro x y
-  unfold toSetoid map; simp
+  unfold toSetoid map; simp only [Equiv.symm_apply_apply]
 
 /- `s.quotEquiv` at `Equiv.refl` is just the identity equiv (i.e., remapping along `Equiv.refl`
    leaves the `DecSetoid` unchanged). -/
@@ -59,11 +59,15 @@ where
   toFun := by
     rintro ⟨block_rep, hblock_rep⟩; constructor
     case val      => exact σ block_rep
-    case property => have h := congrArg (s.quotEquiv σ) hblock_rep; simp [quotEquiv] at h; exact h
+    case property =>
+      have h := congrArg (s.quotEquiv σ) hblock_rep
+      simp only [quotEquiv, Quotient.congr_mk, Equiv.apply_symm_apply] at h; exact h
   invFun := by
     rintro ⟨block_rep, hblock_rep⟩; constructor
     case val      => exact σ.symm block_rep
-    case property => subst block; apply (s.quotEquiv σ).injective; simp [quotEquiv]
+    case property =>
+      subst block; apply (s.quotEquiv σ).injective
+      simp only [quotEquiv, Quotient.congr_mk, Equiv.apply_symm_apply]
   left_inv  := fun ⟨block, _⟩ => Subtype.ext (σ.symm_apply_apply block)
   right_inv := fun ⟨block, _⟩ => Subtype.ext (σ.apply_symm_apply block)
 
@@ -86,7 +90,7 @@ def blockFinset (s : DecSetoid U) (block : Quotient s.toSetoid) : Finset U :=
 theorem blockFinset_nonempty (s : DecSetoid U) (block : Quotient s.toSetoid)
 : (s.blockFinset block).Nonempty := by
   obtain ⟨x, rfl⟩ := Quotient.exists_rep block
-  exact ⟨x, by simp [blockFinset]⟩
+  exact ⟨x, by simp only [blockFinset, Finset.mem_filter, Finset.mem_univ, and_self]⟩
 
 -- Get the minimum item of a given block according to `U`'s order.
 def blockMin (s : DecSetoid U) (block : Quotient s.toSetoid) : U :=
@@ -96,7 +100,7 @@ def blockMin (s : DecSetoid U) (block : Quotient s.toSetoid) : U :=
 theorem blockMin_mk (s : DecSetoid U) (block : Quotient s.toSetoid)
 : Quotient.mk s.toSetoid (s.blockMin block) = block := by
   have h := Finset.min'_mem (s.blockFinset block) (s.blockFinset_nonempty block)
-  simp [blockFinset] at h; exact h
+  simp only [blockFinset, Finset.mem_filter, Finset.mem_univ, true_and] at h; exact h
 
 theorem blockMin_injective (s : DecSetoid U) : Function.Injective s.blockMin := by
   intros block₁ block₂ h
@@ -114,7 +118,10 @@ def explicit_mapping (s : DecSetoid U) : List (List Bool) :=
 
 -- That mapping is injective.
 theorem explicit_mapping_injective : Function.Injective (explicit_mapping (U := U)) := by
-  intro ⟨sd, seq⟩ ⟨td, teq⟩ h; simp [explicit_mapping] at *
+  intro ⟨sd, seq⟩ ⟨td, teq⟩ h
+  simp only [
+    explicit_mapping, List.map_inj_left, Finset.mem_sort, Finset.mem_univ, forall_const, mk.injEq
+  ] at *
   funext a a'; exact h a a'
 
 -- We also need an order for comparing different `DecSetoid`s in addition to the one for blocks.
@@ -154,7 +161,7 @@ theorem comp_transport (σ : U ≃ V) (τ : V ≃ W) (c : Composition F G U)
   simp only [transport, Function.comp_apply, Composition.mk.injEq]
   refine ⟨rfl, ?_, ?_⟩
   . apply heq_of_eq
-    have foo := Species.comp_transport (p.quotEquiv σ) ((p.map σ).quotEquiv τ) o; simp [← foo]
+    have foo := Species.comp_transport (p.quotEquiv σ) ((p.map σ).quotEquiv τ) o; simp only [← foo]
     congr; ext ⟨q⟩; rfl
   . apply heq_of_eq
     apply (funext fun b => ?_)
@@ -175,11 +182,12 @@ where
 
 -- Required for `Finite.of_equiv`.
 instance instFiniteDecSetoid {U : Type} [Finite U] : Finite (DecSetoid U) :=
-  Finite.of_injective (fun s => s.d) (fun s₁ s₂ h => by cases s₁; cases s₂; simpa using h)
+  Finite.of_injective
+    (fun s => s.d) (fun s₁ s₂ h => by cases s₁; cases s₂; simpa only [DecSetoid.mk.injEq] using h)
 
 example {U : Type} [Finite U] (s : DecSetoid U) : True := by
-  have h1 : Finite (Quotient s.toSetoid) := by infer_instance
-  have h2 : Finite (F (Quotient s.toSetoid)) := by infer_instance
+  have h1 : Finite (Quotient s.toSetoid)                            := by infer_instance
+  have h2 : Finite (F (Quotient s.toSetoid))                        := by infer_instance
   have h3 : Finite ((b : Quotient s.toSetoid) → G { x // ⟦x⟧ = b }) := by infer_instance
   trivial
 
@@ -271,9 +279,14 @@ def toKey (c : Composition F G U) : @Key F G U :=
 
 lemma toKey_inj : Function.Injective (@toKey F G U _) := by
   rintro ⟨p₁, o₁, i₁⟩ ⟨p₂, o₂, i₂⟩ h
-  simp [toKey] at h; obtain ⟨peq, oeq⟩ := h; subst peq
-  simp [heq_eq_eq] at oeq; obtain ⟨oeq, ieq⟩ := oeq; subst oeq; simp
-  ext ⟨x⟩; exact ieq x
+  simp only [toKey, EmbeddingLike.apply_eq_iff_eq, Sigma.mk.injEq] at h; obtain ⟨peq, oeq⟩ := h
+  subst peq
+  simp only [
+    heq_eq_eq, EmbeddingLike.apply_eq_iff_eq, Prod.mk.injEq, List.map_inj_left,
+    Finset.mem_sort, Finset.mem_image, Finset.mem_univ, true_and, Sigma.mk.injEq,
+    forall_exists_index, forall_apply_eq_imp_iff
+  ] at oeq
+  obtain ⟨oeq, ieq⟩ := oeq; subst oeq; simp; ext ⟨x⟩; exact ieq x
 
 instance instLinearOrderComposition
   [∀ s : DecSetoid U, LinearOrder (F (Quotient s.toSetoid))]
@@ -293,7 +306,7 @@ def Composition.quotientEquivBlockLabel (c : Composition F G U)
   toFun q    := ⟨⟨q, c.inner q⟩, rfl⟩
   invFun p   := p.1.1
   left_inv _ := rfl
-  right_inv  := by rintro ⟨⟨q, g⟩, h⟩; simp at h; subst h; rfl
+  right_inv  := by rintro ⟨⟨q, g⟩, h⟩; simp only at h; subst h; rfl
 
 instance instReprBlockLabel
   [Repr U] (s : DecSetoid U) (inner : ∀ q : Quotient s.toSetoid, F {x // ⟦x⟧ = q})
@@ -307,7 +320,7 @@ instance instLinearOrderBlockLabel
 : LinearOrder (BlockLabel s inner) :=
   LinearOrder.lift'
     (fun p => p.1.1)
-    (by rintro ⟨⟨q, g⟩, h⟩ ⟨⟨q', g'⟩, h'⟩ q_eq; dsimp at h h'; subst_vars; rfl)
+    (by rintro ⟨⟨q, g⟩, h⟩ ⟨⟨q', g'⟩, h'⟩ q_eq; dsimp only at h h'; subst_vars; rfl)
 
 instance instReprComposition
   [Repr U] [Species F] [Species G]

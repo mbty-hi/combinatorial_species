@@ -30,9 +30,11 @@ instance instSpecies : Species (Add F G) where
     have := Species.finite (F := F) (U := U)
     have := Species.finite (F := G) (U := U)
     infer_instance
-  transport      := fun {U V} _ _ σ         => Sum.map (transport σ) (transport σ)
-  id_transport   := fun {U} _ f             => by cases f <;> simp [Species.id_transport]   <;> rfl
-  comp_transport := fun {U V W} _ _ _ σ τ f => by cases f <;> simp [Species.comp_transport] <;> rfl
+  transport      := fun {U V} _ _ σ => Sum.map (transport σ) (transport σ)
+  id_transport   := fun {U} _ f => by
+    cases f <;> simp only [Sum.map_inl, Sum.map_inr, id_transport] <;> rfl
+  comp_transport := fun {U V W} _ _ _ σ τ f => by
+    cases f <;> simp only [Sum.map_inl, Sum.map_inr, comp_transport] <;> rfl
 
 instance instComputableSpecies {F G : Type → Type} [ComputableSpecies F] [ComputableSpecies G]
 : ComputableSpecies (Add F G) where

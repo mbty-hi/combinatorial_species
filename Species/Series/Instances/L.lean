@@ -17,14 +17,16 @@ noncomputable def equivEquiv (U : Type) [Finite U] : L U ≃ (U ≃ Fin (Nat.car
   invFun e := ⟨_, e⟩
   left_inv := fun ⟨n, e⟩ => by
     have h : n = Nat.card U := by rw [Nat.card_congr e, Nat.card_fin]
-    subst h; simp
-  right_inv e := by simp
+    subst h; simp only [finCongr_refl, Equiv.trans_refl]
+  right_inv e := by simp only [finCongr_refl, Equiv.trans_refl]
 
 lemma card_L (n : ℕ) : Nat.card (L (Fin n)) = n.factorial := by
-  simp; rw [Fintype.card_congr (equivEquiv _)]; simp [Fintype.card_perm]
+  simp only [Nat.card_eq_fintype_card]; rw [Fintype.card_congr (equivEquiv _)]
+  simp only [Nat.card_eq_fintype_card, Fintype.card_fin, Fintype.card_perm]
 
 theorem egs_L : egs L = PowerSeries.mk (fun _ => 1) := by
-  ext n; simp only [egs, PowerSeries.coeff_mk, egsCoeff, card_L]; simp
+  ext n; simp only [egs, PowerSeries.coeff_mk, egsCoeff, card_L]
+  simp only [div_self_eq_one₀, ne_eq, Nat.cast_eq_zero]
   apply n.factorial_ne_zero
 
 end EGS
@@ -41,7 +43,8 @@ lemma L_transitive {U : Type} [Finite U] (l₁ l₂ : L U)
   obtain rfl : c₁ = c₂ := (L.card_eq ⟨c₁, e₁⟩).trans (L.card_eq ⟨c₂, e₂⟩).symm
   refine ⟨e₁.trans e₂.symm, ?_⟩
   show L.mk _ ((e₁.trans e₂.symm).symm.trans e₁) = ⟨_, e₂⟩
-  congr 1; ext x; simp
+  congr 1; ext x
+  simp only [Equiv.symm_trans, Equiv.symm_symm, Equiv.trans_apply, Equiv.apply_symm_apply]
 
 instance (n : ℕ) : MulAction.IsPretransitive (Equiv.Perm (Fin n)) (L (Fin n)) :=
   ⟨fun l₁ l₂ => L_transitive l₁ l₂⟩
@@ -54,7 +57,7 @@ lemma tgsCoeff_L (n : ℕ) : tgsCoeff L n = 1 := by
   exact Nat.card_of_subsingleton ⟦⟨n, Equiv.refl _⟩⟧
 
 theorem tgs_L : tgs L = PowerSeries.mk (fun _ => 1) := by
-  ext n; simp [tgs, PowerSeries.coeff_mk, tgsCoeff_L]
+  ext n; simp only [tgs, tgsCoeff_L, Nat.cast_one, PowerSeries.coeff_mk]
 
 end TGS
 

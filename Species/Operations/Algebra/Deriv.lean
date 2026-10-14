@@ -15,10 +15,12 @@ variable [Species F] [Species G]
 def innerOptionEquiv {U : Type} {d : WithHole U → Bool} {b: Bool} (h : d ⟨none⟩ = b)
 : { u // d u = !b } ≃ { u : U // d (⟨some u⟩) = !b } where
   toFun
-    | ⟨⟨none⟩, hu⟩   => by rw [h] at hu; simp at *
+    | ⟨⟨none⟩, hu⟩   => by rw [h] at hu; simp only [Bool.eq_not_self] at *
     | ⟨⟨some u⟩, hu⟩ => ⟨u, hu⟩
-  invFun x    := ⟨⟨some x.1⟩, x.2⟩
-  left_inv    := by rintro ⟨(_ | u), hu⟩ <;> simp; rw [h] at hu; simp at *
+  invFun x := ⟨⟨some x.1⟩, x.2⟩
+  left_inv := by
+    rintro ⟨(_ | u), hu⟩ <;> simp only [Subtype.mk.injEq, WithHole.mk.injEq, reduceCtorEq]
+    rw [h] at hu; simp only [Bool.eq_not_self] at *
   right_inv _ := by rfl
 
 def outerOptionEquiv {U : Type} {d : WithHole U → Bool} {b: Bool} (h : d ⟨none⟩ = b)
@@ -77,32 +79,39 @@ def leibnizMul : Deriv (Mul F G) U ≃ Add (Mul (Deriv F) G) (Mul F (Deriv G)) U
         transportEquiv (outerOptionEquiv (b := true) (by rfl)).symm g
       ⟩
 
-  -- TODO terrubly ugly, much duplication, cleanup
+  -- TODO terribly ugly, much duplication, cleanup
   left_inv := by
-    rintro ⟨d, f, g⟩; simp; split
+    rintro ⟨d, f, g⟩; simp only [transportEquiv_apply]; split
     . next x d' f' g' heq =>
       split at heq
       . contradiction
       . injection heq with val_eq
         have h: (fun u => match u with | ⟨none⟩ => false | ⟨some u⟩ => d' u) = d := by
-          ext ⟨_ | u⟩ <;> simp
+          ext ⟨_ | u⟩ <;> simp only [Bool.false_eq]
           . assumption
-          . obtain ⟨⟩ := val_eq; simp -- somehow this works?
+          . obtain ⟨⟩ := val_eq; simp only -- somehow this works?
         congr
-        . simp [← h]
-        . simp [← h]
+        . simp only [← h]
+        . simp only [← h]
         . next val =>
           injection val_eq        with hd hfg; subst hd
           injection eq_of_heq hfg with hf hg ; subst hf
-          simp [transport_transport]
+          simp only [transportEquiv_apply, transport_transport]
           refine transport_heq ?_ _ ?_ f
           · exact congrArg (fun e => { u // e u = false }) h.symm
           . rintro ⟨⟨u⟩ , hu⟩
-            cases u <;> simp [outerOptionEquiv]
+            cases u
+              <;> simp only [outerOptionEquiv, Equiv.symm_mk, Equiv.trans_apply, Equiv.coe_fn_mk]
             . congr
-              . funext u; simp; rw [← h]
+              . funext u
+                simp only [
+                  eq_iff_iff, Bool.coe_false_iff_false, Bool.not_eq_eq_eq_not, Bool.not_not
+                ]
+                rw [← h]
               . exact proof_irrel_heq _ _
-            . congr; funext u; simp; rw [← h]
+            . congr; funext u
+              simp only [eq_iff_iff, Bool.coe_false_iff_false, Bool.not_eq_eq_eq_not, Bool.not_not]
+              rw [← h]
         . next val =>
           injection val_eq        with hd hfg; subst hd
           injection eq_of_heq hfg with hf hg ; subst hg
@@ -110,48 +119,59 @@ def leibnizMul : Deriv (Mul F G) U ≃ Add (Mul (Deriv F) G) (Mul F (Deriv G)) U
           refine transport_heq ?_ _ ?_ g
           · exact congrArg (fun e => { u // e u = true }) h.symm
           . rintro ⟨⟨u⟩, hu⟩
-            cases u <;> simp [innerOptionEquiv]
-            . simp [val] at hu
-            . congr; simp; funext u; simp
+            cases u
+              <;> simp only [innerOptionEquiv, Equiv.symm_mk, Equiv.trans_apply, Equiv.coe_fn_mk]
+            . simp only [val, Bool.false_eq_true] at hu
+            . congr; simp only [Bool.not_false]; funext u; simp only [eq_iff_iff, Bool.coe_iff_coe]
               have x := congrFun h u
               exact x
     . next x d' f' g' heq =>
       split at heq
       . injection heq with val_eq
         have h: (fun u => match u with | ⟨none⟩ => true | ⟨some u⟩ => d' u) = d := by
-          ext ⟨⟨x⟩⟩ <;> simp
+          ext ⟨⟨x⟩⟩ <;> simp only [Bool.true_eq]
           . assumption
-          . obtain ⟨⟩ := val_eq; simp -- somehow this works?
+          . obtain ⟨⟩ := val_eq; simp only -- somehow this works?
         congr
-        . simp [← h]
-        . simp [← h]
+        . simp only [← h]
+        . simp only [← h]
         . next val =>
           injection val_eq        with hd hfg; subst hd
           injection eq_of_heq hfg with hf hg ; subst hf
           rw [transport_transport]
           refine transport_heq ?_ _ ?_ f
           · exact congrArg (fun e => { u // e u = false }) h.symm
-          . rintro ⟨⟨u⟩, hu⟩; cases u <;> simp [innerOptionEquiv]
-            . simp [val] at hu
-            . congr; funext u; simp; rw [← h]
+          . rintro ⟨⟨u⟩, hu⟩
+            cases u
+              <;> simp only [innerOptionEquiv, Equiv.symm_mk, Equiv.trans_apply, Equiv.coe_fn_mk]
+            . simp only [val, Bool.true_eq_false] at hu
+            . congr; funext u
+              simp only [
+                Bool.not_true, eq_iff_iff, Bool.coe_false_iff_false, Bool.not_eq_eq_eq_not,
+                Bool.not_not
+              ]
+              rw [← h]
         . next val =>
           injection val_eq        with hd hfg; subst hd
           injection eq_of_heq hfg with hf hg ; subst hg
-          simp [transport_transport]
+          simp only [transportEquiv_apply, transport_transport]
           refine transport_heq ?_ _ ?_ g
           · exact congrArg (fun e => { u // e u = true }) h.symm
           . rintro ⟨⟨u⟩, hu⟩
-            cases u <;> simp [outerOptionEquiv]
+            cases u
+              <;> simp only [outerOptionEquiv, Equiv.symm_mk, Equiv.trans_apply, Equiv.coe_fn_mk]
             . congr
-              . funext u; simp; rw [← h]
+              . funext u; simp only [eq_iff_iff, Bool.coe_iff_coe]; rw [← h]
               . exact proof_irrel_heq _ _
-            . congr; funext u; simp; rw [← h]
+            . congr; funext u; simp only [eq_iff_iff, Bool.coe_iff_coe]; rw [← h]
       . contradiction
 
   right_inv := by
     rintro (⟨d, f, g⟩ | ⟨d, f, g⟩)
     <;> unfold Deriv at *
-    <;> simp [transportEquiv, transport_transport, id_transport, Equiv.symm_trans_self]
+    <;> simp only [
+          transportEquiv, Equiv.symm_symm, Equiv.coe_fn_mk, transport_transport,
+      Equiv.symm_trans_self, id_transport]
     <;> congr
 
 end Species
