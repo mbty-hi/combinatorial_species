@@ -32,7 +32,7 @@ structure Iso (F G : Type → Type) [Species F] [Species G] where
        ▼     αᵥ     ▼
       F[V] ─────► G[V]
   -/
-  natural {U V : Type} [Finite U] [Finite V] (σ : U ≃ V) (fu : F U) :
+  naturality {U V : Type} [Finite U] [Finite V] (σ : U ≃ V) (fu : F U) :
     equiv V (transport σ fu) = transport σ (equiv U fu)
 
 namespace Iso
@@ -41,22 +41,22 @@ variable {F G H : Type → Type} [Species F] [Species G] [Species H]
 
 /-- The identity isomorphism (reflexivity of isomorphism). -/
 def refl (F : Type → Type) [Species F] : Iso F F where
-  equiv   _   := Equiv.refl _
-  natural _ _ := rfl
+  equiv      _   := Equiv.refl _
+  naturality _ _ := rfl
 
 /-- The inverse isomorphism (symmetry of isomorphism). -/
 def symm (iso : Iso F G) : Iso G F where
   equiv   U    := (iso.equiv U).symm
-  natural σ gu := by
+  naturality σ gu := by
     rw [Equiv.symm_apply_eq]    -- transport = equiv ∘ transport ∘ equiv⁻¹
-    rw [iso.natural]            -- use equiv ∘ transport = transport ∘ equiv:
+    rw [iso.naturality]         -- use equiv ∘ transport = transport ∘ equiv:
                                 -- transport = transport ∘ equiv ∘ equiv⁻¹
     rw [Equiv.apply_symm_apply] -- use equiv ∘ equiv⁻¹ = id
 
 /-- The composite isomorphism (transitivity of isomorphism). -/
 def trans (iso₁ : Iso F G) (iso₂ : Iso G H) : Iso F H where
-  equiv   U    := (iso₁.equiv U).trans (iso₂.equiv U)
-  natural σ fu := by simp only [Equiv.trans_apply]; rw [iso₁.natural, iso₂.natural]
+  equiv      U    := (iso₁.equiv U).trans (iso₂.equiv U)
+  naturality σ fu := by simp only [Equiv.trans_apply]; rw [iso₁.naturality, iso₂.naturality]
 
 end Iso
 

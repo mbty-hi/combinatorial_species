@@ -13,7 +13,7 @@ def deriv_E_bij {U: Type} [Finite U] : Deriv E U ≃ E U where
   left_inv    := by unfold Species.Deriv; intro x; simp
 
 def deriv_E_iso {U: Type} [Finite U] : Iso (Deriv E) E where
-  equiv _     := deriv_E_bij
-  natural _ _ := rfl
+  equiv      _   := deriv_E_bij
+  naturality _ _ := rfl
 
 end Species

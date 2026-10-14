@@ -172,9 +172,6 @@ Building concrete F-structures and some sanity checks.
 * Graphs: simple graphs, connected simple graphs, directed graphs
 * Trees: trees and rooted trees (well, related to graphs)
 
-### Improve bridge to category theory
-The current one is a bit barebones.
-
 ### More identities
 * S \equiv E(C)
 * Ballots as linear orders of non empty sets
