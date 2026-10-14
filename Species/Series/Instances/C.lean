@@ -110,11 +110,11 @@ lemma tgsCoeff_C (n : ℕ) : tgsCoeff C n = if n = 0 then 0 else 1 := by
 theorem tgs_C : tgs C = PowerSeries.X * (1 - PowerSeries.X)⁻¹ := by
   rw [← mk_one_eq_inv]; ext n
   cases n
-  . simp only [
+  · simp only [
       tgs, tgsCoeff_C, Nat.cast_ite, CharP.cast_eq_zero, Nat.cast_one, PowerSeries.coeff_mk,
       ↓reduceIte, PowerSeries.coeff_zero_X_mul
     ]
-  . simp only [
+  · simp only [
       tgs, tgsCoeff_C, Nat.cast_ite, CharP.cast_eq_zero, Nat.cast_one, PowerSeries.coeff_mk,
       Nat.add_eq_zero_iff, one_ne_zero, and_false, ↓reduceIte, PowerSeries.coeff_succ_X_mul
     ]

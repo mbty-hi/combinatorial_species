@@ -8,8 +8,8 @@ section EGS
 
 lemma card_One (n : ℕ) : Nat.card (One (Fin n)) = if n = 0 then 1 else 0 := by
   simp only [One]; cases n
-  . simp only [Nat.card_eq_fintype_card, Fintype.card_unique, ↓reduceIte]
-  . simp only [
+  · simp only [Nat.card_eq_fintype_card, Fintype.card_unique, ↓reduceIte]
+  · simp only [
       Nat.card_eq_fintype_card, Fintype.card_eq_zero,
       Nat.add_eq_zero_iff, one_ne_zero, and_false, ↓reduceIte
     ]
@@ -26,8 +26,8 @@ section TGS
 
 lemma tgsCoeff_One (n : ℕ) : tgsCoeff One n = if n = 0 then 1 else 0 := by
   simp only [tgsCoeff, One]; cases n
-  . simp only [Nat.card_eq_fintype_card, Fintype.card_unique, ↓reduceIte]
-  . simp only [Nat.card_of_isEmpty, Nat.add_eq_zero_iff, one_ne_zero, and_false, ↓reduceIte]
+  · simp only [Nat.card_eq_fintype_card, Fintype.card_unique, ↓reduceIte]
+  · simp only [Nat.card_of_isEmpty, Nat.add_eq_zero_iff, one_ne_zero, and_false, ↓reduceIte]
 
 theorem tgs_One : tgs One = 1 := by
   ext n; simp only [tgs, tgsCoeff_One]

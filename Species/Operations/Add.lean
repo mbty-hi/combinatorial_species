@@ -27,8 +27,8 @@ instance instSpecies : Species (Add F G) where
   finite := by
     intros U _; unfold Add
     /- Surface some instances -/
-    have := Species.finite (F := F) (U := U)
-    have := Species.finite (F := G) (U := U)
+    have _ := Species.finite (F := F) (U := U)
+    have _ := Species.finite (F := G) (U := U)
     infer_instance
   transport      := fun {U V} _ _ σ => Sum.map (transport σ) (transport σ)
   id_transport   := fun {U} _ f => by

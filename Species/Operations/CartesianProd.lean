@@ -17,8 +17,7 @@ instance instRepr {F G : Type → Type} {U : Type} [Repr (F U)] [Repr (G U)]
 : Repr ((CartProd F G) U) :=
   inferInstanceAs (Repr (F U × G U))
 
-instance instLinearOrder
-  {F G : Type → Type} {U : Type} [LinearOrder (F U)] [LinearOrder (G U)]
+instance instLinearOrder {F G : Type → Type} {U : Type} [LinearOrder (F U)] [LinearOrder (G U)]
 : LinearOrder ((CartProd F G) U) :=
   inferInstanceAs (LinearOrder (F U ×ₗ G U))
 
@@ -27,8 +26,8 @@ instance instSpecies : Species (CartProd F G) where
   finite := by
     intros U _; unfold CartProd
     /- Surface instances -/
-    have := Species.finite (F := F) (U := U)
-    have := Species.finite (F := G) (U := U)
+    have _ := Species.finite (F := F) (U := U)
+    have _ := Species.finite (F := G) (U := U)
     infer_instance
   transport      := fun {U V} _ _ σ ⟨f, g⟩       => (transport σ f, transport σ g)
   id_transport   := fun {U} _ ⟨f, g⟩             => by simp only [id_transport  ]; rfl
@@ -41,8 +40,8 @@ instance instComputableSpecies : ComputableSpecies (CartProd F G) where
   decEq   := by
     intros U _; unfold CartProd
     /- Surface some instances -/
-    haveI := ComputableSpecies.decEq (F := F) (U := U)
-    haveI := ComputableSpecies.decEq (F := G) (U := U)
+    haveI _ := ComputableSpecies.decEq (F := F) (U := U)
+    haveI _ := ComputableSpecies.decEq (F := G) (U := U)
     infer_instance
 
 end CartProd

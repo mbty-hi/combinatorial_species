@@ -13,5 +13,5 @@ lemma mk_one_eq_inv : (PowerSeries.mk fun _ => (1 : ℚ)) = (1 - PowerSeries.X)�
   ]
   have h := PowerSeries.invUnitsSub_mul_sub (1 : ℚˣ)
   convert h using 2 <;> ext n
-  . simp only [PowerSeries.coeff_mk, PowerSeries.coeff_invUnitsSub, one_pow, divp_one]
-  . simp only [map_sub, PowerSeries.coeff_one, Units.val_one, map_one]
+  · simp only [PowerSeries.coeff_mk, PowerSeries.coeff_invUnitsSub, one_pow, divp_one]
+  · simp only [map_sub, PowerSeries.coeff_one, Units.val_one, map_one]

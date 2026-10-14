@@ -43,11 +43,11 @@ instance instSpecies : Species (Mul F G) where
     rintro U _ ⟨d, f, g⟩; simp only [Function.comp_apply, Equiv.refl_symm, Equiv.refl_apply]
     refine Sigma.ext rfl (heq_of_eq ?_)
     ext
-    . simp only [
+    · simp only [
         blockEquiv, Equiv.subtypeEquiv, Function.comp_apply, Equiv.refl_symm, Equiv.refl_apply,
         Subtype.coe_eta
       ]; apply Species.id_transport
-    . simp only [blockEquiv, Equiv.subtypeEquiv, Function.comp_apply, Equiv.refl_symm,
+    · simp only [blockEquiv, Equiv.subtypeEquiv, Function.comp_apply, Equiv.refl_symm,
       Equiv.refl_apply, Subtype.coe_eta]; apply Species.id_transport
   comp_transport := by
     rintro U V W _ _ _ σ τ ⟨d, f, g⟩
@@ -61,9 +61,9 @@ instance instComputable {F G : Type → Type} [ComputableSpecies F] [ComputableS
   decEq := by
     intros U _; unfold Mul
     /- Surface instances -/
-    haveI : ∀ d : U → Bool, DecidableEq (F {u // d u = false}) :=
+    haveI _ : ∀ d : U → Bool, DecidableEq (F {u // d u = false}) :=
       fun d => ComputableSpecies.decEq (F := F) (U := {u // d u = false})
-    haveI : ∀ d : U → Bool, DecidableEq (G {u // d u = true}) :=
+    haveI _ : ∀ d : U → Bool, DecidableEq (G {u // d u = true}) :=
       fun d => ComputableSpecies.decEq (F := G) (U := {u // d u = true})
     infer_instance
 

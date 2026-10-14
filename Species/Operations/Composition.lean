@@ -152,18 +152,18 @@ def transport (σ : U ≃ V) (c : Composition F G U) : Composition F G V where
 theorem id_transport (c : Composition F G U) : transport (Equiv.refl U) c = c := by
   obtain ⟨p, o, i⟩ := c; simp only [transport, Composition.mk.injEq]
   refine ⟨rfl, ?_, ?_⟩
-  . apply heq_of_eq; rw [DecSetoid.quotEquiv_refl]; exact Species.id_transport o
-  . apply heq_of_eq; funext b; refine Quotient.inductionOn b fun x => Species.id_transport _
+  · apply heq_of_eq; rw [DecSetoid.quotEquiv_refl]; exact Species.id_transport o
+  · apply heq_of_eq; funext b; refine Quotient.inductionOn b fun x => Species.id_transport _
 
 theorem comp_transport (σ : U ≃ V) (τ : V ≃ W) (c : Composition F G U)
 : transport (σ.trans τ) c = (transport τ ∘ transport σ) c := by
   obtain ⟨p, o, i⟩ := c
   simp only [transport, Function.comp_apply, Composition.mk.injEq]
   refine ⟨rfl, ?_, ?_⟩
-  . apply heq_of_eq
+  · apply heq_of_eq
     have foo := Species.comp_transport (p.quotEquiv σ) ((p.map σ).quotEquiv τ) o; simp only [← foo]
     congr; ext ⟨q⟩; rfl
-  . apply heq_of_eq
+  · apply heq_of_eq
     apply (funext fun b => ?_)
     refine Quotient.inductionOn b fun z => ?_
     exact Species.comp_transport
@@ -330,7 +330,7 @@ instance instReprComposition
   [∀ (s : DecSetoid U) (q : Quotient s.toSetoid), Repr (G {x // ⟦x⟧ = q})]
 : Repr (Composition F G U) where
   reprPrec c p :=
-    haveI : ∀ q : Quotient c.partition.toSetoid, Finite (G {x // ⟦x⟧ = q}) :=
+    haveI _ : ∀ q : Quotient c.partition.toSetoid, Finite (G {x // ⟦x⟧ = q}) :=
       fun _ => Species.finite
     reprPrec (Species.transport c.quotientEquivBlockLabel c.outer) p
 end Repr

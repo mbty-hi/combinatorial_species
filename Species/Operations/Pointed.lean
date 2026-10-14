@@ -25,7 +25,7 @@ instance instComputableSpecies {F : Type → Type} [ComputableSpecies F]
   fintype := fun {U} _  => show Fintype (U × F U) from inferInstance
   decEq := by
     intros U _; unfold Pointed
-    haveI := ComputableSpecies.decEq (F := F) (U := U)
+    haveI _ := ComputableSpecies.decEq (F := F) (U := U)
     infer_instance
 
 end Pointed

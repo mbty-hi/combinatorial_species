@@ -29,15 +29,15 @@ def addAssoc : (Add (Add F G) H) U ≃ (Add F (Add G H)) U where
   toFun := by
     unfold Add
     rintro ((foo | bar) | baz)
-    . exact (Sum.inl foo)
-    . exact (Sum.inr (Sum.inl bar))
-    . exact (Sum.inr (Sum.inr baz))
+    · exact (Sum.inl foo)
+    · exact (Sum.inr (Sum.inl bar))
+    · exact (Sum.inr (Sum.inr baz))
   invFun := by
     unfold Add
     rintro (foo | bar | baz)
-    . exact (Sum.inl (Sum.inl foo))
-    . exact (Sum.inl (Sum.inr bar))
-    . exact (Sum.inr baz)
+    · exact (Sum.inl (Sum.inl foo))
+    · exact (Sum.inl (Sum.inr bar))
+    · exact (Sum.inr baz)
   left_inv  := by rintro ((foo | bar) | baz) <;> rfl
   right_inv := by rintro ( foo | bar  | baz) <;> rfl
 
@@ -45,13 +45,13 @@ def addComm : Add F G U ≃ Add G F U where
   toFun := by
     unfold Add
     rintro (foo | bar)
-    . exact Sum.inr foo
-    . exact Sum.inl bar
+    · exact Sum.inr foo
+    · exact Sum.inl bar
   invFun := by
     unfold Add
     rintro (foo | bar)
-    . exact Sum.inr foo
-    . exact Sum.inl bar
+    · exact Sum.inr foo
+    · exact Sum.inl bar
   left_inv  := by rintro (foo | bar) <;> rfl
   right_inv := by rintro (foo | bar) <;> rfl
 

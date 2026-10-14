@@ -197,8 +197,8 @@ def unwrap (x : WithHole U) (h : x ≠ ⊥) : U :=
 @[simp] lemma WithHole.coe_unwrap {U} (x : WithHole U) (h : x ≠ ⊥)
 : WithHole.coe (unwrap x h) = x := by
   obtain ⟨_ | u⟩ := x
-  . exact absurd rfl h
-  . rfl
+  · exact absurd rfl h
+  · rfl
 
 section CycleIndex
 
@@ -305,12 +305,12 @@ lemma LToC_CToL_pow_bot (c : C (WithHole U)) (j : ℕ) (hj : j ≤ cycleLength c
 : ((LToCWithHole (CWithHoleToL c)).1 ^ j) ⊥ = (c.1 ^ j) ⊥ := by
   have hpos : 0 < cycleLength c := (distanceFromHole_spec c ⊥).1
   rcases j with _ | k
-  . simp only [pow_zero, Equiv.Perm.coe_one, id_eq]
-  . rcases Nat.lt_or_ge k (cycleLength c - 1) with hk | hk
-    . rw [LToCWithHole_pow_succ_bot _ k hk]
+  · simp only [pow_zero, Equiv.Perm.coe_one, id_eq]
+  · rcases Nat.lt_or_ge k (cycleLength c - 1) with hk | hk
+    · rw [LToCWithHole_pow_succ_bot _ k hk]
       show WithHole.coe (unwrap _ _) = _
       rw [WithHole.coe_unwrap]
-    . have hk' : k = (CWithHoleToL c).card := by (show k = cycleLength c - 1; omega)
+    · have hk' : k = (CWithHoleToL c).card := by (show k = cycleLength c - 1; omega)
       subst hk'
       rw [
         LToCWithHole_pow_period,
@@ -324,8 +324,8 @@ def derivCycleIsLinearOrder : Deriv C U ≃ L U where
   right_inv := by
     intro l; dsimp only [id]
     apply L.ext_of_symm
-    . show cycleLength _ - 1 = l.card; rw [cycleLength_eq _ (LToCWithHole_spec l)]; rfl
-    . intro k hk₁ hk₂
+    · show cycleLength _ - 1 = l.card; rw [cycleLength_eq _ (LToCWithHole_spec l)]; rfl
+    · intro k hk₁ hk₂
       apply WithHole.coe_injective; show WithHole.coe (unwrap _ _) = _; rw [WithHole.coe_unwrap]
       exact LToCWithHole_pow_succ_bot l k hk₂
   left_inv := by

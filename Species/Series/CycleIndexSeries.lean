@@ -153,23 +153,23 @@ lemma classOf_bijective (σ : Equiv.Perm U) : Function.Bijective (classOf σ) :=
   case injective =>
     rintro (fixₗ | facₗ) (fixᵣ | facᵣ) h <;> simp only [classOf] at h
       <;> have h' := Quotient.exact h
-    . -- two fixed points in the same class must be equal
+    · -- two fixed points in the same class must be equal
       exact congrArg Sum.inl (Subtype.ext (eq_of_sameCycle_fixed fixᵣ.2 h'.symm))
-    . exact
+    · exact
         absurd (by rw [eq_of_sameCycle_fixed fixₗ.2 h']; exact fixₗ.2) (factorPoint_moved σ facᵣ)
-    . exact
+    · exact
         absurd
           (by rw [eq_of_sameCycle_fixed fixᵣ.2 h'.symm]; exact fixᵣ.2) (factorPoint_moved σ facₗ)
-    . -- two factors sharing a class are the same cycle
+    · -- two factors sharing a class are the same cycle
       refine congrArg Sum.inr (Subtype.ext ?_)
       repeat rw [cycleFactor_eq_cycleOf_factorPoint σ _]
       exact Equiv.Perm.SameCycle.cycleOf_eq h'
   case surjective =>
     intro c; obtain ⟨x, rfl⟩ := Quotient.exists_rep c
     by_cases hx : σ x = x
-    . -- fixed: a singleton class
+    · -- fixed: a singleton class
       exact ⟨.inl ⟨x, hx⟩, rfl⟩
-    . -- moved: the class of its cycle factor
+    · -- moved: the class of its cycle factor
       have hmem : σ.cycleOf x ∈ σ.cycleFactorsFinset :=
         Equiv.Perm.cycleOf_mem_cycleFactorsFinset_iff.2 (Equiv.Perm.mem_support.2 hx)
       refine ⟨.inr ⟨_, hmem⟩, Quotient.sound ?_⟩
@@ -185,13 +185,13 @@ lemma card_class (σ : Equiv.Perm U) (x : U) :
     ext u; simp only [Set.mem_ofPred_eq, Quotient.eq]
     exact ⟨fun h => Equiv.Perm.SameCycle.symm h, fun h => Equiv.Perm.SameCycle.symm h⟩
   rw [hset]; split_ifs with hfix
-  . -- fixed point: its class is `{x}`
+  · -- fixed point: its class is `{x}`
     have hsing : {u | σ.SameCycle x u} = {x} := by
       ext u; simp only [Set.mem_ofPred_eq, Set.mem_singleton_iff]; constructor
-      . rintro ⟨i, hi⟩; rw [← hi]; exact Equiv.Perm.zpow_apply_eq_self_of_apply_eq_self hfix i
-      . rintro rfl; exact Equiv.Perm.SameCycle.refl _ _
+      · rintro ⟨i, hi⟩; rw [← hi]; exact Equiv.Perm.zpow_apply_eq_self_of_apply_eq_self hfix i
+      · rintro rfl; exact Equiv.Perm.SameCycle.refl _ _
     rw [hsing, Nat.card_coe_set_eq, Set.ncard_singleton]
-  . -- moved point: its class is the support of `cycleOf x`
+  · -- moved point: its class is the support of `cycleOf x`
     have hsupp : {u | σ.SameCycle x u} = ↑(σ.cycleOf x).support := by
       ext u; rw [Finset.mem_coe, Equiv.Perm.mem_support_cycleOf_iff];
       simp only [
@@ -256,8 +256,8 @@ lemma cisNumerator_eq (n : ℕ)
   rw [Multiset.map_map, Finset.sum_eq_multiset_sum]
   congr 1
   apply Multiset.map_congr
-  . rfl
-  . intro σ _
+  · rfl
+  · intro σ _
     simp only [Function.comp_apply, cisMonomial, Species.cisMonomial, Species.cycleExp]
     rw [fixCount_eq, cycleLengths_eq]
 
@@ -277,8 +277,8 @@ lemma coeff_sum_monomials (s : Multiset (ℕ × Multiset ℕ)) (μ : Multiset �
       Multiset.filter_cons
     ]
     by_cases h : t.2 = μ
-    . simp only [h, ↓reduceIte, Multiset.singleton_add, Multiset.map_cons, Multiset.sum_cons]
-    . simp only [EmbeddingLike.apply_eq_iff_eq, h, ↓reduceIte, zero_add]
+    · simp only [h, ↓reduceIte, Multiset.singleton_add, Multiset.map_cons, Multiset.sum_cons]
+    · simp only [EmbeddingLike.apply_eq_iff_eq, h, ↓reduceIte, zero_add]
 
 lemma cisCoeff_eq (n : ℕ) (μ : Multiset ℕ) : cisCoeff F n μ = Species.cisCoeff F n μ := by
   unfold cisCoeff Species.cisCoeff

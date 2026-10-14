@@ -12,8 +12,8 @@ section EGS
 noncomputable def equivEquiv (U : Type) [Finite U] : L U ≃ (U ≃ Fin (Nat.card U)) where
   toFun x  := by
     obtain ⟨card, equiv⟩ := x; trans
-    . apply equiv
-    . apply (finCongr (Nat.card_eq_of_equiv_fin equiv).symm)
+    · apply equiv
+    · apply (finCongr (Nat.card_eq_of_equiv_fin equiv).symm)
   invFun e := ⟨_, e⟩
   left_inv := fun ⟨n, e⟩ => by
     have h : n = Nat.card U := by rw [Nat.card_congr e, Nat.card_fin]
