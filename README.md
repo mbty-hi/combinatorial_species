@@ -1,9 +1,9 @@
 # Combinatorial species in Lean
-A Lean formalization of combinatorial species following the combinatorial approach originally given
-by Bergeron, Labelle and Leroux (shortened to BLL below).
+A Lean formalization of combinatorial species following the combinatorial approach of Bergeron,
+Labelle and Leroux (shortened to BLL below).
 
-Developed at the University of Iceland (Iceproof project) by Matthieu Baty, with contributions from
-Matthías Andri Hrafnkelsson, under the supervision of Anders Claesson.
+Developed at the University of Iceland (Iceproof project) by Matthieu Baty, under the supervision of
+Anders Claesson, with contributions from Matthías Andri Hrafnkelsson,
 
 ## A brief overview of combinatorial species
 A species is a rule (`F` of type `Type → Type`) that associates to each finite set (`U`) a finite
@@ -57,7 +57,7 @@ The framework also gives tools for computing these series for species built by c
 according to classical operations (such as sum, product, or composition).
 
 ## What is supported
-### Basic definition (`Basic.lean`)
+### Core definition (`Basic.lean`)
 The core definition is faithful to BLL. We introduce a `Species` class that applies to a family of
 structures `F`:
 * `finite`: a proof of the fact that for any finite set of labels `U`, the number of `F`-structures
