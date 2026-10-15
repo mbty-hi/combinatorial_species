@@ -46,7 +46,6 @@ theorem ext
 : (⟨d, (f, g)⟩ : Mul F G U) = ⟨d', (f', g')⟩ := by
   subst hd; simp only [deciderCast_rfl, id_transport] at hf hg; rw [hf, hg]
 
-/- Species instance -/
 instance instSpecies : Species (Mul F G) where
   finite := by
     intros U _; unfold Mul
@@ -94,7 +93,6 @@ instance instComputable {F G : Type → Type} [ComputableSpecies F] [ComputableS
   = ⟨transportSplit σ d, (transport (blockEquiv σ d false) f, transport (blockEquiv σ d true) g)⟩
 := rfl
 
-/- Display related instances -/
 section Display
 
 variable

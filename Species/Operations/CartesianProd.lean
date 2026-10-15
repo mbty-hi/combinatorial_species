@@ -16,7 +16,8 @@ variable {F G : Type → Type} [Species F] [Species G] {U : Type}
 
 --notation:65 F " × " G => Species.CartProd F G
 
-/- Display related instances -/
+section Display
+
 instance instRepr {F G : Type → Type} {U : Type} [Repr (F U)] [Repr (G U)]
 : Repr ((CartProd F G) U) :=
   inferInstanceAs (Repr (F U × G U))
@@ -25,7 +26,8 @@ instance instLinearOrder {F G : Type → Type} {U : Type} [LinearOrder (F U)] [L
 : LinearOrder ((CartProd F G) U) :=
   inferInstanceAs (LinearOrder (F U ×ₗ G U))
 
-/- Species instance -/
+end Display
+
 instance instSpecies : Species (CartProd F G) where
   finite := by
     intros U _; unfold CartProd

@@ -16,18 +16,21 @@ namespace Add
 
 variable {F G : Type → Type} [Species F] [Species G]
 
-/- Display related instances -/
+section Display
+
 instance instRepr {F G : Type → Type} {U : Type} [Repr (F U)] [Repr (G U)]
 : Repr ((Add F G) U) where
   reprPrec x _ :=
     match x with
     | .inl a => "L" ++ repr a
     | .inr b => "R" ++ repr b
+
 instance instLinearOrder {F G : Type → Type} {U : Type} [LinearOrder (F U)] [LinearOrder (G U)]
 : LinearOrder ((Add F G) U) :=
   inferInstanceAs (LinearOrder (F U ⊕ₗ G U))
 
-/- Species instance -/
+end Display
+
 instance instSpecies : Species (Add F G) where
   finite := by
     intros U _; unfold Add

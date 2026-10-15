@@ -16,11 +16,13 @@ instance instFintype {U} [Fintype U] [DecidableEq U] : Fintype (One U) :=
 instance instSubsingleton {U} : Subsingleton (One U) :=
   inferInstanceAs (Subsingleton (U → Empty))
 
-/- Display related instances -/
+section Display
+
 instance instRepr        {U} [Repr U] : Repr (One U) where reprPrec _ _ := "•"
 instance instLinearOrder {U} : LinearOrder (One U) := .ofSubsingleton
 
-/- Species instance -/
+end Display
+
 instance instSpecies : Species One where
   finite         := inferInstance
   transport      := fun σ f v => f (σ.symm v)

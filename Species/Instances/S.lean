@@ -17,6 +17,8 @@ namespace S
 instance insetFintype {U} [Fintype U] [DecidableEq U] : Fintype (S U) :=
   inferInstanceAs (Fintype (Equiv.Perm U))
 
+section Display
+
 /- List of orbits ordered by length and contents -/
 def orbits {U} [Fintype U] [LinearOrder U] (p : S U) : List (List U) :=
   let labels : List U := Finset.univ.sort (· ≤ ·)
@@ -35,7 +37,6 @@ def orbits {U} [Fintype U] [LinearOrder U] (p : S U) : List (List U) :=
     ).2
   orbits.mergeSort (fun a b => a.length ≤ b.length) -- shorter orbits first
 
-/- Display related instances -/
 instance instRepr {U} [Fintype U] [LinearOrder U] [Repr U]
 : Repr (S U) where
   reprPrec p _ := -- representation for a specific S
@@ -80,7 +81,8 @@ instance instLinearOrder {U} [Fintype U] [LinearOrder U]
 /-       simp only [List.getElem?_map, List.getElem?_eq_getElem hlt, hi] at hmap -/
 /-       simpa using hmap) -/
 
-/- Species instance -/
+end Display
+
 instance instSpecies : Species S where
   finite         := by unfold S; infer_instance
   transport      := fun σ   p => σ.permCongr p

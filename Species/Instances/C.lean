@@ -18,7 +18,8 @@ def C (U : Type) := {σ : Equiv.Perm U // Nonempty U ∧ ∀ x y, σ.SameCycle x
 
 namespace C
 
-/- Display related instances -/
+section Display
+
 -- Representation in cycle form (e.g., (1, 3, 2))
 instance instRepr {U} [Fintype U] [LinearOrder U] [Repr U] : Repr (C U) where
   reprPrec s _ :=
@@ -40,7 +41,8 @@ instance instLinearOrder {U} [Fintype U] [LinearOrder U] : LinearOrder (C U) :=
       simp only [List.getElem?_map, List.getElem?_eq_getElem hlt, hi] at hmap
       simpa only [Option.map_some, Option.some.injEq] using hmap)
 
-/- Species instance -/
+end Display
+
 lemma permCongr_zpow {U V : Type} (e : U ≃ V) (p : Equiv.Perm U) (i : ℤ)
 : (e.permCongr p) ^ i = e.permCongr (p ^ i) :=
   (map_zpow (MulEquiv.mk' e.permCongr e.permCongr_mul) p i).symm

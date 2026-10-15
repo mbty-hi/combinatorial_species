@@ -17,8 +17,8 @@ namespace Powerset
 instance instFintype {U} [Fintype U] : Fintype (Powerset U) :=
   inferInstanceAs (Fintype (Finset U))
 
-/- Display related instances -/
-namespace Display
+section Display
+
 instance instRepr {U : Type} [LinearOrder U] [Repr U] : Repr (Powerset U) where
   reprPrec s _ := "{" ++ Std.Format.joinSep ((s.sort (· ≤ ·)).map repr) ", " ++ "}"
 instance instLinearOrder {U} [LinearOrder U] : LinearOrder (Powerset U) :=
@@ -28,9 +28,9 @@ instance instLinearOrder {U} [LinearOrder U] : LinearOrder (Powerset U) :=
     (fun _ _ h =>
       (Function.LeftInverse.injective (fun s => Finset.sort_toFinset s (· ≤ ·)))
         (congrArg (fun p => (ofLex p).2) h))
+
 end Display
 
-/- Species instance -/
 instance instSpecies : Species Powerset where
   finite := by
     intros U _

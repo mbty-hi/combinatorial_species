@@ -15,7 +15,8 @@ def Restrict (F : Type → Type) (k : ℕ) (U : Type) : Type :=
 
 namespace Restrict
 
-/- Display related instances -/
+section Display
+
 instance instRepr {F} {k : ℕ} {U} [Repr (F U)] : Repr (Restrict F k U) where
   reprPrec x prec := reprPrec x.1 prec
 
@@ -23,7 +24,8 @@ instance instLinearOrder {F} {k : ℕ} {U} [LinearOrder (F U)]
 : LinearOrder (Restrict F k U) :=
   LinearOrder.lift' Subtype.val Subtype.val_injective
 
-/- Species instance -/
+end Display
+
 instance instSpecies (F : Type → Type) [Species F] (k : ℕ) : Species (Restrict F k) where
   finite          := by
     intros U _; unfold Restrict

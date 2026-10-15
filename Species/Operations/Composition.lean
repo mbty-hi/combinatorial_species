@@ -249,7 +249,8 @@ instance instComputableSpeciesComposition
   decEq   := Equiv.decidableEq equivSigma
 end Composition
 
-/- Display related instances -/
+section Display
+
 /- We display via `F`'s representation, with each block printed as, e.g.,
   `<[1, 3] ↦ "G block on {1, 3}">`.
    Just like for `Mul`, we must be careful about typeclass constraints.
@@ -339,5 +340,6 @@ instance instReprComposition
     reprPrec (Species.transport c.quotientEquivBlockLabel c.outer) p
 
 end Repr
+end Display
 end Species
 end

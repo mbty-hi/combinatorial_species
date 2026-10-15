@@ -79,7 +79,8 @@ namespace Deriv
 
 variable {F : Type → Type} [Species F]
 
-/- Display related instances -/
+section Display
+
 instance instRepr {F : Type → Type} {U : Type} [Repr (F (WithHole U))] : Repr (Deriv F U) :=
   inferInstanceAs (Repr (F (WithHole U)))
 
@@ -87,7 +88,8 @@ instance instLinearOrder {F : Type → Type} {U : Type} [LinearOrder (F (WithHol
 : LinearOrder (Deriv F U) :=
   inferInstanceAs (LinearOrder (F (WithHole U)))
 
-/- Species instance -/
+end Display
+
 instance instSpecies : Species (Deriv F) where
   finite := by
     intros U _; unfold Deriv

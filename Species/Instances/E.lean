@@ -20,13 +20,15 @@ instance instSubSingleton {U} : Subsingleton (E U) := ⟨fun _ _ => rfl⟩
 instance instDecidableEq  {U} : DecidableEq  (E U) := fun _ _ => isTrue rfl
 instance instFintype      {U} : Fintype      (E U) := Fintype.ofSubsingleton ⟨⟩
 
-/- Display related instances -/
+section Display
+
 instance instRepr {U} [Repr U] [LabelType U] : Repr (E U) where
   reprPrec _ _ :=
     "{" ++ Std.Format.joinSep ((Finset.univ : Finset U).sort (· ≤ ·) |>.map repr) ", " ++ "}"
 instance instLinearOrder {U} : LinearOrder (E U) := .ofSubsingleton
 
-/- Species instance -/
+end Display
+
 instance instSpecies : Species E where
   finite         := inferInstance
   transport      := fun _ _   => ⟨⟩

@@ -28,11 +28,14 @@ lemma order_injective : Function.Injective (L.order (U := U)) := by
   have hs : e₁.symm = e₂.symm := Equiv.ext fun i => List.map_inj_left.mp h i (List.mem_finRange i)
   simpa using congrArg Equiv.symm hs
 
-/- Display related instances -/
+section Display
+
 instance instRepr {U} [Repr U] : Repr (L U) where
   reprPrec x prec := reprPrec x.order prec
 instance instLinearOrder {U} [LinearOrder U] : LinearOrder (L U) :=
   LinearOrder.lift' L.order L.order_injective
+
+end Display
 
 def transport (σ : U ≃ V) (x : L U) : L V := ⟨x.card, σ.symm.trans x.ord⟩
 
