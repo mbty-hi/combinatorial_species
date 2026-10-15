@@ -19,7 +19,8 @@ variable {F G : Type → Type} [Species F] [Species G]
 /- Display related instances -/
 instance instRepr {F G : Type → Type} {U : Type} [Repr (F U)] [Repr (G U)]
 : Repr ((Add F G) U) where
-  reprPrec x _ := match x with
+  reprPrec x _ :=
+    match x with
     | .inl a => "L" ++ repr a
     | .inr b => "R" ++ repr b
 instance instLinearOrder {F G : Type → Type} {U : Type} [LinearOrder (F U)] [LinearOrder (G U)]

@@ -53,7 +53,7 @@ instance instMulAction : MulAction (Equiv.Perm U) (F U) where
 section transport
 
 /-- Transport bundled as an equivalence. Useful for interacting with Mathlib machinery. -/
-def transportEquiv (σ : U ≃ V) : F U ≃ F V where
+@[simps] def transportEquiv (σ : U ≃ V) : F U ≃ F V where
   toFun       := transport σ
   invFun      := transport σ.symm
   left_inv  f := by rw [← comp_transport, Equiv.self_trans_symm, id_transport]
@@ -71,6 +71,10 @@ theorem transport_eq_self_of_id (σ : U ≃ U) (h : ∀ a, σ a = a) (f : F U)
 : transport σ f = f := by
   have hσ : σ = Equiv.refl U := Equiv.ext h
   rw [hσ, id_transport]
+
+theorem transport_congr {σ₁ σ₂ : U ≃ V} (h : ∀ x, σ₁ x = σ₂ x) (x : F U)
+: transport σ₁ x = transport σ₂ x := by
+  rw [Equiv.ext h]
 
 end transport
 end Species

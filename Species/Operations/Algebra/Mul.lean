@@ -2,6 +2,7 @@ module
 
 public import Mathlib.Tactic.FinCases
 public import Species.Basic
+public import Species.Isomorphism
 public import Species.Operations.Mul
 public import Species.Instances.One
 public import Species.Instances.Zero
@@ -10,20 +11,29 @@ public import Species.Instances.Zero
 
 namespace Species.Mul
 
-def zeroMul {F: Type → Type} [Species F] {U} [Finite U] : Mul Zero F U ≃ Zero U where
+variable {F G : Type → Type} [Species F] [Species G] {U} [Finite U]
+
+def zeroMulEquiv : Mul Zero F U ≃ Zero U where
   toFun     := by unfold Mul; rintro ⟨d,⟨⟩,bar⟩
   invFun    := by unfold Mul; rintro ⟨⟩
   left_inv  := by rintro ⟨d,⟨⟩, bar⟩
   right_inv := by rintro ⟨d,⟨⟩, bar⟩
 
-def mulZero {F: Type → Type} [Species F] {U} [Finite U] : Mul F Zero U ≃ Zero U where
+def zeroMul : Iso (Mul Zero F) Zero where
+  equiv      U   := zeroMulEquiv
+  naturality σ s := by obtain ⟨d, ⟨z, fu⟩⟩ := s; nomatch z
+
+def mulZeroEquiv : Mul F Zero U ≃ Zero U where
   toFun     := by unfold Mul; rintro ⟨d,foo,⟨⟩⟩
   invFun    := by unfold Mul; rintro ⟨⟩
   left_inv  := by rintro ⟨d,foo,⟨⟩⟩
   right_inv := by rintro ⟨d,foo,⟨⟩⟩
 
-def mulComm {F G : Type → Type} [Species F] [Species G] {U} [Finite U]
-: Mul F G U ≃ Mul G F U where
+def mulZero : Iso (Mul F Zero) Zero where
+  equiv      U   := mulZeroEquiv
+  naturality σ s := by obtain ⟨d, ⟨fu, z⟩⟩ := s; nomatch z
+
+def mulCommEquiv : Mul F G U ≃ Mul G F U where
   toFun := by
     unfold Mul; rintro ⟨d, f, g⟩
     refine ⟨fun x => !(d x), ?_, ?_⟩
@@ -39,12 +49,18 @@ def mulComm {F G : Type → Type} [Species F] [Species G] {U} [Finite U]
     rintro ⟨d, g, f⟩; simp only [id, eq_mpr_eq_cast, cast_cast]; congr
       <;> simp only [Bool.not_not, cast_heq]
 
+def mulComm : Iso (Mul F G) (Mul G F) where
+  equiv      U   := mulCommEquiv
+  naturality σ s := by
+    obtain ⟨d, f, g⟩ := s
+    sorry
+
 /- `(mul One S) U` is a partitioning of `U` by a boolean predicate `d`. The set of labels making
    `d` false carries a `One`-structure, and its complement carries an `S`-structure. Since there are
     no `One`-structures for nonempty label sets, `d` must return `true` for all inputs. The
    isomorphism is therefore mostly about transport of the `S`-structure along
    `{u : U // d u = true} ≃ U`. -/
-def oneMul {F: Type → Type} [Species F] {U} [Finite U] : (Mul One F) U ≃ F U where
+def oneMulEquiv : (Mul One F) U ≃ F U where
   toFun := by
     rintro ⟨d, one, s⟩
     have d_is_true : ∀u, d u = true := by -- we show that `d` must be `fun _ => true` (pointwise)
@@ -75,9 +91,19 @@ def oneMul {F: Type → Type} [Species F] {U} [Finite U] : (Mul One F) U ≃ F U
 
   right_inv := by intros _; simp only [id, transportEquiv_symm, Equiv.apply_symm_apply]
 
+def oneMul : Iso (Mul One F) F where
+  equiv      U   := oneMulEquiv
+  naturality σ s := by
+    obtain ⟨d, tt, fu⟩ := s
+    simp only [
+      oneMulEquiv, Mul.transport_mk, transportEquiv_apply, Equiv.coe_fn_mk, transport_transport
+    ]
+    apply transport_congr
+    rintro ⟨u, hu⟩; rfl
+
 /- Same logic as `one_mul`, except for some flipped branches. See above for more substantial
    comments. -/
-def mulOne {F : Type → Type} [Species F] {U} [Finite U] : (Mul F One) U ≃ F U where
+def mulOneEquiv : (Mul F One) U ≃ F U where
   toFun := by
     rintro ⟨d, s, one⟩
     have d_is_false : ∀u, d u = false := by -- we show that `d` must be `fun _ => false` (pointwise)
@@ -103,6 +129,16 @@ def mulOne {F : Type → Type} [Species F] {U} [Finite U] : (Mul F One) U ≃ F 
 
   right_inv := by intros _; simp only [id, transportEquiv_symm, Equiv.apply_symm_apply]
 
+def mulOne : Iso (Mul F One) F where
+  equiv      U   := mulOneEquiv
+  naturality σ s := by
+    obtain ⟨d, fu, tt⟩ := s
+    simp only [
+      mulOneEquiv, Mul.transport_mk, transportEquiv_apply, Equiv.coe_fn_mk, transport_transport
+    ]
+    apply transport_congr
+    rintro ⟨u, hu⟩; rfl
+
 --        C            D
 --        c₁           d₁          The left branch is taken when the function returns false
 --       / \          / \          The right branch is taken when the function returns true
@@ -117,7 +153,7 @@ def mulOne {F : Type → Type} [Species F] {U} [Finite U] : (Mul F One) U ≃ F 
    to define two simpler mappings: one between C and Mul₃ and one between D and Mul₃ (a direct proof
    would be terser). -/
 
-def Mul₃ (S₀ S₁ S₂: Type → Type) (U: Type) : Type :=
+def Mul₃ (S₀ S₁ S₂ : Type → Type) (U : Type) : Type :=
   Σ d : U → Fin 3, S₀ {u // d u = 0} × S₁ {u // d u = 1} × S₂ {u // d u = 2}
 
 --       Mul₃
@@ -156,8 +192,7 @@ theorem Mul₃_ext {S₀ S₁ S₂ : Type → Type} [Species S₀] [Species S₁
 @[simp] def d_to_d₂ {U} (d: U → Fin 3) : (u: {u // d_to_d₁ d u = true}) → Bool :=
   fun ⟨u, _⟩ => d u == 2
 
-@[simp]
-def d₁₂_to_d {U} (d₁ : U → Bool) (d₂ : {u // d₁ u = true} → Bool) : U → Fin 3 :=
+@[simp] def d₁₂_to_d {U} (d₁ : U → Bool) (d₂ : {u // d₁ u = true} → Bool) : U → Fin 3 :=
   fun u =>
     if h : d₁ u = true
     then if d₂ ⟨u, h⟩ then 2 else 1
@@ -309,11 +344,11 @@ def Mul₃Equiv₁
 
   left_inv := by
     rintro ⟨d₁, s₁, ⟨d₂, s₂, s₃⟩⟩
-    refine mul_ext (S := S₁) (T := Mul S₂ S₃) (d₁_inv d₁ d₂) ?_ ?_
+    refine ext (F := S₁) (G := Mul S₂ S₃) (d₁_inv d₁ d₂) ?_ ?_
     · rw [transport_transport, transport_transport]; simp
       exact transport_eq_self_of_id _ (fun a => Subtype.ext rfl) s₁
-    · rw [mul_transport_mk, transport_transport]
-      refine mul_ext (S := S₂) (T := S₃) ?_ ?_ ?_
+    · rw [transport_mk, transport_transport]
+      refine ext (F := S₂) (G := S₃) ?_ ?_ ?_
       · apply d₂_inv
       · rw [transport_transport, transport_transport]
         exact transport_eq_self_of_id _ (fun a => Subtype.ext (Subtype.ext rfl)) s₂
@@ -483,9 +518,9 @@ def Mul₃Equiv₂
 
   left_inv := by
     rintro ⟨c₁, ⟨c₂, s₁, s₂⟩, s₃⟩
-    refine mul_ext (S := Mul S₁ S₂) (T := S₃) (c₁_inv c₁ c₂) ?_ ?_
-    · rw [mul_transport_mk]
-      refine mul_ext (S := S₁) (T := S₂) ?_ ?_ ?_
+    refine ext (F := Mul S₁ S₂) (G := S₃) (c₁_inv c₁ c₂) ?_ ?_
+    · rw [transport_mk]
+      refine ext (F := S₁) (G := S₂) ?_ ?_ ?_
       · apply c₂_inv
       · rw [transport_transport, transport_transport, transport_transport]
         exact transport_eq_self_of_id _ (fun a => Subtype.ext (Subtype.ext rfl)) s₁
@@ -501,9 +536,16 @@ def Mul₃Equiv₂
     · exact transport_eq_self_of_id _ (fun a => Subtype.ext rfl) s₂
     · exact transport_eq_self_of_id _ (fun a => Subtype.ext rfl) s₃
 
-def mulAssoc {S₁ S₂ S₃ : Type → Type} [Species S₁] [Species S₂] [Species S₃] {U} [Finite U]
+def mulAssocEquiv {S₁ S₂ S₃ : Type → Type} [Species S₁] [Species S₂] [Species S₃]
 : (Mul (Mul S₁ S₂) S₃) U ≃ (Mul S₁ (Mul S₂ S₃)) U :=
   Mul₃Equiv₂.trans (@Mul₃Equiv₁ S₁ S₂ S₃ _ _ _ U _).symm
+
+def mulAssoc {S₁ S₂ S₃ : Type → Type} [Species S₁] [Species S₂] [Species S₃]
+: Iso (Mul (Mul S₁ S₂) S₃) (Mul S₁ (Mul S₂ S₃)) where
+  equiv      U   := mulAssocEquiv
+  naturality σ s := by
+    obtain ⟨d₁, ⟨d₂, s₁, s₂⟩, s₃⟩ := s
+    sorry
 
 end Species.Mul
 end

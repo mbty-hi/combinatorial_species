@@ -1,6 +1,7 @@
 module
 
 public import Species.Basic
+public import Species.Isomorphism
 public import Species.Operations.Deriv
 public import Species.Operations.Add
 public import Species.Operations.Mul
@@ -9,14 +10,15 @@ public import Species.Operations.Mul
 
 namespace Species
 
-variable {U: Type} [Fintype U] {F G: Type → Type}
+variable {U V : Type} [Finite U] [Finite V] {F G : Type → Type}
 
 theorem leibniz_add_eq : Deriv (Add F G) = Add (Deriv F) (Deriv G) := by rfl
-def leibniz_add : Deriv (Add F G) U ≃ Add (Deriv F) (Deriv G) U := Equiv.refl _
 
 variable [Species F] [Species G]
 
-def innerOptionEquiv {U : Type} {d : WithHole U → Bool} {b: Bool} (h : d ⟨none⟩ = b)
+def leibnizAdd : Iso (Deriv (Add F G)) (Add (Deriv F) (Deriv G)) := Iso.refl _
+
+def innerOptionEquiv {d : WithHole U → Bool} {b: Bool} (h : d ⟨none⟩ = b)
 : { u // d u = !b } ≃ { u : U // d (⟨some u⟩) = !b } where
   toFun
     | ⟨⟨none⟩, hu⟩   => by rw [h] at hu; simp only [Bool.eq_not_self] at *
@@ -27,7 +29,7 @@ def innerOptionEquiv {U : Type} {d : WithHole U → Bool} {b: Bool} (h : d ⟨no
     rw [h] at hu; simp only [Bool.eq_not_self] at *
   right_inv _ := by rfl
 
-def outerOptionEquiv {U : Type} {d : WithHole U → Bool} {b: Bool} (h : d ⟨none⟩ = b)
+def outerOptionEquiv {d : WithHole U → Bool} {b : Bool} (h : d ⟨none⟩ = b)
 : { u // d u = b } ≃ WithHole { u : U // d (⟨some u⟩) = b } where
   toFun
     | ⟨⟨none⟩, _⟩    => ⟨none⟩
@@ -38,17 +40,13 @@ def outerOptionEquiv {U : Type} {d : WithHole U → Bool} {b: Bool} (h : d ⟨no
   left_inv := by rintro ⟨(_ | u), hu⟩ <;> rfl
   right_inv := by rintro (_ | ⟨u, hu⟩) <;> rfl
 
-@[simp] theorem transportEquiv_apply {U V} [Finite U] [Finite V] (σ : U ≃ V) (f : F U) :
-  transportEquiv σ f = transport σ f := rfl
-
-theorem transport_heq {F : Type → Type} [Species F] {α β : Type} [Finite α] [Finite β]
-  (hαβ : α = β) (σ : α ≃ β) (hσ : ∀ a, HEq (σ a) a) (f : F α)
+theorem transport_heq (U_eq_V : U = V) (σ : U ≃ V) (hσ : ∀ a, HEq (σ a) a) (f : F U)
 : HEq (transport σ f) f := by
-  subst hαβ
-  have : σ = Equiv.refl α := Equiv.ext fun a => eq_of_heq (hσ a)
-  rw [this, id_transport]
+  subst U_eq_V
+  have h : σ = Equiv.refl U := Equiv.ext (fun u => eq_of_heq (hσ u))
+  rw [h, id_transport]
 
-def leibnizMul : Deriv (Mul F G) U ≃ Add (Mul (Deriv F) G) (Mul F (Deriv G)) U where
+def leibnizMulEquiv : Deriv (Mul F G) U ≃ Add (Mul (Deriv F) G) (Mul F (Deriv G)) U where
   toFun :=
     fun ⟨d, f, g⟩ =>
       match h : d ⟨none⟩ with
@@ -178,6 +176,14 @@ def leibnizMul : Deriv (Mul F G) U ≃ Add (Mul (Deriv F) G) (Mul F (Deriv G)) U
           Equiv.symm_trans_self, id_transport
         ]
     <;> congr
+
+def leibnizMul : Iso (Deriv (Mul F G)) (Add (Mul (Deriv F) G) (Mul F (Deriv G))) where
+  equiv      U   := leibnizMulEquiv
+  naturality σ s := by
+    obtain ⟨d, f, g⟩ := s
+    simp only [leibnizMulEquiv, Equiv.coe_fn_mk]
+    split
+    sorry
 
 end Species
 end

@@ -34,8 +34,7 @@ structure Iso (F G : Type → Type) [Species F] [Species G] where
       F[U] ─────► G[U]
   F[σ] │            │ G[σ]
        ▼     αᵥ     ▼
-      F[V] ─────► G[V]
-  -/
+      F[V] ─────► G[V] -/
   naturality {U V : Type} [Finite U] [Finite V] (σ : U ≃ V) (fu : F U) :
     equiv V (transport σ fu) = transport σ (equiv U fu)
 

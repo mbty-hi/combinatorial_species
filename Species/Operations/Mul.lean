@@ -13,11 +13,11 @@ public import Mathlib.Order.Prod.Lex.Basic
 namespace Species
 
 def Mul (F G : Type → Type) (U : Type) : Type :=
-  Σ d : U → Bool, F {u // d u = false} × G {u // d u = true}
+  Σ (d : U → Bool), F {u // d u = false} × G {u // d u = true}
 
 namespace Mul
 
-variable {F G : Type → Type} [Species F] [Species G] {U V : Type}
+variable {F G : Type → Type} [Species F] [Species G] {U V : Type} [Finite U] [Finite V]
 
 /- Relabelling a split: `v` falls in the same block as its `σ`-preimage. -/
 abbrev transportSplit {U V : Type} (σ : U ≃ V) (split : U → Bool) : V → Bool :=
@@ -28,20 +28,38 @@ def blockEquiv {U V} (σ : U ≃ V) (split : U → Bool) (b : Bool)
 : {u // split u = b} ≃ {v // transportSplit σ split v = b} :=
   σ.subtypeEquiv (fun u => by simp only [Function.comp_apply, Equiv.symm_apply_apply])
 
+@[simp] def deciderCast {U : Type} {d d' : U → Bool} (h : d = d') (b : Bool)
+: {u // d u = b} ≃ {u // d' u = b} :=
+  Equiv.subtypeEquivRight fun u => by rw [h]
+
+@[simp] theorem deciderCast_rfl {U : Type} (d : U → Bool) (b : Bool)
+: deciderCast (rfl : d = d) b = Equiv.refl _ :=
+  Equiv.ext fun _ => Subtype.ext rfl
+
+theorem ext
+  {d d' : U → Bool}
+  {f : F {u // d u = false}} {f' : F {u // d' u = false}}
+  {g : G {u // d u = true}}  {g' : G {u // d' u = true}}
+  (hd : d = d')
+  (hf : transport (deciderCast hd false) f = f')
+  (hg : transport (deciderCast hd true ) g = g')
+: (⟨d, (f, g)⟩ : Mul F G U) = ⟨d', (f', g')⟩ := by
+  subst hd; simp only [deciderCast_rfl, id_transport] at hf hg; rw [hf, hg]
+
 /- Species instance -/
 instance instSpecies : Species (Mul F G) where
   finite := by
     intros U _; unfold Mul
     /- Surface instances -/
-    have : ∀ d : U → Bool, Finite (F {u // d u = false}) :=
-      fun d => Species.finite (F := F) (U := {u // d u = false})
-    have : ∀ d : U → Bool, Finite (G {u // d u = true}) :=
-      fun d => Species.finite (F := G) (U := {u // d u = true})
+    have _ : ∀ (d : U → Bool), Finite (F {u // d u = false}) :=
+      fun d => finite (F := F) (U := {u // d u = false})
+    have _ : ∀ (d : U → Bool), Finite (G {u // d u = true}) :=
+      fun d => finite (F := G) (U := {u // d u = true})
     infer_instance
   transport := fun σ ⟨split, f_struct, g_struct⟩ => ⟨
     transportSplit σ split,
-    Species.transport (blockEquiv σ split false) f_struct,
-    Species.transport (blockEquiv σ split true) g_struct
+    transport (blockEquiv σ split false) f_struct,
+    transport (blockEquiv σ split true) g_struct
   ⟩
   id_transport := by
     rintro U _ ⟨d, f, g⟩; simp only [Function.comp_apply, Equiv.refl_symm, Equiv.refl_apply]
@@ -50,14 +68,13 @@ instance instSpecies : Species (Mul F G) where
     · simp only [
         blockEquiv, Equiv.subtypeEquiv, Function.comp_apply, Equiv.refl_symm, Equiv.refl_apply,
         Subtype.coe_eta
-      ]; apply Species.id_transport
+      ]; apply id_transport
     · simp only [blockEquiv, Equiv.subtypeEquiv, Function.comp_apply, Equiv.refl_symm,
-      Equiv.refl_apply, Subtype.coe_eta]; apply Species.id_transport
+      Equiv.refl_apply, Subtype.coe_eta]; apply id_transport
   comp_transport := by
     rintro U V W _ _ _ σ τ ⟨d, f, g⟩
     refine Sigma.ext rfl (heq_of_eq ?_)
-    apply Prod.ext
-      <;> apply Species.comp_transport (blockEquiv σ d _) (blockEquiv τ (d ∘ σ.symm) _)
+    apply Prod.ext <;> apply comp_transport (blockEquiv σ d _) (blockEquiv τ (d ∘ σ.symm) _)
 
 instance instComputable {F G : Type → Type} [ComputableSpecies F] [ComputableSpecies G]
 : ComputableSpecies (Mul F G) where
@@ -65,13 +82,21 @@ instance instComputable {F G : Type → Type} [ComputableSpecies F] [ComputableS
   decEq := by
     intros U _; unfold Mul
     /- Surface instances -/
-    haveI _ : ∀ d : U → Bool, DecidableEq (F {u // d u = false}) :=
+    haveI _ : ∀ (d : U → Bool), DecidableEq (F {u // d u = false}) :=
       fun d => ComputableSpecies.decEq (F := F) (U := {u // d u = false})
-    haveI _ : ∀ d : U → Bool, DecidableEq (G {u // d u = true}) :=
+    haveI _ : ∀ (d : U → Bool), DecidableEq (G {u // d u = true}) :=
       fun d => ComputableSpecies.decEq (F := G) (U := {u // d u = true})
     infer_instance
 
+@[simp] lemma transport_mk
+  (σ : U ≃ V) (d : U → Bool) (f : F {u // d u = false}) (g : G {u // d u = true})
+: transport (F := Mul F G) σ (⟨d, (f, g)⟩ : Mul F G U)
+  = ⟨transportSplit σ d, (transport (blockEquiv σ d false) f, transport (blockEquiv σ d true) g)⟩
+:= rfl
+
 /- Display related instances -/
+section Display
+
 variable
   {F G : Type → Type} [ComputableSpecies F] [ComputableSpecies G] {U V : Type}
   [LabelType U] [LabelType V]
@@ -134,38 +159,7 @@ lemma mulKey_inj : Function.Injective (mulKey (F := F) (G := G) (U := U)) := by
 instance instLinearOrder : LinearOrder ((Mul F G) U) :=
   LinearOrder.lift' mulKey mulKey_inj
 
--- Other results
-@[simp] def deciderCast {U : Type} {d d' : U → Bool} (h : d = d') (b : Bool)
-: {u // d u = b} ≃ {u // d' u = b} :=
-  Equiv.subtypeEquivRight fun u => by rw [h]
-
-@[simp] theorem deciderCast_rfl {U : Type} (d : U → Bool) (b : Bool)
-: deciderCast (rfl : d = d) b = Equiv.refl _ :=
-  Equiv.ext fun _ => Subtype.ext rfl
-
-theorem mul_ext {S T : Type → Type} [Species S] [Species T] {U : Type} [Finite U]
-  {d d' : U → Bool}
-  {s : S {u // d u = false}} {s' : S {u // d' u = false}}
-  {t : T {u // d u = true}}  {t' : T {u // d' u = true}}
-  (hd : d = d')
-  (hs : Species.transport (deciderCast hd false) s = s')
-  (ht : Species.transport (deciderCast hd true) t = t')
-: (⟨d, (s, t)⟩ : Mul S T U) = ⟨d', (s', t')⟩ := by
-  subst hd
-  simp only [deciderCast_rfl, Species.id_transport] at hs ht
-  rw [hs, ht]
-
-theorem mul_transport_mk
-  {S T : Type → Type} [Species S] [Species T] {α β : Type} [Finite α] [Finite β]
-  (σ : α ≃ β) (d : α → Bool) (s : S {u // d u = false}) (t : T {u // d u = true})
-: Species.transport (F := Mul S T) σ ⟨d, (s, t)⟩
-  = ⟨
-    transportSplit σ d,
-    (Species.transport (blockEquiv σ d false) s,
-    Species.transport (blockEquiv σ d true) t)
-  ⟩
-:= rfl
-
+end Display
 end Mul
 end Species
 end

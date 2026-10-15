@@ -5,8 +5,6 @@ public import Species.Operations.Operations
 public import Species.Instances.Instances
 public import Species.Basic
 
-/- TODO isomorphism, not just bijection -/
-
 @[expose] public section
 
 namespace Species
@@ -322,7 +320,7 @@ lemma LToC_CToL_pow_bot (c : C (WithHole U)) (j : ℕ) (hj : j ≤ cycleLength c
       ]
       exact (loopsBackInLength c).1
 
-def derivCycleIsLinearOrder : Deriv C U ≃ L U where
+def derivCycleEquivLinearOrder : Deriv C U ≃ L U where
   toFun  := by unfold Deriv; intro c; exact CWithHoleToL c
   invFun := by unfold Deriv; intro l; exact LToCWithHole l
   right_inv := by
@@ -341,6 +339,11 @@ def derivCycleIsLinearOrder : Deriv C U ≃ L U where
       ← Equiv.Perm.mul_apply, ← pow_succ', LToC_CToL_pow_bot c (j + 1) hj, pow_succ',
       Equiv.Perm.mul_apply
     ]
+
+def derivCycleIsoLinearOrder : Iso (Deriv C) L where
+  equiv      U   := derivCycleEquivLinearOrder
+  naturality σ s := by
+    sorry
 
 end Species
 end

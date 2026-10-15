@@ -21,7 +21,7 @@ lemma card_C_zero : Nat.card (C (Fin 0)) = 0 := by
 linear order on `n` (we can view the hole as the starting point) -/
 lemma card_C_succ (n : ℕ) : Nat.card (C (Fin (n + 1))) = n.factorial := by
   have e : Fin (n + 1) ≃ WithHole (Fin n) := (finSuccEquiv n).trans WithHole.equivOption.symm
-  rw [Nat.card_congr ((transportEquiv (F := C) e).trans derivCycleIsLinearOrder), card_L]
+  rw [Nat.card_congr ((transportEquiv (F := C) e).trans derivCycleEquivLinearOrder), card_L]
 
 /-- `C(x) = Σ_{n ≥ 1} xⁿ/n` (i.e., `log (1/(1 − x))`) -/
 theorem egs_C : egs C = PowerSeries.mk fun n => if n = 0 then 0 else (1 : ℚ) / n := by
@@ -67,7 +67,7 @@ lemma LToCWithHole_natural {U V : Type} [Finite U] [Finite V] (σ : U ≃ V) (l 
 
 /-- `left_inv` of the equivalence, as a named fact -/
 lemma LToC_CToL {U : Type} [Finite U] (c : C (WithHole U)) : LToCWithHole (CWithHoleToL c) = c :=
-  derivCycleIsLinearOrder.left_inv c
+  derivCycleEquivLinearOrder.left_inv c
 
 /-- Any two cycles through the hole are relabellings of each other -/
 lemma C_hole_transitive {U : Type} [Finite U] (c₁ c₂ : C (WithHole U))
