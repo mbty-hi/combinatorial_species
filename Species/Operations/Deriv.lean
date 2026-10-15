@@ -44,9 +44,9 @@ instance instFintype [Fintype U] : Fintype (WithHole U) :=
   Fintype.ofEquiv (Option U) equivOption.symm
 
 def transport (σ : U ≃ V) : WithHole U ≃ WithHole V where
-  toFun  x  := ⟨x.val.map σ⟩
-  invFun x  := ⟨x.val.map σ.symm⟩
-  left_inv  := by
+  toFun  x := ⟨x.val.map σ⟩
+  invFun x := ⟨x.val.map σ.symm⟩
+  left_inv := by
     rintro ⟨_ | u⟩ <;> simp only [Option.map_none, Option.map_some, Equiv.symm_apply_apply]
   right_inv := by
     rintro ⟨_ | u⟩ <;> simp only [Option.map_none, Option.map_some, Equiv.apply_symm_apply]
@@ -93,7 +93,7 @@ end Display
 instance instSpecies : Species (Deriv F) where
   finite := by
     intros U _; unfold Deriv
-    have := Species.finite (F := F) (U := WithHole U)
+    have _ := Species.finite (F := F) (U := WithHole U)
     infer_instance
   transport      := fun {U V} _ _ σ => Species.transport (F := F) (WithHole.transport σ)
   id_transport   := fun {U} _ f => by
@@ -106,7 +106,7 @@ instance instComputableSpecies {F : Type → Type} [ComputableSpecies F]
   fintype := fun {U} [LabelType U] => show Fintype (F (WithHole U)) from inferInstance
   decEq   := by
     intros U _ _ _; unfold Deriv at *
-    haveI := ComputableSpecies.decEq (F := F) (U := WithHole U)
+    haveI _ := ComputableSpecies.decEq (F := F) (U := WithHole U)
     infer_instance
 
 end Deriv

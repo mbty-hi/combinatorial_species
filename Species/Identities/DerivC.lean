@@ -110,7 +110,7 @@ section DistanceFromHole
 -- number of steps to the next hole
 lemma exists_distanceFromHole (x : WithHole U) : ∃ d, 0 < d ∧ ((c.1.symm ^ d) x).val.isNone := by
   obtain ⟨m, hm⟩ := (c.2.2 ⊥ x).exists_nat_pow_eq
-  refine ⟨m + orderOf c.1.symm, by have := orderOf_pos c.1.symm; omega, ?_⟩
+  refine ⟨m + orderOf c.1.symm, by have _ := orderOf_pos c.1.symm; omega, ?_⟩
   rw [
     WithHole.isNone_iff_eq_bot, pow_add, Equiv.Perm.mul_apply, pow_orderOf_eq_one,
     symm_pow_apply_eq_bot_iff
@@ -230,11 +230,13 @@ def CWithHoleToL (c : C (WithHole U)) : L U where
     toFun u  := ⟨cycleIndex c u, cycleIndex_lt c u⟩
     invFun k :=
       unwrap
-        ((c.1 ^ (k.val + 1)) ⊥) ((loopsBackInLength c).2 _ (by omega) (by have := k.2; omega)).symm
+        ((c.1 ^ (k.val + 1)) ⊥)
+        ((loopsBackInLength c).2 _ (by omega) (by have _ := k.2; omega)).symm
     left_inv u :=
       WithHole.coe_injective
         (by dsimp only; rw [WithHole.coe_unwrap]; exact (cycleIndex_spec c u).symm)
-    right_inv k := Fin.ext (cycleIndex_of_pow c _ (by have := k.2; omega) (WithHole.coe_unwrap _ _))
+    right_inv k :=
+      Fin.ext (cycleIndex_of_pow c _ (by have _ := k.2; omega) (WithHole.coe_unwrap _ _))
   }
 
 end CWithHoleToL

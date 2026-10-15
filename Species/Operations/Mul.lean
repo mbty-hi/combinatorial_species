@@ -135,11 +135,11 @@ lemma false_block_contents_determines_split {split₁ split₂ : U → Bool}
   )
 : split₁ = split₂ := by
   have hset : Finset.univ.filter (split₁ · = false) = Finset.univ.filter (split₂ · = false) := by
-    have := congrArg List.toFinset h
-    simpa only [Finset.sort_toFinset] using this
+    have hx := congrArg List.toFinset h
+    simpa only [Finset.sort_toFinset] using hx
   funext u
-  have := Finset.ext_iff.mp hset u
-  simp only [Finset.mem_filter, Finset.mem_univ, true_and] at this
+  have hx := Finset.ext_iff.mp hset u
+  simp only [Finset.mem_filter, Finset.mem_univ, true_and] at hx
   cases hu1 :
     split₁ u <;> cases hu2 : split₂ u <;>
     simp_all only [Bool.true_eq_false, iff_false, not_true_eq_false]

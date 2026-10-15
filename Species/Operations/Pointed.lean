@@ -30,7 +30,7 @@ end Display
 instance instSpecies : Species (Pointed F) where
   finite := by
     intros U _; unfold Pointed
-    have := Species.finite (F := F) (U := U)
+    have _ := Species.finite (F := F) (U := U)
     infer_instance
   transport      := fun {U V} _ _ σ x       => (σ x.1, Species.transport σ x.2)
   id_transport   := fun {U} _ f             => by simp only [Equiv.refl_apply , id_transport  ]; rfl

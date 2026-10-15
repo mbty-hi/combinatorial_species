@@ -35,7 +35,7 @@ lemma prod_indicator_one {n : ℕ} (σ : Equiv.Perm (Fin n))
   · -- some cycle of length `≥ 2` contributes a factor `0`
     obtain ⟨k, hk⟩ := Multiset.exists_mem_of_ne_zero (mt Equiv.Perm.cycleType_eq_zero.1 h)
     refine Multiset.prod_eq_zero (Multiset.mem_map.2 ⟨k, hk, ?_⟩)
-    have := Equiv.Perm.two_le_of_mem_cycleType hk
+    have _ := Equiv.Perm.two_le_of_mem_cycleType hk
     rw [ite_eq_right (by omega)]
 
 /-- The identity fixes every structure. -/
