@@ -44,6 +44,7 @@ local notation "Mul"  => Species.Mul
 
 /- Combined structures -/
 #eval structuresCanonical (Add E L) 3
+#eval structuresCanonical (Pointed (Add E L)) 3
 #eval structuresCanonical (Add E (Add E E)) 3
 #eval structuresCanonical (Mul E L) 3
 #eval structuresCanonical (Mul E E) 5
