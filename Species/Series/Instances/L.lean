@@ -1,8 +1,12 @@
-import Species.Instances.L
-import Species.Series.ExponentialGeneratingSeries
-import Species.Series.TypeGeneratingSeries
-import Mathlib.RingTheory.PowerSeries.Inverse
-import Mathlib.SetTheory.Cardinal.Finite
+module
+
+public import Species.Instances.L
+public import Species.Series.ExponentialGeneratingSeries
+public import Species.Series.TypeGeneratingSeries
+public import Mathlib.RingTheory.PowerSeries.Inverse
+public import Mathlib.SetTheory.Cardinal.Finite
+
+@[expose] public section
 
 namespace Species
 
@@ -67,5 +71,5 @@ theorem egs_L_closed : egs L = (1 - PowerSeries.X)⁻¹ := by rw [egs_L, mk_one_
 theorem tgs_L_closed : tgs L = (1 - PowerSeries.X)⁻¹ := by rw [tgs_L, mk_one_eq_inv]
 
 end ClosedForms
-
 end Species
+end

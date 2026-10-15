@@ -1,7 +1,11 @@
-import Mathlib.SetTheory.Cardinal.Finite
-import Mathlib.RingTheory.PowerSeries.Basic
-import Species.Basic
-import Species.Computable
+module
+
+public import Mathlib.SetTheory.Cardinal.Finite
+public import Mathlib.RingTheory.PowerSeries.Basic
+public import Species.Basic
+public import Species.Computable
+
+@[expose] public section
 
 namespace Species
 
@@ -25,3 +29,4 @@ lemma egsCoeff_eq (F : Type → Type) [ComputableSpecies F] (n : ℕ)
   Nat.card_eq_fintype_card.symm
 
 end ComputableSpecies
+end

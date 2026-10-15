@@ -1,7 +1,11 @@
-import Species.Basic
-import Species.Computable
-import Mathlib.Order.WithBot
-import Mathlib.Data.Fintype.WithTopBot
+module
+
+public import Species.Basic
+public import Species.Computable
+public import Mathlib.Order.WithBot
+public import Mathlib.Data.Fintype.WithTopBot
+
+@[expose] public section
 
 namespace Species
 
@@ -104,5 +108,5 @@ instance instComputableSpecies {F : Type → Type} [ComputableSpecies F]
     infer_instance
 
 end Deriv
-
 end Species
+end

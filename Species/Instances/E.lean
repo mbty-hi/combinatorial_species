@@ -1,8 +1,12 @@
-import Species.Basic
-import Species.Computable
-import Mathlib.Data.Finset.Sort
-import Mathlib.SetTheory.Cardinal.Finite
-import Init.Data.Format.Basic
+module
+
+public import Species.Basic
+public import Species.Computable
+public import Mathlib.Data.Finset.Sort
+public import Mathlib.SetTheory.Cardinal.Finite
+public import Init.Data.Format.Basic
+
+@[expose] public section
 
 namespace Species
 
@@ -34,5 +38,5 @@ instance instComputableSpecies : ComputableSpecies E where
   decEq   := inferInstance
 
 end E
-
 end Species
+end

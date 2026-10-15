@@ -1,8 +1,12 @@
-import Mathlib.Tactic.FinCases
-import Species.Basic
-import Species.Operations.Mul
-import Species.Instances.One
-import Species.Instances.Zero
+module
+
+public import Mathlib.Tactic.FinCases
+public import Species.Basic
+public import Species.Operations.Mul
+public import Species.Instances.One
+public import Species.Instances.Zero
+
+@[expose] public section
 
 namespace Species.Mul
 
@@ -502,3 +506,4 @@ def mulAssoc {S₁ S₂ S₃ : Type → Type} [Species S₁] [Species S₂] [Spe
   Mul₃Equiv₂.trans (@Mul₃Equiv₁ S₁ S₂ S₃ _ _ _ U _).symm
 
 end Species.Mul
+end

@@ -1,5 +1,9 @@
-import Mathlib.RingTheory.PowerSeries.Inverse
-import Mathlib.RingTheory.PowerSeries.WellKnown
+module
+
+public import Mathlib.RingTheory.PowerSeries.Inverse
+public import Mathlib.RingTheory.PowerSeries.WellKnown
+
+@[expose] public section
 
 /-- `Σ xⁿ = (1 − x)⁻¹`. -/
 lemma mk_one_eq_inv : (PowerSeries.mk fun _ => (1 : ℚ)) = (1 - PowerSeries.X)⁻¹ := by
@@ -15,3 +19,5 @@ lemma mk_one_eq_inv : (PowerSeries.mk fun _ => (1 : ℚ)) = (1 - PowerSeries.X)�
   convert h using 2 <;> ext n
   · simp only [PowerSeries.coeff_mk, PowerSeries.coeff_invUnitsSub, one_pow, divp_one]
   · simp only [map_sub, PowerSeries.coeff_one, Units.val_one, map_one]
+
+end

@@ -1,8 +1,12 @@
-import Species.Basic
-import Species.Computable
-import Mathlib.Data.Fintype.Powerset
-import Mathlib.Data.Finset.Sort
-import Mathlib.Data.Prod.Lex
+module
+
+public import Species.Basic
+public import Species.Computable
+public import Mathlib.Data.Fintype.Powerset
+public import Mathlib.Data.Finset.Sort
+public import Mathlib.Order.Prod.Lex.Basic
+
+@[expose] public section
 
 namespace Species
 
@@ -46,5 +50,5 @@ instance instComputableSpecies : ComputableSpecies Powerset where
   decEq   := inferInstance
 
 end Powerset
-
 end Species
+end

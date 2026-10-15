@@ -1,9 +1,13 @@
-import Species.Operations.Deriv
-import Species.Identities.DerivC
-import Species.Instances.C
-import Species.Series.Instances.L
-import Species.Series.ExponentialGeneratingSeries
-import Species.Series.TypeGeneratingSeries
+module
+
+public import Species.Operations.Deriv
+public import Species.Identities.DerivC
+public import Species.Instances.C
+public import Species.Series.Instances.L
+public import Species.Series.ExponentialGeneratingSeries
+public import Species.Series.TypeGeneratingSeries
+
+@[expose] public section
 
 namespace Species
 
@@ -30,7 +34,7 @@ theorem egs_C : egs C = PowerSeries.mk fun n => if n = 0 then 0 else (1 : ℚ) /
     ]
     rw [Fintype.card_eq_nat_card, card_C_zero]
   · -- `n! / (n+1)! = 1/(n+1)`
-    rw [card_C_succ, if_neg n.succ_ne_zero, Nat.factorial_succ]
+    rw [card_C_succ, ite_eq_right n.succ_ne_zero, Nat.factorial_succ]
     have _ : (n.factorial : ℚ) ≠ 0 := Nat.cast_ne_zero.2 n.factorial_ne_zero
     push_cast
     field_simp
@@ -98,7 +102,7 @@ lemma tgsCoeff_C (n : ℕ) : tgsCoeff C n = if n = 0 then 0 else 1 := by
     have _ : IsEmpty (C (Fin 0)) := ⟨fun c => c.2.1.some.elim0⟩
     exact Nat.card_of_isEmpty
   | succ n =>
-    rw [if_neg n.succ_ne_zero]
+    rw [ite_eq_right n.succ_ne_zero]
     have _ :=
       (MulAction.pretransitive_iff_subsingleton_quotient
         (Equiv.Perm (Fin (n + 1)))
@@ -120,5 +124,5 @@ theorem tgs_C : tgs C = PowerSeries.X * (1 - PowerSeries.X)⁻¹ := by
     ]
 
 end TGS
-
 end Species
+end

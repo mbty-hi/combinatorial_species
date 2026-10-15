@@ -1,7 +1,9 @@
-import Mathlib.Data.Finset.Sort
-import Species.Instances.Instances
-import Species.Enumeration
-import Species.Operations.Operations
+module
+
+public meta import Mathlib.Data.Finset.Sort
+public meta import Species.Instances.Instances
+public meta import Species.Enumeration
+public meta import Species.Operations.Operations
 
 open Species
 

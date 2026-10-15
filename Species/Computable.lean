@@ -1,5 +1,7 @@
-import Species.Basic
-import Species.Labels.LabelType
+module
+
+public import Species.Basic
+public import Species.Labels.LabelType
 
 /-!
 # Computable combinatorial species
@@ -15,6 +17,8 @@ The linear order on `U` is what makes it possible to use `Finset.sort` to extrac
 `F`-structures on `U` computably (see `structures` in `Cardinality.lean`, which additionally
 requires a `LinearOrder` on `F U` to control the presentation order).
 -/
+
+@[expose] public section
 
 /-- A *computable* combinatorial species providing an enumeration and a decidable equality for the
 `F`-structures on label types `U` that are enumerable and linearly ordered (`LabelType`). -/
@@ -35,3 +39,4 @@ instance instDecEq   : DecidableEq (F U) := decEq
 def structures : Finset (F U) := Finset.univ
 
 end ComputableSpecies
+end

@@ -1,6 +1,10 @@
-import Species.Operations.Add
-import Species.Series.ExponentialGeneratingSeries
-import Species.Series.TypeGeneratingSeries
+module
+
+public import Species.Operations.Add
+public import Species.Series.ExponentialGeneratingSeries
+public import Species.Series.TypeGeneratingSeries
+
+@[expose] public section
 
 namespace Species
 
@@ -14,5 +18,5 @@ theorem egs_add (F G : Type → Type) [Species F] [Species G] : egs (Add F G) = 
   ext n; simp only [egs, egsCoeff_add, Nat.cast_add, add_div, PowerSeries.coeff_mk, map_add]
 
 end EGS
-
 end Species
+end

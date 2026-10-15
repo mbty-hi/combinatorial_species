@@ -1,9 +1,13 @@
-import Mathlib.Data.Fintype.Perm
-import Mathlib.GroupTheory.GroupAction.Quotient
-import Mathlib.RingTheory.PowerSeries.Basic
-import Mathlib.SetTheory.Cardinal.Finite
-import Species.Computable
-import Species.Basic
+module
+
+public import Mathlib.Data.Fintype.Perm
+public import Mathlib.GroupTheory.GroupAction.Quotient
+public import Mathlib.RingTheory.PowerSeries.Basic
+public import Mathlib.SetTheory.Cardinal.Finite
+public import Species.Computable
+public import Species.Basic
+
+@[expose] public section
 
 namespace Species
 
@@ -43,3 +47,4 @@ lemma tgsCoeff_eq (F : Type → Type) [ComputableSpecies F] (n : ℕ)
   exact Nat.card_eq_fintype_card.symm
 
 end ComputableSpecies
+end

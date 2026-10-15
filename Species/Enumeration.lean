@@ -1,12 +1,16 @@
-import Mathlib.Data.Finset.Sort
-import Species.Computable
-import Species.Labels.Canonical
+module
+
+public import Mathlib.Data.Finset.Sort
+public import Species.Computable
+public import Species.Labels.Canonical
 
 /-!
 # Computable functions for enumerating `F`-structures
 
 This file defines auxiliary functions for enumerating `F`-structures in computable settings.
 -/
+
+@[expose] public section
 
 namespace Species
 
@@ -30,3 +34,4 @@ def card (n : ℕ) : ℕ := Fintype.card (F (Fin n))
 def seq (n : ℕ) : List ℕ := (List.range n).map (card F)
 
 end Species
+end

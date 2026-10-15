@@ -1,8 +1,10 @@
-import Species.Basic
-import Species.Isomorphism
-import Mathlib.CategoryTheory.Groupoid
-import Mathlib.CategoryTheory.Types.Basic
-import Mathlib.Data.Finite.Prod
+module
+
+public import Species.Basic
+public import Species.Isomorphism
+public import Mathlib.Basic.Finite.Prod
+public import Mathlib.CategoryTheory.Groupoid
+public import Mathlib.CategoryTheory.Types.Basic
 
 /-!
 # A categorical view of species
@@ -32,6 +34,8 @@ categorical point of view of [Joyal81].
 * [F. Bergeron, G. Labelle, P. Leroux, *Combinatorial Species and Tree-like Structures*][BLL]
 * [A. Joyal, *Une théorie combinatoire des séries formelles*][Joyal81]
 -/
+
+@[expose] public section
 
 namespace Species
 
@@ -260,5 +264,5 @@ def Iso.equivSpeciesCat : Iso F G ≃ (toSpeciesCat F ≅ toSpeciesCat G) :=
   ext X s; rfl
 
 end Morphisms
-
 end Species
+end

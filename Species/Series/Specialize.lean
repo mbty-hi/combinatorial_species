@@ -1,6 +1,10 @@
-import Species.Series.ExponentialGeneratingSeries
-import Species.Series.TypeGeneratingSeries
-import Species.Series.CycleIndexSeries
+module
+
+public import Species.Series.ExponentialGeneratingSeries
+public import Species.Series.TypeGeneratingSeries
+public import Species.Series.CycleIndexSeries
+
+@[expose] public section
 
 namespace Species
 
@@ -23,7 +27,7 @@ lemma prod_indicator_one {n : ℕ} (σ : Equiv.Perm (Fin n))
 : ((cycleLengths σ).map fun k => if k = 1 then (1 : ℚ) else 0).prod = if σ = 1 then 1 else 0 := by
   rw [
     ← ComputableSpecies.cycleLengths_eq, ComputableSpecies.cycleLengths, Equiv.Perm.parts_partition,
-    Multiset.map_add, Multiset.prod_add, Multiset.map_replicate, if_pos rfl,
+    Multiset.map_add, Multiset.prod_add, Multiset.map_replicate, ite_eq_left rfl,
     Multiset.prod_replicate, one_pow, mul_one
   ]
   split_ifs with h
@@ -32,7 +36,7 @@ lemma prod_indicator_one {n : ℕ} (σ : Equiv.Perm (Fin n))
     obtain ⟨k, hk⟩ := Multiset.exists_mem_of_ne_zero (mt Equiv.Perm.cycleType_eq_zero.1 h)
     refine Multiset.prod_eq_zero (Multiset.mem_map.2 ⟨k, hk, ?_⟩)
     have := Equiv.Perm.two_le_of_mem_cycleType hk
-    rw [if_neg (by omega)]
+    rw [ite_eq_right (by omega)]
 
 /-- The identity fixes every structure. -/
 lemma fixCount_transportEquiv_one (n : ℕ)
@@ -105,5 +109,5 @@ theorem tgs_from_cis : cisSpecialize F (fun _ => 1) = tgs F := by
       exact mul_div_cancel_right₀ _ (Nat.cast_ne_zero.2 n.factorial_ne_zero)
 
 end tgs_from_cis
-
 end Species
+end

@@ -1,9 +1,13 @@
-import Mathlib.Logic.Equiv.Fin.Rotate
-import Species.Operations.Operations
-import Species.Instances.Instances
-import Species.Basic
+module
+
+public import Mathlib.Logic.Equiv.Fin.Rotate
+public import Species.Operations.Operations
+public import Species.Instances.Instances
+public import Species.Basic
 
 /- TODO isomorphism, not just bijection -/
+
+@[expose] public section
 
 namespace Species
 
@@ -339,3 +343,4 @@ def derivCycleIsLinearOrder : Deriv C U ≃ L U where
     ]
 
 end Species
+end

@@ -1,9 +1,13 @@
-import Species.Basic
-import Species.Operations.Add
-import Species.Instances.One
-import Species.Instances.Zero
+module
+
+public import Species.Basic
+public import Species.Operations.Add
+public import Species.Instances.One
+public import Species.Instances.Zero
 
 /- TODO in this folder: isomorphism instead of mere equiv -/
+
+@[expose] public section
 
 namespace Species
 
@@ -56,3 +60,4 @@ def addComm : Add F G U ≃ Add G F U where
   right_inv := by rintro (foo | bar) <;> rfl
 
 end Species
+end

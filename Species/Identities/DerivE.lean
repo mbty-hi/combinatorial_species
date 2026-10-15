@@ -1,8 +1,12 @@
-import Mathlib.Logic.Equiv.Fin.Rotate
-import Species.Operations.Operations
-import Species.Isomorphism
-import Species.Instances.Instances
-import Species.Basic
+module
+
+public import Mathlib.Logic.Equiv.Fin.Rotate
+public import Species.Operations.Operations
+public import Species.Isomorphism
+public import Species.Instances.Instances
+public import Species.Basic
+
+@[expose] public section
 
 namespace Species
 
@@ -17,3 +21,4 @@ def deriv_E_iso {U: Type} [Finite U] : Iso (Deriv E) E where
   naturality _ _ := rfl
 
 end Species
+end

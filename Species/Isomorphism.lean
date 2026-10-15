@@ -1,4 +1,6 @@
-import Species.Basic
+module
+
+public import Species.Basic
 
 /-!
 # Isomorphism of species
@@ -14,6 +16,8 @@ This file defines the notion of isomorphism for species.
 ## References
 * [F. Bergeron, G. Labelle, P. Leroux, *Combinatorial Species and Tree-like Structures*][BLL]
 -/
+
+@[expose] public section
 
 namespace Species
 
@@ -59,5 +63,5 @@ def trans (iso₁ : Iso F G) (iso₂ : Iso G H) : Iso F H where
   naturality σ fu := by simp only [Equiv.trans_apply]; rw [iso₁.naturality, iso₂.naturality]
 
 end Iso
-
 end Species
+end

@@ -1,8 +1,13 @@
-import Mathlib.GroupTheory.Perm.Cycle.Basic
-import Mathlib.GroupTheory.Perm.Cycle.Type
-import Mathlib.RingTheory.PowerSeries.Basic
-import Species.Basic
-import Species.Computable
+module
+
+public import Mathlib.Algebra.MonoidAlgebra.Defs
+public import Mathlib.GroupTheory.Perm.Cycle.Basic
+public import Mathlib.GroupTheory.Perm.Cycle.Type
+public import Mathlib.RingTheory.PowerSeries.Basic
+public import Species.Basic
+public import Species.Computable
+
+@[expose] public section
 
 namespace Species
 
@@ -42,12 +47,12 @@ noncomputable def cisNumerator (n : ℕ) : MvPolynomial ℕ ℕ :=
 /-- Z_F(x₁, x₂, …) = Σ ((1/n!) (Σ (for σ in Sₙ) ((fix F[σ]) x₁^σ₁ x₂^σ₂ …))) -/
 noncomputable def cis : MvPowerSeries ℕ ℚ := fun m =>
   let n := m.sum fun k c => k * c
-  ((MvPolynomial.coeff m (cisNumerator F n) : ℕ) : ℚ) / n.factorial
+  ((AddMonoidAlgebra.coeff (cisNumerator F n) m : ℕ) : ℚ) / n.factorial
 
 /-- Get the coefficient associated with the given monomial `μ`. In effect, this gives the sum of
     |`F`-structures kept fixed| for each `σ` of the `μ` shape. -/
 noncomputable def cisCoeff (n : ℕ) (μ : Multiset ℕ) : ℕ :=
-  MvPolynomial.coeff (Multiset.toFinsupp μ) (cisNumerator F n)
+  AddMonoidAlgebra.coeff (cisNumerator F n) (Multiset.toFinsupp μ)
 
 /-- `Z_F(c₁ x, c₂ x², c₃ x³, …)`: turns the CIS into a one-variable formal power series by replacing
     each `xₖ` with `cₖ xᵏ`.
@@ -202,7 +207,7 @@ lemma card_class (σ : Equiv.Perm U) (x : U) :
 /-- The class of a fixpoint has length 1 -/
 lemma length_classOf_fix (σ : Equiv.Perm U) (x : {x // σ x = x})
 : Nat.card {u | (⟦u⟧ : Species.Cycles σ) = classOf σ (.inl x)} = 1 := by
-  simp only [classOf]; rw [card_class, if_pos x.2]
+  simp only [classOf]; rw [card_class, ite_eq_left x.2]
 
 /-- The class of a cycle factor `c` has length `c.card` -/
 lemma length_classOf_fac (σ : Equiv.Perm U) (cycleFactor : σ.cycleFactorsFinset)
@@ -211,7 +216,7 @@ lemma length_classOf_fac (σ : Equiv.Perm U) (cycleFactor : σ.cycleFactorsFinse
 := by
   simp only [classOf]
   rw [
-    card_class, if_neg (factorPoint_moved σ cycleFactor),
+    card_class, ite_eq_right (factorPoint_moved σ cycleFactor),
     ← cycleFactor_eq_cycleOf_factorPoint σ cycleFactor
   ]
 
@@ -262,28 +267,34 @@ lemma cisNumerator_eq (n : ℕ)
     rw [fixCount_eq, cycleLengths_eq]
 
 lemma coeff_sum_monomials (s : Multiset (ℕ × Multiset ℕ)) (μ : Multiset ℕ) :
-  MvPolynomial.coeff
-    (Multiset.toFinsupp μ) ((s.map fun t => MvPolynomial.monomial (Multiset.toFinsupp t.2) t.1).sum)
+  AddMonoidAlgebra.coeff
+    ((s.map fun t => MvPolynomial.monomial (Multiset.toFinsupp t.2) t.1).sum) (Multiset.toFinsupp μ)
   = ((s.filter (fun x => x.2 = μ)).map (fun x => x.1)).sum
 := by
   induction s using Multiset.induction_on with
   | empty =>
     simp only [
-      Multiset.map_zero, Multiset.sum_zero, MvPolynomial.coeff_zero, Multiset.filter_zero
+      Multiset.map_zero, Multiset.sum_zero, AddMonoidAlgebra.coeff_zero, Finsupp.coe_zero,
+      Pi.zero_apply, Multiset.filter_zero
     ]
   | cons t s ih =>
     rw [
-      Multiset.map_cons, Multiset.sum_cons, MvPolynomial.coeff_add, ih, MvPolynomial.coeff_monomial,
-      Multiset.filter_cons
+      Multiset.map_cons, Multiset.sum_cons, AddMonoidAlgebra.coeff_add, Finsupp.add_apply,
+      Multiset.filter_cons, ih
     ]
     by_cases h : t.2 = μ
-    · simp only [h, ↓reduceIte, Multiset.singleton_add, Multiset.map_cons, Multiset.sum_cons]
-    · simp only [EmbeddingLike.apply_eq_iff_eq, h, ↓reduceIte, zero_add]
+    · simp only [
+        h, MvPolynomial.coeff_monomial, ↓reduceIte, Multiset.singleton_add, Multiset.map_cons,
+        Multiset.sum_cons
+      ]
+    · simp only [
+        MvPolynomial.coeff_monomial, EmbeddingLike.apply_eq_iff_eq, h, ↓reduceIte, zero_add
+      ]
 
 lemma cisCoeff_eq (n : ℕ) (μ : Multiset ℕ) : cisCoeff F n μ = Species.cisCoeff F n μ := by
   unfold cisCoeff Species.cisCoeff
   rw [← cisNumerator_eq, coeff_sum_monomials]
 
 end Correctness
-
 end ComputableSpecies
+end

@@ -1,8 +1,12 @@
-import Species.Basic
-import Species.Computable
-import Mathlib.GroupTheory.Perm.Cycle.Basic
-import Mathlib.GroupTheory.Perm.Cycle.Concrete
-import Mathlib.Data.Fintype.Perm
+module
+
+public import Species.Basic
+public import Species.Computable
+public import Mathlib.GroupTheory.Perm.Cycle.Basic
+public import Mathlib.GroupTheory.Perm.Cycle.Concrete
+public import Mathlib.Data.Fintype.Perm
+
+@[expose] public section
 
 namespace Species
 
@@ -37,11 +41,11 @@ instance instLinearOrder {U} [Fintype U] [LinearOrder U] : LinearOrder (C U) :=
       simpa only [Option.map_some, Option.some.injEq] using hmap)
 
 /- Species instance -/
-private lemma permCongr_zpow {U V : Type} (e : U ≃ V) (p : Equiv.Perm U) (i : ℤ)
+lemma permCongr_zpow {U V : Type} (e : U ≃ V) (p : Equiv.Perm U) (i : ℤ)
 : (e.permCongr p) ^ i = e.permCongr (p ^ i) :=
   (map_zpow (MulEquiv.mk' e.permCongr e.permCongr_mul) p i).symm
 
-private lemma permCongr_sameCycle
+lemma permCongr_sameCycle
   {U V : Type} (e : U ≃ V) (p : Equiv.Perm U) {x y : V} (h : p.SameCycle (e.symm x) (e.symm y))
 : (e.permCongr p).SameCycle x y := by
   obtain ⟨i, hi⟩ := h
@@ -75,5 +79,5 @@ instance instComputableSpecies : ComputableSpecies C where
   decEq := inferInstance
 
 end C
-
 end Species
+end

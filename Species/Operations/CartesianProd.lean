@@ -1,6 +1,10 @@
-import Species.Basic
-import Species.Computable
-import Mathlib.Data.Prod.Lex
+module
+
+public import Species.Basic
+public import Species.Computable
+public import Mathlib.Order.Prod.Lex.Basic
+
+@[expose] public section
 
 namespace Species
 
@@ -45,5 +49,5 @@ instance instComputableSpecies : ComputableSpecies (CartProd F G) where
     infer_instance
 
 end CartProd
-
 end Species
+end

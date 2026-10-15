@@ -1,8 +1,12 @@
-import Species.Basic
-import Species.Computable
-import Mathlib.Data.Prod.Lex
-import Mathlib.GroupTheory.Perm.Cycle.Basic
-import Mathlib.GroupTheory.Perm.Cycle.Concrete
+module
+
+public import Species.Basic
+public import Species.Computable
+public import Mathlib.GroupTheory.Perm.Cycle.Basic
+public import Mathlib.GroupTheory.Perm.Cycle.Concrete
+public import Mathlib.Order.Prod.Lex.Basic
+
+@[expose] public section
 
 namespace Species
 
@@ -14,7 +18,7 @@ instance insetFintype {U} [Fintype U] [DecidableEq U] : Fintype (S U) :=
   inferInstanceAs (Fintype (Equiv.Perm U))
 
 /- List of orbits ordered by length and contents -/
-private def orbits {U} [Fintype U] [LinearOrder U] (p : S U) : List (List U) :=
+def orbits {U} [Fintype U] [LinearOrder U] (p : S U) : List (List U) :=
   let labels : List U := Finset.univ.sort (· ≤ ·)
   let orbits : List (List U) :=
     -- Handling things one orbit at a time. We fold over all elements of type α to ensure that we
@@ -88,5 +92,5 @@ instance instComputableSpecies : ComputableSpecies S where
   decEq   := inferInstance
 
 end S
-
 end Species
+end

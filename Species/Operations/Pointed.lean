@@ -1,7 +1,11 @@
-import Species.Basic
-import Species.Computable
-import Mathlib.Data.Finite.Prod
-import Mathlib.Data.Prod.Lex
+module
+
+public import Species.Basic
+public import Species.Computable
+public import Mathlib.Basic.Finite.Prod
+public import Mathlib.Order.Prod.Lex.Basic
+
+@[expose] public section
 
 namespace Species
 
@@ -29,5 +33,5 @@ instance instComputableSpecies {F : Type → Type} [ComputableSpecies F]
     infer_instance
 
 end Pointed
-
 end Species
+end

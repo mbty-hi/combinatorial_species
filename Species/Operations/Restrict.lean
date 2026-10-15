@@ -1,8 +1,12 @@
-import Species.Basic
-import Species.Computable
-import Mathlib.SetTheory.Cardinal.Finite
-import Mathlib.Data.Finite.Sigma
-import Mathlib.Data.Fintype.Sigma
+module
+
+public import Species.Basic
+public import Species.Computable
+public import Mathlib.Basic.Finite.Sigma
+public import Mathlib.Data.Fintype.Sigma
+public import Mathlib.SetTheory.Cardinal.Finite
+
+@[expose] public section
 
 namespace Species
 
@@ -44,5 +48,5 @@ instance instCompSpecies (F : Type → Type) [ComputableSpecies F] (k : ℕ)
     infer_instance
 
 end Restrict
-
 end Species
+end

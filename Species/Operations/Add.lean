@@ -1,8 +1,12 @@
-import Species.Basic
-import Species.Computable
-import Mathlib.Data.Finite.Sum
-import Mathlib.Data.Fintype.Sum
-import Mathlib.Data.Sum.Order
+module
+
+public import Species.Basic
+public import Species.Computable
+public import Mathlib.Basic.Finite.Sum
+public import Mathlib.Data.Fintype.Sum
+public import Mathlib.Order.Sum.Order
+
+@[expose] public section
 
 namespace Species
 
@@ -47,5 +51,5 @@ instance instComputableSpecies {F G : Type → Type} [ComputableSpecies F] [Comp
     infer_instance
 
 end Add
-
 end Species
+end

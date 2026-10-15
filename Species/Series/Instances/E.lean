@@ -1,10 +1,14 @@
-import Mathlib.RingTheory.PowerSeries.Exp
-import Mathlib.RingTheory.PowerSeries.Inverse
-import Mathlib.RingTheory.PowerSeries.WellKnown
-import Species.Series.ExponentialGeneratingSeries
-import Species.Series.TypeGeneratingSeries
-import Species.Series.Utils
-import Species.Instances.E
+module
+
+public import Mathlib.RingTheory.PowerSeries.Exp
+public import Mathlib.RingTheory.PowerSeries.Inverse
+public import Mathlib.RingTheory.PowerSeries.WellKnown
+public import Species.Series.ExponentialGeneratingSeries
+public import Species.Series.TypeGeneratingSeries
+public import Species.Series.Utils
+public import Species.Instances.E
+
+@[expose] public section
 
 namespace Species
 
@@ -30,5 +34,5 @@ theorem tgs_E : tgs E = (1 - PowerSeries.X)⁻¹ := by
   simp only [tgs, tgsCoeff_E, Nat.cast_one, ← mk_one_eq_inv]
 
 end TGS
-
 end Species
+end

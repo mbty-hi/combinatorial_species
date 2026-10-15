@@ -1,5 +1,7 @@
-import Mathlib.Data.Finite.Defs
-import Mathlib.GroupTheory.Perm.Basic
+module
+
+public import Mathlib.Basic.Finite.Defs
+public import Mathlib.GroupTheory.Perm.Basic
 
 /-!
 # Combinatorial species
@@ -17,6 +19,8 @@ expressivity of the theory, but it makes the proofs nicer.
 * [F. Bergeron, G. Labelle, P. Leroux, *Combinatorial Species and Tree-like Structures*][BLL]
 TODO add .bib
 -/
+
+@[expose] public section
 
 /-- A combinatorial species is a rule (`F` of type `Type → Type`) that associates to each finite
 type of labels (`U`) a finite type `F[U]`, independently of the nature of the elements of `U`. -/
@@ -69,5 +73,5 @@ theorem transport_eq_self_of_id (σ : U ≃ U) (h : ∀ a, σ a = a) (f : F U)
   rw [hσ, id_transport]
 
 end transport
-
 end Species
+end

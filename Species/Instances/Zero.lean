@@ -1,5 +1,9 @@
-import Species.Basic
-import Species.Computable
+module
+
+public import Species.Basic
+public import Species.Computable
+
+@[expose] public section
 
 namespace Species
 
@@ -24,5 +28,5 @@ instance instComputableSpecies : ComputableSpecies Zero where
   decEq   := inferInstance
 
 end Zero
-
 end Species
+end

@@ -1,6 +1,10 @@
-import Species.Instances.Zero
-import Species.Series.ExponentialGeneratingSeries
-import Species.Series.TypeGeneratingSeries
+module
+
+public import Species.Instances.Zero
+public import Species.Series.ExponentialGeneratingSeries
+public import Species.Series.TypeGeneratingSeries
+
+@[expose] public section
 
 namespace Species
 
@@ -27,5 +31,5 @@ theorem tgs_Zero : tgs Zero = 0 := by
   ext n; simp only [tgs, tgsCoeff_Zero, CharP.cast_eq_zero, PowerSeries.coeff_mk, map_zero]
 
 end TGS
-
 end Species
+end

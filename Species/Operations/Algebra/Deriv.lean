@@ -1,7 +1,11 @@
-import Species.Basic
-import Species.Operations.Deriv
-import Species.Operations.Add
-import Species.Operations.Mul
+module
+
+public import Species.Basic
+public import Species.Operations.Deriv
+public import Species.Operations.Add
+public import Species.Operations.Mul
+
+@[expose] public section
 
 namespace Species
 
@@ -176,3 +180,4 @@ def leibnizMul : Deriv (Mul F G) U ≃ Add (Mul (Deriv F) G) (Mul F (Deriv G)) U
     <;> congr
 
 end Species
+end

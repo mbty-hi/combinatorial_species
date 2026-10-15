@@ -1,6 +1,10 @@
-import Species.Instances.One
-import Species.Series.ExponentialGeneratingSeries
-import Species.Series.TypeGeneratingSeries
+module
+
+public import Species.Instances.One
+public import Species.Series.ExponentialGeneratingSeries
+public import Species.Series.TypeGeneratingSeries
+
+@[expose] public section
 
 namespace Species
 
@@ -36,5 +40,5 @@ theorem tgs_One : tgs One = 1 := by
   ]
 
 end TGS
-
 end Species
+end

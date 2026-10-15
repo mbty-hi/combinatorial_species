@@ -1,2 +1,4 @@
-import Species.Identities.DerivE
-import Species.Identities.DerivC
+module
+
+public import Species.Identities.DerivE
+public import Species.Identities.DerivC

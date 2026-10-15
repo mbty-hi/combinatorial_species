@@ -1,10 +1,14 @@
-import Species.Basic
-import Species.Computable
-import Mathlib.Data.Finite.Sigma
-import Mathlib.Data.Finset.Sort
-import Mathlib.Data.Fintype.Sigma
-import Mathlib.Data.List.Basic
-import Mathlib.Data.Prod.Lex
+module
+
+public import Species.Basic
+public import Species.Computable
+public import Mathlib.Basic.Finite.Sigma
+public import Mathlib.Data.Finset.Sort
+public import Mathlib.Data.Fintype.Sigma
+public import Mathlib.Data.List.Basic
+public import Mathlib.Order.Prod.Lex.Basic
+
+@[expose] public section
 
 namespace Species
 
@@ -163,5 +167,5 @@ theorem mul_transport_mk
 := rfl
 
 end Mul
-
 end Species
+end

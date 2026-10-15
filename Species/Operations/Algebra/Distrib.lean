@@ -1,8 +1,12 @@
-import Species.Basic
-import Species.Operations.Add
-import Species.Operations.Mul
-import Species.Instances.One
-import Species.Instances.Zero
+module
+
+public import Species.Basic
+public import Species.Operations.Add
+public import Species.Operations.Mul
+public import Species.Instances.One
+public import Species.Instances.Zero
+
+@[expose] public section
 
 namespace Species
 
@@ -11,7 +15,7 @@ def leftDistrib {F G H: Type → Type} [Species F] [Species G] [Species H] {U} [
   toFun := by
     unfold Add Mul; simp
     rintro ⟨d,⟨f, (g | h)⟩⟩
-    case inl => constructor; exact ⟨d, f, g⟩
+    case inl => apply Sum.inl; exact ⟨d, f, g⟩
     case inr => apply Sum.inr; exact ⟨d, f, h⟩
   invFun := by
     unfold Add Mul; simp
@@ -25,7 +29,7 @@ def rightDistrib {F G H: Type → Type} [Species F] [Species G] [Species H] {U} 
 : Mul (Add F G) H U ≃ Add (Mul F H) (Mul G H) U where
   toFun := by
     unfold Add Mul; rintro ⟨d, (f | g), h⟩
-    case inl => constructor; exact ⟨d, f, h⟩
+    case inl => apply Sum.inl; exact ⟨d, f, h⟩
     case inr => apply Sum.inr; exact ⟨d, g, h⟩
   invFun := by
     unfold Add Mul; simp; rintro (⟨d, f, h⟩ | ⟨d, g, h⟩)
@@ -35,3 +39,4 @@ def rightDistrib {F G H: Type → Type} [Species F] [Species G] [Species H] {U} 
   right_inv := by unfold Add Mul; simp; rintro (⟨d, f, h⟩ | ⟨d, g, h⟩) <;> simp
 
 end Species
+end

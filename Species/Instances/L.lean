@@ -1,7 +1,11 @@
-import Species.Basic
-import Species.Computable
-import Species.Series.Utils
-import Mathlib.Data.Fintype.Perm
+module
+
+public import Species.Basic
+public import Species.Computable
+public import Species.Series.Utils
+public import Mathlib.Data.Fintype.Perm
+
+@[expose] public section
 
 namespace Species
 
@@ -65,5 +69,5 @@ instance instComputableSpecies : ComputableSpecies L where
   decEq   := inferInstance
 
 end L
-
 end Species
+end

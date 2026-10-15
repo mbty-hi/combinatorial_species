@@ -1,8 +1,10 @@
-import Species.Instances.C
-import Species.Instances.E
-import Species.Instances.L
-import Species.Instances.One
-import Species.Instances.Powerset
-import Species.Instances.S
-import Species.Instances.X
-import Species.Instances.Zero
+module
+
+public import Species.Instances.C
+public import Species.Instances.E
+public import Species.Instances.L
+public import Species.Instances.One
+public import Species.Instances.Powerset
+public import Species.Instances.S
+public import Species.Instances.X
+public import Species.Instances.Zero

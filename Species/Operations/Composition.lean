@@ -1,13 +1,17 @@
-import Species.Basic
-import Species.Computable
-import Species.Labels.LabelType
-import Mathlib.Data.Finite.Sigma
-import Mathlib.Data.Finset.Max
-import Mathlib.Data.Finset.Sort
-import Mathlib.Data.Prod.Lex
-import Mathlib.Data.Setoid.Basic
-import Mathlib.Data.Sigma.Order
-import Mathlib.Order.PiLex
+module
+
+public import Species.Basic
+public import Species.Computable
+public import Species.Labels.LabelType
+public import Mathlib.Basic.Finite.Sigma
+public import Mathlib.Data.Finset.Max
+public import Mathlib.Data.Finset.Sort
+public import Mathlib.Order.Setoid.Basic
+public import Mathlib.Order.Sigma
+public import Mathlib.Order.PiLex
+public import Mathlib.Order.Prod.Lex.Basic
+
+@[expose] public section
 
 namespace Species
 
@@ -333,5 +337,7 @@ instance instReprComposition
     haveI _ : ∀ q : Quotient c.partition.toSetoid, Finite (G {x // ⟦x⟧ = q}) :=
       fun _ => Species.finite
     reprPrec (Species.transport c.quotientEquivBlockLabel c.outer) p
+
 end Repr
 end Species
+end

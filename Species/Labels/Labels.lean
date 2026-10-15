@@ -1,2 +1,4 @@
-import Species.Labels.Canonical
-import Species.Labels.LabelType
+module
+
+public import Species.Labels.Canonical
+public import Species.Labels.LabelType
