@@ -3,7 +3,23 @@ A Lean formalization of combinatorial species following the combinatorial approa
 Labelle and Leroux (shortened to BLL below).
 
 Developed at the University of Iceland (Iceproof project) by Matthieu Baty, under the supervision of
-Anders Claesson, with contributions from Matthías Andri Hrafnkelsson,
+Anders Claesson, with contributions from Matthías Andri Hrafnkelsson.
+
+## Building
+First, install [elan](https://github.com/leanprover/elan). The required Lean version is pinned in
+`lean-toolchain` (currently: `v4.35.0`), and `elan` installs it automatically.
+
+```bash
+git clone https://github.com/mbty-hi/combinatorial_species.git
+cd combinatorial_species
+lake exe cache get   # download prebuilt Mathlib files (much faster than building Mathlib)
+lake build
+```
+
+To run the tests:
+```bash
+lake build SpeciesTest
+```
 
 ## A brief overview of combinatorial species
 A species is a rule (`F` of type `Type → Type`) that associates to each finite set (`U`) a finite
@@ -22,8 +38,8 @@ and `c > b > a` are equivalent up to transport (via the automorphism with fixpoi
 equivalent up to relabelling.
 
 Graphs are another example of species, and they are quite different from linear orders in that for
-most sets `U`, we can produce graphs that are not equivalent up to relabelling. Consider for
-instance the two graphs below:
+sets `U` with at least two elements, we can produce graphs that are not equivalent up to
+relabelling. Consider for instance the two graphs below:
 ```
            │    b
  a ═ b ═ c │ a ═╣
@@ -76,12 +92,12 @@ bearing on the expressivity of the resulting theory, but it makes the proofs nic
 
 ### Computable species (`Computable.lean`)
 A secondary objective of this work is to provide computable functions for generating structures. For
-instance, an user should be able to produce all linear orders on sets of non-empty cycles such that
-all labelled with `{1, 2, 3, 4}` (with each label appearing only once across all cycles).
+instance, a user should be able to enumerate all linear orders of sets of non-empty cycles labelled
+with `{1, 2, 3, 4}` (each label used exactly once).
 
 We introduce computable species as an optional extension to more general species. They add the
-following two fields to the original definition, which both assume a finite and decidable set of
-labels `U`:
+following two fields to the original definition, which both assume a finite and linearly ordered set
+of labels `U` (`LabelType`):
 * `fintype`: like `finite`, but builds an actual `Fintype` (i.e., a finite set containing all
   possible `F`-structures on `U`) instead of being a mere proof of such a set's finiteness
 * `decEq`: the equality on the `F`-structures on `U` is decidable
@@ -93,7 +109,7 @@ Auxiliary functions for enumerating `F`-structures in computable settings.
 A bridge to Joyal's categorical definition of species.
 
 ### Isomorphism (`Isomorphism.lean`)
-A natural bijection between two species.
+Isomorphisms of species (families of bijections compatible with relabelling).
 
 ### Labels (`Labels` folder)
 #### Canonical (`Labels/Canonical.lean`)
@@ -106,7 +122,7 @@ a `sort` function that gives a list of its members, and it requires `LinearOrder
 ### Instances (`Instances` folder)
 All of these are computable:
 * `0`: the empty species (in `Zero.lean`, uninhabited type)
-* `1`: the empty set (in `One.lean`)
+* `1`: the unit species (in `One.lean`)
 * `C`: cycles
 * `E`: sets
 * `L`: linear orders
@@ -117,19 +133,18 @@ All of these are computable:
 ### Operations (`Operations` folder)
 #### Instances
 All of these preserve computability:
-* Add
+* Sum
+* Product
 * Cartesian product
 * Composition
-* Deriv
-* Mul
-* Operations
-* Pointed
-* Restrict
+* Derivative
+* Pointing
+* Restriction
 
 #### Algebra (`Operations/Algebra` folder)
-Properties of operations: we cannot define an actual `Semirig` using our operations, as our lemmas
-are only defined up to isomorphism. We just provide them as an unbound assorted collection of
-lemmas.
+The operations satisfy the semiring laws only up to isomorphism, so we provide them as a collection
+of isomorphisms rather than as a `Semiring` instance. `mulComm` and `mulAssoc` are currently only
+shown up to bijection.
 
 ### Identities (`Identities` folder)
 * `DerivC`: the derivative of cycles is linear orders (our proof is a bit ugly, the natural version
@@ -153,7 +168,7 @@ Results about instances:
 
 #### Operations (`Series/Operations` folder)
 Results about operations:
-* Add: EGS
+* Sum: EGS
 
 ### Tests (from the root: `SpeciesTest/Counting.lean`)
 Building concrete F-structures and some sanity checks.
@@ -173,13 +188,13 @@ Building concrete F-structures and some sanity checks.
 ### More species
 * Ballots (linearly ordered partitions)
 * Derangements (permutations with no fixed points)
-* Endofunctions/Involutions/etc. Maybe `S` should be phrased as bijective enfodunctions.
+* Endofunctions/Involutions/etc. Maybe `S` should be phrased as bijective endofunctions.
 * Graphs: simple graphs, connected simple graphs, directed graphs
 * Trees: trees and rooted trees (well, related to graphs)
 
 ### More identities
-* S \equiv E(C)
-* Ballots as linear orders of non empty sets
+* `S ≅ E ∘ C`
+* Ballots as linear orders of non-empty sets
 
 ### Fun problems/illustrations
 * Montmort's hat-check problem
@@ -193,3 +208,7 @@ Building concrete F-structures and some sanity checks.
 
 ### Computability
 * Printing unlabelled species
+
+## License
+This project is released under the Apache License 2.0 (see `LICENSE`; this is the same license as
+Mathlib).
