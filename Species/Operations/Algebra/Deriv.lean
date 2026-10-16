@@ -12,11 +12,11 @@ namespace Species
 
 variable {U V : Type} [Finite U] [Finite V] {F G : Type → Type}
 
-theorem leibniz_add_eq : Deriv (Add F G) = Add (Deriv F) (Deriv G) := by rfl
+theorem deriv_add_eq : Deriv (Add F G) = Add (Deriv F) (Deriv G) := by rfl
 
 variable [Species F] [Species G]
 
-def leibnizAdd : Iso (Deriv (Add F G)) (Add (Deriv F) (Deriv G)) := Iso.refl _
+def derivAdd : Iso (Deriv (Add F G)) (Add (Deriv F) (Deriv G)) := Iso.refl _
 
 def innerOptionEquiv {d : WithHole U → Bool} {b: Bool} (h : d ⟨none⟩ = b)
 : { u // d u = !b } ≃ { u : U // d (⟨some u⟩) = !b } where
@@ -46,7 +46,7 @@ theorem transport_heq (U_eq_V : U = V) (σ : U ≃ V) (hσ : ∀ a, HEq (σ a) a
   have h : σ = Equiv.refl U := Equiv.ext (fun u => eq_of_heq (hσ u))
   rw [h, id_transport]
 
-def leibnizMulEquiv : Deriv (Mul F G) U ≃ Add (Mul (Deriv F) G) (Mul F (Deriv G)) U where
+def derivMulEquiv : Deriv (Mul F G) U ≃ Add (Mul (Deriv F) G) (Mul F (Deriv G)) U where
   toFun :=
     fun ⟨d, f, g⟩ =>
       match h : d ⟨none⟩ with
@@ -177,11 +177,11 @@ def leibnizMulEquiv : Deriv (Mul F G) U ≃ Add (Mul (Deriv F) G) (Mul F (Deriv 
         ]
     <;> congr
 
-def leibnizMul : Iso (Deriv (Mul F G)) (Add (Mul (Deriv F) G) (Mul F (Deriv G))) where
-  equiv      U   := leibnizMulEquiv
+def derivMul : Iso (Deriv (Mul F G)) (Add (Mul (Deriv F) G) (Mul F (Deriv G))) where
+  equiv      U   := derivMulEquiv
   naturality σ s := by
     obtain ⟨d, f, g⟩ := s
-    simp only [leibnizMulEquiv, Equiv.coe_fn_mk]
+    simp only [derivMulEquiv, Equiv.coe_fn_mk]
     split ; split <;> split <;> rename_i x' d' f' g' heq h₁ h₂
     any_goals (
       exfalso; apply congrArg (fun x => x.fst ⟨none⟩) at heq
