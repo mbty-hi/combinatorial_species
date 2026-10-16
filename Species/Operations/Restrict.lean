@@ -27,11 +27,8 @@ instance instLinearOrder {F} {k : ℕ} {U} [LinearOrder (F U)]
 end Display
 
 instance instSpecies (F : Type → Type) [Species F] (k : ℕ) : Species (Restrict F k) where
-  finite          := by
-    intros U _; unfold Restrict
-    have _ : Finite (F U) := Species.finite
-    infer_instance
-  transport      := fun σ x => ⟨Species.transport σ x.1, by rw [← Nat.card_congr σ]; exact x.2⟩
+  finite         := fun {U} _ => by unfold Restrict; infer_instance
+  transport      := fun σ x   => ⟨Species.transport σ x.1, by rw [← Nat.card_congr σ]; exact x.2⟩
   id_transport   := fun x     => Subtype.ext (Species.id_transport x.1)
   comp_transport := fun σ τ x => Subtype.ext (Species.comp_transport σ τ x.1)
 
@@ -44,10 +41,7 @@ instance instFintype {F} [ComputableSpecies F] (k : ℕ) {U} [LabelType U]
 instance instCompSpecies (F : Type → Type) [ComputableSpecies F] (k : ℕ)
 : ComputableSpecies (Restrict F k) where
   fintype := inferInstance
-  decEq   := by
-    intros U _; unfold Restrict
-    haveI _ := ComputableSpecies.decEq (F := F) (U := U)
-    infer_instance
+  decEq   := by intros U _; unfold Restrict; infer_instance
 
 end Restrict
 end Species

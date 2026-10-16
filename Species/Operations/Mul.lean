@@ -47,14 +47,7 @@ theorem ext
   subst hd; simp only [deciderCast_rfl, id_transport] at hf hg; rw [hf, hg]
 
 instance instSpecies : Species (Mul F G) where
-  finite := by
-    intros U _; unfold Mul
-    /- Surface instances -/
-    have _ : ∀ (d : U → Bool), Finite (F {u // d u = false}) :=
-      fun d => finite (F := F) (U := {u // d u = false})
-    have _ : ∀ (d : U → Bool), Finite (G {u // d u = true}) :=
-      fun d => finite (F := G) (U := {u // d u = true})
-    infer_instance
+  finite    := by intros U _; unfold Mul; infer_instance
   transport := fun σ ⟨split, f_struct, g_struct⟩ => ⟨
     transportSplit σ split,
     transport (blockEquiv σ split false) f_struct,
@@ -77,15 +70,8 @@ instance instSpecies : Species (Mul F G) where
 
 instance instComputable {F G : Type → Type} [ComputableSpecies F] [ComputableSpecies G]
 : ComputableSpecies (Mul F G) where
-  fintype := fun {U} _ => by unfold Mul; infer_instance
-  decEq := by
-    intros U _; unfold Mul
-    /- Surface instances -/
-    haveI _ : ∀ (d : U → Bool), DecidableEq (F {u // d u = false}) :=
-      fun d => ComputableSpecies.decEq (F := F) (U := {u // d u = false})
-    haveI _ : ∀ (d : U → Bool), DecidableEq (G {u // d u = true}) :=
-      fun d => ComputableSpecies.decEq (F := G) (U := {u // d u = true})
-    infer_instance
+  fintype := by intros U _; unfold Mul; infer_instance
+  decEq   := by intros U _; unfold Mul; infer_instance
 
 @[simp] lemma transport_mk
   (σ : U ≃ V) (d : U → Bool) (f : F {u // d u = false}) (g : G {u // d u = true})

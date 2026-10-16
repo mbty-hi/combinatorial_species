@@ -182,8 +182,45 @@ def leibnizMul : Iso (Deriv (Mul F G)) (Add (Mul (Deriv F) G) (Mul F (Deriv G)))
   naturality σ s := by
     obtain ⟨d, f, g⟩ := s
     simp only [leibnizMulEquiv, Equiv.coe_fn_mk]
-    split
-    sorry
+    split ; split <;> split <;> rename_i x' d' f' g' heq h₁ h₂
+    any_goals (
+      exfalso; apply congrArg (fun x => x.fst ⟨none⟩) at heq
+      dsimp only [
+        transport, WithHole.transport, Function.comp_apply, Equiv.symm_mk, Equiv.coe_fn_mk,
+        Option.map_none
+      ] at heq
+      simp_all; done
+    )
+    · simp only [transportEquiv_apply]
+      erw [Add.transport_inr]; congr 1
+      erw [Mul.transport_mk]
+      obtain ⟨rfl, hfg⟩ := Sigma.mk.inj heq
+      obtain ⟨rfl, rfl⟩ := Prod.mk.inj (eq_of_heq hfg)
+      simp only [Function.comp_apply]
+      apply Mul.ext (F := F) (G := Deriv G)
+      · simp only [Function.comp_apply, Mul.deciderCast, transport_transport]; congr 1
+        ext ⟨⟨_ | u⟩, hu⟩
+        · rw [h₂] at hu; contradiction
+        · rfl
+      · simp only [Function.comp_apply, Mul.deciderCast, transport_transport]
+        erw [transport_transport, Deriv.transport_eq, transport_transport]; apply transport_congr
+        rintro ⟨⟨_ | u⟩, hu⟩ <;> rfl
+      · rfl
+    · simp only [transportEquiv_apply]
+      erw [Add.transport_inl]; congr 1
+      erw [Mul.transport_mk]
+      obtain ⟨rfl, hfg⟩ := Sigma.mk.inj heq
+      obtain ⟨rfl, rfl⟩ := Prod.mk.inj (eq_of_heq hfg)
+      simp only [Function.comp_apply]
+      apply Mul.ext (F := Deriv F) (G := G)
+      · simp only [Function.comp_apply, Mul.deciderCast, transport_transport]
+        erw [transport_transport, Deriv.transport_eq, transport_transport]; apply transport_congr
+        rintro ⟨⟨_ | u⟩, hu⟩ <;> rfl
+      · simp only [Function.comp_apply, Mul.deciderCast, transport_transport]; congr 1
+        ext ⟨⟨_ | u⟩, hu⟩
+        · rw [h₂] at hu; contradiction
+        · rfl
+      · rfl
 
 end Species
 end

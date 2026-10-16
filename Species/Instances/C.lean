@@ -75,9 +75,9 @@ instance instSpecies : Species C where
 
 instance instComputableSpecies : ComputableSpecies C where
   fintype := by
-    intros α _
-    haveI _ : Decidable (Nonempty α) := decidable_of_iff (0 < Fintype.card α) Fintype.card_pos_iff
-    exact inferInstanceAs (Fintype {σ : Equiv.Perm α // Nonempty α ∧ ∀ x y, σ.SameCycle x y})
+    intros U _
+    haveI _ : Decidable (Nonempty U) := decidable_of_iff (0 < Fintype.card U) Fintype.card_pos_iff
+    exact inferInstanceAs (Fintype {σ : Equiv.Perm U // Nonempty U ∧ ∀ x y, σ.SameCycle x y})
   decEq := inferInstance
 
 end C

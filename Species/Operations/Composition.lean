@@ -334,10 +334,7 @@ instance instReprComposition
   ]
   [∀ (s : DecSetoid U) (q : Quotient s.toSetoid), Repr (G {x // ⟦x⟧ = q})]
 : Repr (Composition F G U) where
-  reprPrec c p :=
-    haveI _ : ∀ q : Quotient c.partition.toSetoid, Finite (G {x // ⟦x⟧ = q}) :=
-      fun _ => Species.finite
-    reprPrec (Species.transport c.quotientEquivBlockLabel c.outer) p
+  reprPrec c p := reprPrec (Species.transport c.quotientEquivBlockLabel c.outer) p
 
 end Repr
 end Display

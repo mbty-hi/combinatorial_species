@@ -22,10 +22,7 @@ end EGS
 section TGS
 
 lemma tgsCoeff_Zero (n : ℕ) : tgsCoeff Zero n = 0 := by
-  unfold tgsCoeff
-  have _ : IsEmpty (MulAction.orbitRel.Quotient (Equiv.Perm (Fin n)) (Zero (Fin n))) :=
-    inferInstanceAs (IsEmpty (Quotient _))
-  exact Nat.card_of_isEmpty
+  unfold tgsCoeff; exact Nat.card_of_isEmpty
 
 theorem tgs_Zero : tgs Zero = 0 := by
   ext n; simp only [tgs, tgsCoeff_Zero, CharP.cast_eq_zero, PowerSeries.coeff_mk, map_zero]

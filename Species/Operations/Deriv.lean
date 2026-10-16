@@ -77,26 +77,22 @@ def Deriv (F : Type → Type) (U : Type) : Type := F (WithHole U)
 
 namespace Deriv
 
-variable {F : Type → Type} [Species F]
+variable {F : Type → Type} [Species F] {U V : Type} [Finite U] [Finite V]
 
 section Display
 
-instance instRepr {F : Type → Type} {U : Type} [Repr (F (WithHole U))] : Repr (Deriv F U) :=
+instance instRepr [Repr (F (WithHole U))] : Repr (Deriv F U) :=
   inferInstanceAs (Repr (F (WithHole U)))
 
-instance instLinearOrder {F : Type → Type} {U : Type} [LinearOrder (F (WithHole U))]
-: LinearOrder (Deriv F U) :=
+instance instLinearOrder [LinearOrder (F (WithHole U))] : LinearOrder (Deriv F U) :=
   inferInstanceAs (LinearOrder (F (WithHole U)))
 
 end Display
 
 instance instSpecies : Species (Deriv F) where
-  finite := by
-    intros U _; unfold Deriv
-    have _ := Species.finite (F := F) (U := WithHole U)
-    infer_instance
-  transport      := fun {U V} _ _ σ => Species.transport (F := F) (WithHole.transport σ)
-  id_transport   := fun {U} _ f => by
+  finite       := fun {U} _       => by unfold Deriv; infer_instance
+  transport    := fun {U V} _ _ σ => Species.transport (F := F) (WithHole.transport σ)
+  id_transport := fun {U} _ f     => by
     unfold Deriv at *; simp only [WithHole.transport_refl, id_transport]
   comp_transport := fun {U V W} _ _ _ σ τ f => by
     unfold Deriv at *; simp only [WithHole.transport_trans, comp_transport]
@@ -104,10 +100,11 @@ instance instSpecies : Species (Deriv F) where
 instance instComputableSpecies {F : Type → Type} [ComputableSpecies F]
 : ComputableSpecies (Deriv F) where
   fintype := fun {U} [LabelType U] => show Fintype (F (WithHole U)) from inferInstance
-  decEq   := by
-    intros U _ _ _; unfold Deriv at *
-    haveI _ := ComputableSpecies.decEq (F := F) (U := WithHole U)
-    infer_instance
+  decEq   := fun {U} _ _ _         => by unfold Deriv at *; infer_instance
+
+@[simp] lemma transport_eq (σ : U ≃ V) (x : Deriv F U) :
+  transport σ x = transport (WithHole.transport σ) x
+:= rfl
 
 end Deriv
 end Species
