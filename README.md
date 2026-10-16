@@ -159,6 +159,11 @@ Results about operations:
 Building concrete F-structures and some sanity checks.
 
 ## Remaining work
+### Unsorryfication
+* `mulAssoc` (bijection ok, isomorphism TODO)
+* `mulComm` (bijection ok, isomorphism TODO)
+* `DerivC` (bijection ok, isomorphism TODO)
+
 ### More results about series
 * Classical EGS/TGS/CIS for all instances
 * Classical EGS/TGS/CIS for all operations
